@@ -1,0 +1,24 @@
+{
+    "compilerOptions": {
+        "target": "ESNext",
+        "baseUrl": "./src/ts/",
+        "outFile": "./src/output/build.js",
+        "lib": [
+            "es2015",
+            "dom"
+        ],
+        "module": "system",
+        "strict": true,
+        "removeComments": true,
+        "alwaysStrict": true,
+        "allowUnreachableCode": false,
+        "noImplicitAny": true,
+        "noImplicitThis": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true,
+        "forceConsistentCasingInFileNames": true,
+        "importHelpers": true
+    }
+}
