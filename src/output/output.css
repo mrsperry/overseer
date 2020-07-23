@@ -1,3 +1,17 @@
+:root {
+  font-family: "Courier New";
+  font-size: 16px;
+  color: #CCCCCC;
+}
 
+* {
+  padding: 0rem;
+  border: none;
+  margin: 0rem;
+}
+
+body {
+  background-color: #111111;
+}
 
 /*# sourceMappingURL=output.css.map */
