@@ -34,9 +34,30 @@ class State {
         }
     }
 }
+class Messenger {
+    static initialize() {
+        Messenger.messages = State.getValue("messages") || [];
+        for (const message of Messenger.messages) {
+            Messenger.write(message);
+        }
+    }
+    static write(text) {
+        $("<p>")
+            .text(text)
+            .prependTo("#messages");
+        this.applyOpacity();
+    }
+    static applyOpacity() {
+        const children = $("#messages").children();
+        for (let index = 0; index < children.length; index++) {
+            $(children[index]).css("opacity", 1 - (index / 15));
+        }
+    }
+}
 class Main {
     static initialize() {
         State.load();
+        Messenger.initialize();
     }
 }
 (() => Main.initialize())();
