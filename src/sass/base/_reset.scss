@@ -1,11 +1,5 @@
-@use "../utils/variables";
-
 * {
     padding: 0rem;
     border: none;
     margin: 0rem;
-}
-
-body {
-    background-color: variables.$main-bg;
 }

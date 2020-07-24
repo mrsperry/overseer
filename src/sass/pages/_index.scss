@@ -1,0 +1,38 @@
+@use "../utils/variables";
+
+body {
+    display: flex;
+    justify-content: center;
+    background-color: variables.$main-bg;
+    min-width: 100vw;
+    min-height: 100vh;
+
+    section {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        grid-template-rows: 1fr 1fr 1fr;
+        max-width: 1200px;
+        width: 100%;
+        height: 100%;
+
+        #messages {
+            grid-column: 1;
+            grid-row: 1 / 4;
+        }
+
+        #cores {
+            grid-column: 2 / 4;
+            grid-row: 1;
+        }
+
+        #research {
+            grid-column: 4;
+            grid-row: 1;
+        }
+
+        #disks {
+            grid-column: 2 / 4;
+            grid-row: 2 / 4;
+        }
+    }
+}
