@@ -16,21 +16,25 @@ body {
         height: 100%;
 
         #messages {
+            max-width: 300px;
             grid-column: 1;
             grid-row: 1 / 4;
         }
 
         #cores {
+            max-width: 600px;
             grid-column: 2 / 4;
             grid-row: 1;
         }
 
         #research {
+            max-width: 300px;
             grid-column: 4;
             grid-row: 1;
         }
 
         #disks {
+            max-width: 600px;
             grid-column: 2 / 4;
             grid-row: 2 / 4;
         }
