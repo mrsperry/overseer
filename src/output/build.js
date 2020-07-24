@@ -42,8 +42,11 @@ class Messenger {
         }
     }
     static write(text) {
+        Messenger.messages.push(text);
         $("<p>")
             .text(text)
+            .hide()
+            .fadeIn()
             .prependTo("#messages");
         this.applyOpacity();
     }

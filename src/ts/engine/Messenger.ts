@@ -22,6 +22,8 @@ class Messenger {
 
         $("<p>")
             .text(text)
+            .hide()
+            .fadeIn()
             .prependTo("#messages");
 
         this.applyOpacity();
