@@ -3,4 +3,10 @@
 @use "base/fonts";
 @use "base/reset";
 
+@use "components/buttons";
+
+@use "layout/cores";
+
 @use "pages/index";
+
+@use "utils/variables";
