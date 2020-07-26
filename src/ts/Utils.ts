@@ -20,4 +20,27 @@ class Utils {
             return arg1[Utils.random(0, arg1.length)];
         }
     }
+
+    /**
+     * Creates an array of unique items
+     * @param data The array of data to get elements from
+     * @param amount The number of elements in the unique array
+     * @param limit The max number of operations before the unique array is returned (default 1000)
+     */
+    public static createUniqueList(data: any[], amount: number, limit?: number): any[] {
+        const result: any[] = [];
+
+        let counter: number = 0;
+        while (result.length < amount && counter < (limit || 100)) {
+            const item: any = data[Utils.random(0, data.length)];
+
+            if (!result.includes(item)) {
+                result.push(item);
+            }
+
+            counter++;
+        }
+
+        return result;
+    }
 }

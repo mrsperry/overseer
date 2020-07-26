@@ -4,7 +4,7 @@
         "baseUrl": "./src/ts/",
         "outFile": "./src/output/build.js",
         "lib": [
-            "es2015",
+            "es2016",
             "dom"
         ],
         "module": "system",
