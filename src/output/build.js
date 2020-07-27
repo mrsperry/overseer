@@ -74,11 +74,100 @@ class CoreManager {
         return false;
     }
 }
+class Utils {
+    static random(arg1, arg2) {
+        if (typeof (arg1) === "number" && arg2 !== undefined) {
+            return Math.floor(Math.random() * (arg2 - arg1)) + arg1;
+        }
+        else if (Array.isArray(arg1)) {
+            if (arg1.length == 0) {
+                return null;
+            }
+            return arg1[Utils.random(0, arg1.length)];
+        }
+    }
+    static createUniqueList(data, amount, limit) {
+        const result = [];
+        let counter = 0;
+        while (result.length < amount && counter < (limit || 100)) {
+            const item = data[Utils.random(0, data.length)];
+            if (!result.includes(item)) {
+                result.push(item);
+            }
+            counter++;
+        }
+        return result;
+    }
+}
+class DiskManager {
+    static async initialize() {
+        DiskManager.disks = [];
+        const diskNameData = await $.getJSON("src/data/disk-names.json");
+        DiskManager.fileExtensions = diskNameData.extensions;
+        DiskManager.diskNames = [];
+        DiskManager.generateDiskNames(diskNameData, 3);
+        DiskManager.quarantineLevel = 0;
+        DiskManager.displayFiles(DiskManager.addDisk(500, false));
+    }
+    static addDisk(maxStorage, isQuarantine) {
+        const name = isQuarantine ? DiskManager.getQuarantineName() : DiskManager.getDiskName();
+        const disk = new Disk(DiskManager.disks.length, name, maxStorage, isQuarantine);
+        DiskManager.disks.push(disk);
+        return disk;
+    }
+    static addFileToDisk(size) {
+        for (const disk of DiskManager.disks) {
+            if (disk.addFile(size)) {
+                return;
+            }
+        }
+    }
+    static displayFiles(disk) {
+        if (disk.isDisplayed()) {
+            return;
+        }
+        for (const disk of DiskManager.disks) {
+            disk.setDisplayed(false);
+        }
+        const view = $("#disk-view");
+        const display = () => {
+            view.show().children(".file").remove();
+            view.children(".header").hide().fadeIn();
+            disk.displayFiles();
+        };
+        if (view.is("visible")) {
+            view.fadeOut(400, display);
+        }
+        else {
+            display();
+        }
+    }
+    static getFileExtensions() {
+        return DiskManager.fileExtensions;
+    }
+    static generateDiskNames(data, count) {
+        const systems = Utils.createUniqueList(data.systems, count);
+        const users = Utils.createUniqueList(data.users, count);
+        const directories = Utils.createUniqueList(data.directories, count * count);
+        for (let index = 0; index < count; index++) {
+            for (let dirCount = 0; dirCount < count; dirCount++) {
+                DiskManager.diskNames.push("/" + systems[index] + "/" + users[index] + "/" + directories[(index * count) + dirCount]);
+            }
+        }
+    }
+    static getDiskName() {
+        return DiskManager.diskNames.shift() || "Unavailable";
+    }
+    static getQuarantineName() {
+        return "/quarantine/level-" + ++DiskManager.quarantineLevel;
+    }
+}
 class Main {
-    static initialize() {
+    static async initialize() {
         State.load();
         Messenger.initialize();
         CoreManager.initialize();
+        await DiskManager.initialize();
     }
 }
 (() => Main.initialize())();
@@ -169,14 +258,118 @@ class Core {
     removeCancelButton() {
         const element = $(this.parent.children(".cancel-button"))
             .off("click")
-            .fadeOut(400, () => {
-            element.remove();
-        });
+            .fadeOut(400, () => element.remove());
     }
     getID() {
         return this.id;
     }
     isBusy() {
         return this.handle !== null;
+    }
+}
+class Disk {
+    constructor(id, name, maxStorage, isQuarantine) {
+        this.maxStorage = maxStorage;
+        this.isQuarantine = isQuarantine;
+        this.files = [];
+        this.displayed = false;
+        this.parent = $("<div>")
+            .attr("id", "disk-" + id)
+            .addClass("disk")
+            .hide()
+            .fadeIn()
+            .appendTo(isQuarantine ? "#quarantines" : "#drives");
+        $("<span>")
+            .addClass("disk-name clickable")
+            .text(name)
+            .click(() => DiskManager.displayFiles(this))
+            .appendTo(this.parent);
+        $("<span>")
+            .addClass("disk-usage")
+            .appendTo(this.parent);
+        this.updateUsage();
+    }
+    displayFiles() {
+        this.updateFileDisplay();
+        for (let index = 0; index < this.files.length; index++) {
+            this.displayFile(this.files[index], index * 50);
+        }
+        this.setDisplayed(true);
+    }
+    addFile(size) {
+        if (this.maxStorage - this.getUsage() >= size) {
+            const file = {
+                "name": this.generateFileName(),
+                "size": size
+            };
+            this.files.push(file);
+            if (this.displayed) {
+                this.displayFile(file);
+                this.updateFileDisplay();
+            }
+            this.updateUsage();
+            return true;
+        }
+        return false;
+    }
+    isDisplayed() {
+        return this.displayed;
+    }
+    setDisplayed(displayed) {
+        this.displayed = displayed;
+    }
+    isQuarantineStorage() {
+        return this.isQuarantine;
+    }
+    getUsage() {
+        let usage = 0;
+        for (const file of this.files) {
+            usage += file.size;
+        }
+        return usage;
+    }
+    updateUsage() {
+        this.parent.children(".disk-usage")
+            .text(Math.floor((this.getUsage() / this.maxStorage) * 100) + "%");
+    }
+    updateFileDisplay() {
+        const header = $("#disk-view").children(".header");
+        if (this.files.length == 0) {
+            header.text("No files to display")
+                .removeClass("clickable");
+        }
+        else {
+            header.addClass("clickable");
+            if (this.isQuarantine) {
+                header.text("Purge files")
+                    .click();
+            }
+            else {
+                header.text("Scan files")
+                    .click();
+            }
+        }
+    }
+    displayFile(file, delay = 0) {
+        const parent = $("<div>")
+            .addClass("file")
+            .hide()
+            .delay(delay)
+            .fadeIn()
+            .appendTo($("#disk-view"));
+        $("<span>")
+            .text(file.name)
+            .appendTo(parent);
+        $("<span>")
+            .text(file.size + "kb")
+            .appendTo(parent);
+    }
+    generateFileName() {
+        const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".split("");
+        let result = "";
+        for (let index = 0; index < Utils.random(5, 16); index++) {
+            result += Utils.random(chars);
+        }
+        return result + "." + Utils.random(DiskManager.getFileExtensions());
     }
 }

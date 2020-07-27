@@ -5,3 +5,12 @@
     font-size: 16px;
     color: variables.$main-text;
 }
+
+.clickable {
+    cursor: pointer;
+    color: variables.$clickable-text;
+}
+
+.centered {
+    text-align: center;
+}
