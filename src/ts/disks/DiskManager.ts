@@ -53,9 +53,15 @@ class DiskManager {
     /**
      * Tries to add a file to available disks; if no disk has enough space then it will not be added
      * @param size The size of the file in kilobytes
+     * @param quarantine If the file should be added to a quarantine drive
      */
-    public static addFileToDisk(size: number): void {
+    public static addFileToDisk(size: number, quarantine: boolean): void {
         for (const disk of DiskManager.disks) {
+            // Have regular files go to regular disks; quarantine file to quarantine disks
+            if ((quarantine && !disk.isQuarantineStorage()) || (!quarantine && disk.isQuarantineStorage())) {
+                continue;
+            }
+
             if (disk.addFile(size)) {
                 return;
             }

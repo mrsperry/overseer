@@ -116,8 +116,11 @@ class DiskManager {
         DiskManager.disks.push(disk);
         return disk;
     }
-    static addFileToDisk(size) {
+    static addFileToDisk(size, quarantine) {
         for (const disk of DiskManager.disks) {
+            if ((quarantine && !disk.isQuarantineStorage()) || (!quarantine && disk.isQuarantineStorage())) {
+                continue;
+            }
             if (disk.addFile(size)) {
                 return;
             }
