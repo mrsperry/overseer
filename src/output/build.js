@@ -277,6 +277,7 @@ class Disk {
         this.isQuarantine = isQuarantine;
         this.files = [];
         this.displayed = false;
+        this.displayedFiles = 0;
         this.parent = $("<div>")
             .attr("id", "disk-" + id)
             .addClass("disk")
@@ -294,10 +295,13 @@ class Disk {
         this.updateUsage();
     }
     displayFiles() {
-        this.updateFileDisplay();
         for (let index = 0; index < this.files.length; index++) {
-            this.displayFile(this.files[index], index * 50);
+            if (this.displayedFiles === Disk.maxDisplayedFiles) {
+                break;
+            }
+            this.displayFile(this.files[index], index * Disk.displayDelay);
         }
+        this.updateFileDisplay(this.displayedFiles * Disk.displayDelay);
         this.setDisplayed(true);
     }
     addFile(size) {
@@ -308,7 +312,9 @@ class Disk {
             };
             this.files.push(file);
             if (this.isDisplayed()) {
-                this.displayFile(file);
+                if (this.displayedFiles !== Disk.maxDisplayedFiles) {
+                    this.displayFile(file);
+                }
                 this.updateFileDisplay();
             }
             this.updateUsage();
@@ -327,6 +333,7 @@ class Disk {
         }
         else {
             element.removeClass("active");
+            this.displayedFiles = 0;
         }
     }
     isQuarantineStorage() {
@@ -343,8 +350,9 @@ class Disk {
         this.parent.children(".disk-usage")
             .text(Math.floor((this.getUsage() / this.maxStorage) * 100) + "%");
     }
-    updateFileDisplay() {
-        const header = $("#disk-view").children(".header");
+    updateFileDisplay(delay = 0) {
+        const parent = $("#disk-view");
+        const header = parent.children(".header");
         if (this.files.length == 0) {
             header.text("No files to display")
                 .removeClass("clickable");
@@ -360,6 +368,18 @@ class Disk {
                     .click();
             }
         }
+        if (this.files.length > Disk.maxDisplayedFiles) {
+            let extra = parent.children(".extra-files");
+            if (extra.length === 0) {
+                extra = $("<div>")
+                    .addClass("file extra-files")
+                    .hide()
+                    .delay(delay)
+                    .fadeIn()
+                    .appendTo(parent);
+            }
+            extra.text("...and " + (this.files.length - Disk.maxDisplayedFiles) + " more");
+        }
     }
     displayFile(file, delay = 0) {
         const parent = $("<div>")
@@ -374,6 +394,7 @@ class Disk {
         $("<span>")
             .text(file.size + "kb")
             .appendTo(parent);
+        this.displayedFiles++;
     }
     generateFileName() {
         const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".split("");
@@ -386,3 +407,5 @@ class Disk {
 }
 Disk.minFileNameLength = 7;
 Disk.maxFileNameLength = 16;
+Disk.maxDisplayedFiles = 11;
+Disk.displayDelay = 50;

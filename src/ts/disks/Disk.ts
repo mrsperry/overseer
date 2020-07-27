@@ -1,7 +1,12 @@
 class Disk {
-    // Min and max file name lengths
+    /** Min file name length */
     private static minFileNameLength: number = 7;
+    /** Max file name length */
     private static maxFileNameLength: number = 16;
+    /** Max number of files to be displayed */
+    private static maxDisplayedFiles: number = 11;
+    /** Number of milliseconds to delay before fading in when displaying files */
+    private static displayDelay: number = 50;
 
     /** HTML element parent */
     private parent: JQuery<HTMLElement>;
@@ -10,6 +15,8 @@ class Disk {
     private files: any[] = [];
     /** If the files in this disk are being displayed */
     private displayed: boolean = false;
+    /** The number of files currently displayed */
+    private displayedFiles: number = 0;
 
     /**
      * Creates a new disk to store files
@@ -42,14 +49,18 @@ class Disk {
     /**
      * Display the disk's files
      */
-    public displayFiles(): void {
-        // Make sure the correct header is displayed (no files to show, scan files or purge files)
-        this.updateFileDisplay();
-        
+    public displayFiles(): void {    
         // Display all the files with a small delay for a cascade effect
         for (let index: number = 0; index < this.files.length; index++) {
-            this.displayFile(this.files[index], index * 50);
+            if (this.displayedFiles === Disk.maxDisplayedFiles) {
+                break;
+            }
+
+            this.displayFile(this.files[index], index * Disk.displayDelay);
         }
+
+        // Make sure the correct header is displayed (no files to show, scan files or purge files)
+        this.updateFileDisplay(this.displayedFiles * Disk.displayDelay);
 
         // Mark this disk as the one currently displayed
         this.setDisplayed(true);
@@ -72,7 +83,10 @@ class Disk {
 
             // Update the file display
             if (this.isDisplayed()) {
-                this.displayFile(file);
+                if (this.displayedFiles !== Disk.maxDisplayedFiles) {
+                    this.displayFile(file);
+                }
+
                 this.updateFileDisplay();
             }
 
@@ -102,6 +116,9 @@ class Disk {
             element.addClass("active");
         } else {
             element.removeClass("active");
+
+            // Reset the number of displayed files
+            this.displayedFiles = 0;
         }
     }
 
@@ -135,9 +152,13 @@ class Disk {
 
     /**
      * Updates the header of the file display depending on amount of files and disk type
+     * 
+     * Also updates the number of extra files displayed if the maximum has been reached
+     * @param delay Number of milliseconds to delay before extra files animation plays
      */
-    private updateFileDisplay(): void {
-        const header: any = $("#disk-view").children(".header");
+    private updateFileDisplay(delay: number = 0): void {
+        const parent: any = $("#disk-view");
+        const header: any = parent.children(".header");
 
         if (this.files.length == 0) {
             header.text("No files to display")
@@ -152,6 +173,23 @@ class Disk {
                 header.text("Scan files")
                     .click();
             }
+        }
+
+        // Check if an extra files indicator is needed
+        if (this.files.length > Disk.maxDisplayedFiles) {
+            let extra: any = parent.children(".extra-files");
+
+            // Check if the element exists and add it if it doesn't
+            if (extra.length === 0) {
+                extra = $("<div>")
+                    .addClass("file extra-files")
+                    .hide()
+                    .delay(delay)
+                    .fadeIn()
+                    .appendTo(parent);
+            }
+
+            extra.text("...and " + (this.files.length - Disk.maxDisplayedFiles) + " more");
         }
     }
 
@@ -173,6 +211,8 @@ class Disk {
         $("<span>")
             .text(file.size + "kb")
             .appendTo(parent);
+        
+        this.displayedFiles++;
     }
 
     /**
