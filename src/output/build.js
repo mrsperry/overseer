@@ -108,6 +108,7 @@ class DiskManager {
         DiskManager.generateDiskNames(diskNameData, 3);
         DiskManager.quarantineLevel = 0;
         DiskManager.displayFiles(DiskManager.addDisk(500, false));
+        DiskManager.addDisk(500, true);
     }
     static addDisk(maxStorage, isQuarantine) {
         const name = isQuarantine ? DiskManager.getQuarantineName() : DiskManager.getDiskName();
@@ -303,7 +304,7 @@ class Disk {
                 "size": size
             };
             this.files.push(file);
-            if (this.displayed) {
+            if (this.isDisplayed()) {
                 this.displayFile(file);
                 this.updateFileDisplay();
             }
@@ -317,6 +318,13 @@ class Disk {
     }
     setDisplayed(displayed) {
         this.displayed = displayed;
+        const element = this.parent.children(".disk-name");
+        if (displayed) {
+            element.addClass("active");
+        }
+        else {
+            element.removeClass("active");
+        }
     }
     isQuarantineStorage() {
         return this.isQuarantine;
@@ -367,9 +375,11 @@ class Disk {
     generateFileName() {
         const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".split("");
         let result = "";
-        for (let index = 0; index < Utils.random(5, 16); index++) {
+        for (let index = 0; index < Utils.random(Disk.minFileNameLength, Disk.maxFileNameLength); index++) {
             result += Utils.random(chars);
         }
         return result + "." + Utils.random(DiskManager.getFileExtensions());
     }
 }
+Disk.minFileNameLength = 7;
+Disk.maxFileNameLength = 16;

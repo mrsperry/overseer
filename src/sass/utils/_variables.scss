@@ -1,8 +1,9 @@
 $main-text: #CCCCCC;
 $main-bg: #111111;
 
-$clickable-text: hsl(135, 76%, 69%);
+$clickable-text: hsl(130, 60%, 60%);
+$clickable-text-hover: hsl(130, 60%, 80%);
 
 :root {
-    --clickable-text: hsl(135, 76%, 69%);
+    --clickable-text: hsl(130, 60%, 60%);
 }

@@ -9,6 +9,11 @@
 .clickable {
     cursor: pointer;
     color: variables.$clickable-text;
+    transition: color 250ms ease-in-out;
+
+    &.active, &:hover, &:active {
+        color: variables.$clickable-text-hover;
+    }
 }
 
 .centered {

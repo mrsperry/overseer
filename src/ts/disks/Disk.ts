@@ -95,6 +95,14 @@ class Disk {
      */
     public setDisplayed(displayed: boolean): void {
         this.displayed = displayed;
+
+        // Highlight the disk if it is displayed
+        const element: any = this.parent.children(".disk-name");
+        if (displayed) {
+            element.addClass("active");
+        } else {
+            element.removeClass("active");
+        }
     }
 
     /**
