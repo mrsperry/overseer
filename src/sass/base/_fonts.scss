@@ -14,6 +14,10 @@
     &.active, &:hover, &:active {
         color: variables.$clickable-text-hover;
     }
+
+    &.active {
+        cursor: auto;
+    }
 }
 
 .centered {
