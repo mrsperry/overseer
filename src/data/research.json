@@ -1,0 +1,20 @@
+[
+    {
+        "title": "Multithreading",
+        "description": "+Core speeds",
+        "cost": 5,
+        "display": 0
+    },
+    {
+        "title": "Threat Database",
+        "description": "+Threat level",
+        "cost": 10,
+        "display": 5
+    },
+    {
+        "title": "Compression",
+        "description": "+Disk size",
+        "cost": 10,
+        "display": 5
+    }
+]

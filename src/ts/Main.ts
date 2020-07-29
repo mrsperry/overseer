@@ -2,15 +2,17 @@
 /// <reference path="engine/Messenger.ts"/>
 /// <reference path="cores/CoreManager.ts"/>
 /// <reference path="disks/DiskManager.ts"/>
+/// <reference path="Research.ts"/>
 
 class Main {
-    public static async initialize(): Promise<any> {
+    public static initialize(): void {
         State.load();
         Messenger.initialize();
 
         CoreManager.initialize();
-        await DiskManager.initialize();
+        DiskManager.initialize();
+        Research.initialize();
     }
 }
 
-((): Promise<any> => Main.initialize())();
+((): void => Main.initialize())();

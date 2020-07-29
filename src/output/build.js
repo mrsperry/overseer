@@ -166,12 +166,52 @@ class DiskManager {
         return "/quarantine/level-" + ++DiskManager.quarantineLevel;
     }
 }
-class Main {
+class Research {
     static async initialize() {
+        Research.data = await $.getJSON("src/data/research.json");
+        Research.purchased = State.getValue("research.purchased") || [];
+        Research.addReliability(State.getValue("research.reliability") || 0);
+    }
+    static addReliability(amount) {
+        Research.reliability += amount;
+        $("#research").children(".reliability")
+            .text("Reliability: " + Research.reliability);
+        this.displayResearch();
+    }
+    static displayResearch() {
+        for (let index = 0; index < Research.data.length; index++) {
+            const id = $($("#research").children("button").get(index)).attr("id");
+            if (Research.purchased.includes(index) || id !== undefined) {
+                continue;
+            }
+            const item = Research.data[index];
+            if (item.display > Research.reliability) {
+                return;
+            }
+            const parent = $("<button>")
+                .attr("id", "research-" + index)
+                .hide()
+                .delay(Research.displayDelay * index)
+                .fadeIn()
+                .appendTo("#research");
+            $("<span>")
+                .text(item.title)
+                .appendTo(parent);
+            $("<span>")
+                .text(item.description)
+                .appendTo(parent);
+        }
+    }
+}
+Research.displayDelay = 50;
+Research.reliability = 0;
+class Main {
+    static initialize() {
         State.load();
         Messenger.initialize();
         CoreManager.initialize();
-        await DiskManager.initialize();
+        DiskManager.initialize();
+        Research.initialize();
     }
 }
 (() => Main.initialize())();

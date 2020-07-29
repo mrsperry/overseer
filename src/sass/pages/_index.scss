@@ -30,7 +30,7 @@ body {
         #research {
             max-width: 300px;
             grid-column: 4;
-            grid-row: 1;
+            grid-row: 1 / 4;
         }
 
         #disks {
