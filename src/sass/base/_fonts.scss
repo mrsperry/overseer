@@ -7,12 +7,32 @@
 }
 
 .clickable {
+    position: relative;
     cursor: pointer;
     color: variables.$clickable-text;
     transition: color 250ms ease-in-out;
+    overflow: hidden;
+
+    &:before {
+        content: "";
+        position: absolute;
+        transition: left 500ms ease-in-out;
+        background-image: linear-gradient(90deg, 
+                    variables.$clickable-text-hover, 
+                    variables.$clickable-text-hover, 
+                    variables.$clickable-text);
+        bottom: 0rem;
+        left: -200%;
+        width: 200%;
+        height: 1px;
+    }
 
     &.active, &:hover, &:active {
         color: variables.$clickable-text-hover;
+
+        &:before {
+            left: 0%;
+        }
     }
 
     &.active {
