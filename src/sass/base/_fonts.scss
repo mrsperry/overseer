@@ -6,10 +6,13 @@
     color: variables.$main-text;
 }
 
+.clickable, .clickable-no-click {
+    color: variables.$clickable-text;
+}
+
 .clickable {
     position: relative;
     cursor: pointer;
-    color: variables.$clickable-text;
     transition: color 250ms ease-in-out;
     overflow: hidden;
 

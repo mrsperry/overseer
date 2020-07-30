@@ -1,13 +1,32 @@
 @use "../utils/variables";
 
-.core {
-    .core-progress {
-        height: 0.5rem;
-        margin: 0.5rem 0rem;
-    }
+#cores {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
 
-    .cancel-button {
-        color: variables.$clickable-text;
-        margin-left: 0.8rem;
+    .core {
+        position: relative;
+        display: flex;
+        align-items: center;
+        width: 50%;
+        margin-bottom: 1rem;
+
+        .core-info {
+            margin-left: 1rem;
+        }
+
+        .upgrade-button, .cancel-button {
+            color: variables.$clickable-text;
+            transition: color 250ms ease-in-out,
+                        opacity 250ms ease-in-out;
+            margin-right: 0.5rem;
+
+            &:disabled {
+                cursor: auto;
+                opacity: 0.5;
+                color: variables.$main-text;
+            }
+        }
     }
 }

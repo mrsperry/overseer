@@ -12,30 +12,30 @@ body {
         grid-template-columns: 1fr 1fr 1fr 1fr;
         grid-template-rows: 1fr 1fr 1fr;
         column-gap: 2rem;
-        max-width: 1200px;
+        max-width: 1400px;
         width: 100%;
         height: 100%;
 
         #messages {
-            max-width: 300px;
+            max-width: 350px;
             grid-column: 1;
             grid-row: 1 / 4;
         }
 
         #cores {
-            max-width: 600px;
+            max-width: 700px;
             grid-column: 2 / 4;
             grid-row: 1;
         }
 
         #research {
-            max-width: 300px;
+            max-width: 350px;
             grid-column: 4;
             grid-row: 1 / 4;
         }
 
         #disks {
-            max-width: 600px;
+            max-width: 700px;
             grid-column: 2 / 4;
             grid-row: 2 / 4;
         }

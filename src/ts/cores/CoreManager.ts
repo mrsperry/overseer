@@ -11,21 +11,23 @@ class CoreManager {
 
     /**
      * Creates a new core
+     * @param power The power of the core
      */
-    public static addCore(name: string, power: number): void {
-        CoreManager.coreList.push(new Core(CoreManager.coreList.length, name, power));
+    public static addCore(power: number): void {
+        CoreManager.coreList.push(new Core(CoreManager.coreList.length, power));
     }
 
     /**
      * Runs a task on the first available core
+     * @param display The name of this task
      * @param callback The function to run after task completion
      * @param cost The cost of the task
      * @returns If there is an available core for this task
      */
-    public static startCoreTask(callback: any, cost: any): boolean {
+    public static startCoreTask(display: string, callback: any, cost: any): boolean {
         for (const core of CoreManager.coreList) {
             if (!core.isBusy()) {
-                core.setTask(callback, cost);
+                core.setTask(display, callback, cost);
                 return true;
             }
         }

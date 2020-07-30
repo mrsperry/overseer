@@ -1,6 +1,13 @@
 class Core {
+    /** Width and height of the core canvases */
+    private static canvasSize = 50;
+    /** Radius of the core canvas */
+    private static canvasRadius = Core.canvasSize / 2;
+
     /** The core HTML section */
-    private parent: JQuery<HTMLElement>;
+    private info: JQuery<HTMLElement>;
+    /** Canvas context of this core */
+    private context: any;
 
     /** Window handler for this core's interval */
     private handle: any = null;
@@ -15,26 +22,65 @@ class Core {
     /** The amount of power per update to subtract */
     private powerReduction: number = 0;
 
-    public constructor(private id: number, name: string, private power: number) {
+    /**
+     * Creates a new core
+     * @param id The ID of the core
+     * @param power The power of the core
+     */
+    public constructor(private id: number, private power: number) {
         // Append the core HTML
-        this.parent = $("<div>")
+        const parent: any = $("<div>")
             .attr("id", "core-" + id)
             .addClass("core")
             .hide()
             .fadeIn()
             .appendTo("#cores");
+        const canvas: any = $("<canvas>")
+            .attr("width", Core.canvasSize)
+            .attr("height", Core.canvasSize)
+            .appendTo(parent);
+
+        // Append all the information about the core
+        this.info = $("<div>")
+            .addClass("core-info")
+            .appendTo(parent);
+        $("<div>")
+            .addClass("core-task")
+            .appendTo(this.info);
         $("<span>")
-            .text(name)
-            .appendTo(this.parent);
+            .text("Core #" + (id + 1))
+            .appendTo(this.info);
         $("<span>")
             .addClass("core-power")
-            .appendTo(this.parent);
-        $("<div>")
-            .addClass("core-progress")
-            .appendTo(this.parent);
+            .appendTo(this.info);
+        $("<br>")
+            .appendTo(this.info);
+        $("<button>")
+            .addClass("upgrade-button")
+            .text("[+]")
+            .click((): void => this.cancelTask())
+            .appendTo(this.info);
+        $("<button>")
+            .addClass("cancel-button")
+            .text("[x]")
+            .click((): void => this.cancelTask())
+            .appendTo(this.info);
+            
+        // Initial transformations of the canvas
+        this.context = canvas[0].getContext("2d");
+        this.context.translate(Core.canvasRadius, Core.canvasRadius);
+        // Rotate -90 degrees to start at the top when drawing
+        this.context.rotate((-90 * Math.PI) / 180);
+        // Draw the outline of the core
+        this.drawCore();
 
+        // Set the idle display
+        this.setCoreTaskDisplay();
         // Set the power display
         this.updatePower(power);
+        // Disable both core buttons
+        this.updateUpgradeButton(false);
+        this.updateCancelButton(false);
     }
 
     /**
@@ -44,7 +90,7 @@ class Core {
     public updatePower(power: number): void {
         this.power = power;
 
-        this.parent.children(".core-power")
+        this.info.children(".core-power")
             .text(" @ " + power + "Mhz");
     }
 
@@ -85,26 +131,28 @@ class Core {
             this.powerDown = true;
             this.powerReduction = (100 / 400) * 2;
 
-            this.removeCancelButton();
+            // Update core display
+            this.setCoreTaskDisplay();
+            this.updateCancelButton(false);
         }
 
-        // Set the gradient of the progress bar
-        const progress: string = this.progress + "%";
-        const color: string = $("body").css("--clickable-text");
-        this.parent.children(".core-progress")
-            .css("background-image", "linear-gradient(90deg, " + color + " " + progress + ", rgba(0, 0, 0, 0.5) " + progress + ")");
+        // Clear the canvas then draw the core
+        this.clearCoreCanvas();
+        this.drawCore();
     }
 
     /**
      * Sets a new task to run on this core
+     * @param display The display name of the task
      * @param callback A function to run when the task is completed (before power down)
      * @param cost The cost of this task
      */
-    public setTask(callback: any, cost: number): void {
+    public setTask(display: string, callback: any, cost: number): void {
+        this.setCoreTaskDisplay(display);
         this.handle = window.setInterval((): void => this.updateCore(), 1);
         this.cost = cost;
         this.callback = callback;
-        this.addCancelButton();
+        this.updateCancelButton(true);
     }
 
     /**
@@ -114,29 +162,68 @@ class Core {
         this.powerDown = true;
         this.powerReduction = (this.progress / 400) * 2;
 
-        this.removeCancelButton();
+        this.setCoreTaskDisplay();
+        this.updateCancelButton(false);
     }
 
     /**
-     * Adds the cancel task button
+     * Sets the core's task display
+     * 
+     * If no string is provided, the core's display will be set to an idle state
+     * @param display The text to display
      */
-    private addCancelButton(): void {
-        $("<button>")
-            .addClass("cancel-button")
-            .text("[ x ]")
-            .click((): void => this.cancelTask())
-            .hide()
-            .fadeIn()
-            .insertBefore(this.parent.children(".core-progress"));
+    private setCoreTaskDisplay(display: string = ""): void {
+        const child: any = this.info.children(".core-task");
+
+        if (display === "") {
+            child.removeClass("clickable-no-click")
+                .text("Core idle");
+        } else {
+            child.addClass("clickable-no-click")
+                .text(display);
+        }
     }
 
     /**
-     * Removes the cancel task button
+     * @param enabled If the upgrade button should be enabled
      */
-    private removeCancelButton(): void {
-        const element: any = $(this.parent.children(".cancel-button"))
-            .off("click")
-            .fadeOut(400, (): void => element.remove());
+    private updateUpgradeButton(enabled: boolean): void {
+        this.info.children(".upgrade-button")
+            .prop("disabled", !enabled);
+    }
+
+    /**
+     * @param enabled If the cancel button should be enabled
+     */
+    private updateCancelButton(enabled: boolean): void {
+        this.info.children(".cancel-button")
+            .prop("disabled", !enabled);
+    }
+
+    /**
+     * Draws the core
+     */
+    private drawCore(): void {
+        const draw: Function = (color: string, percent: number): void => {
+            this.context.beginPath();
+            // Arc from the top of the canvas to the current progress percent
+            this.context.arc(0, 0, Core.canvasRadius - 1, 0, Math.PI * 2 * percent);
+            // Set the color of the stroke
+            this.context.strokeStyle = color;
+            this.context.stroke();
+        };
+
+        // Draw the outline
+        draw("#333333", 1);
+        // Draw the current progress
+        draw($("body").css("--clickable-text"), this.progress / 100);
+    }
+
+    /**
+     * Clears the core canvas
+     */
+    private clearCoreCanvas(): void {
+        this.context.clearRect(-Core.canvasRadius, -Core.canvasRadius, Core.canvasSize, Core.canvasSize);
     }
 
     /**
