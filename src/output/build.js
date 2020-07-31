@@ -86,6 +86,14 @@ class Utils {
             return arg1[Utils.random(0, arg1.length)];
         }
     }
+    static shuffle(array) {
+        const copy = array.slice(0);
+        for (let index = copy.length - 1; index > 0; index--) {
+            const holder = Math.floor(Math.random() * (index + 1));
+            [copy[index], copy[holder]] = [copy[holder], copy[index]];
+        }
+        return copy;
+    }
     static createUniqueList(data, amount, limit) {
         const result = [];
         let counter = 0;
@@ -496,3 +504,116 @@ Disk.minFileNameLength = 7;
 Disk.maxFileNameLength = 16;
 Disk.maxDisplayedFiles = 11;
 Disk.displayDelay = 50;
+class Hack {
+    constructor(time) {
+        this.time = time;
+        this.handle = window.setInterval(() => this.countdown(), 1000);
+    }
+    addContent() {
+        this.parent = $("<div>")
+            .addClass("hack-container")
+            .hide()
+            .fadeIn()
+            .appendTo("body");
+        $("<div>")
+            .addClass("hack-bg")
+            .appendTo(this.parent);
+        this.content = $("<div>")
+            .addClass("hack-content")
+            .appendTo(this.parent);
+        const header = $("<h1>")
+            .addClass("centered")
+            .text("Time until quarantine breakout: ")
+            .appendTo(this.content);
+        $("<span>")
+            .addClass("hack-countdown clickable-no-click bold")
+            .text(this.time)
+            .appendTo(header);
+    }
+    countdown() {
+        this.content.children("h1")
+            .children(".hack-countdown")
+            .text(--this.time);
+        if (this.time === 0) {
+            this.fail();
+        }
+    }
+    success() {
+        this.removeInterface();
+    }
+    fail() {
+        this.removeInterface();
+    }
+    removeInterface() {
+        window.clearInterval(this.handle);
+        this.parent.fadeOut(400, () => {
+            this.parent.remove();
+        });
+    }
+}
+class OrderedNumbers extends Hack {
+    constructor(level) {
+        const data = OrderedNumbers.levels[level - 1];
+        super(data.time);
+        this.maxNumbers = data["max-numbers"];
+        this.numberPerRow = data["numbers-per-row"];
+        this.order = [];
+        this.addContent();
+    }
+    addContent() {
+        super.addContent();
+        const parent = $("<table>")
+            .addClass("ordered-numbers")
+            .appendTo(this.content);
+        let numbers = [];
+        for (let index = 0; index < this.maxNumbers; index++) {
+            numbers.push(index + 1);
+        }
+        numbers = Utils.shuffle(numbers);
+        for (let rowIndex = 0; rowIndex < this.numberPerRow; rowIndex++) {
+            const row = $("<tr>")
+                .appendTo(parent);
+            for (let index = 0; index < this.numberPerRow; index++) {
+                const display = numbers[(rowIndex * this.numberPerRow) + index];
+                const data = $("<td>")
+                    .attr("data-index", display)
+                    .addClass("clickable")
+                    .text(display)
+                    .click(() => {
+                    data.addClass("active")
+                        .off("click");
+                    this.addNumber(Number.parseInt(data.attr("data-index")));
+                })
+                    .appendTo(row);
+            }
+        }
+    }
+    addNumber(index) {
+        if (index === (this.order.length + 1)) {
+            this.order.push(index);
+            if (this.order.length === this.maxNumbers) {
+                this.success();
+            }
+        }
+        else {
+            this.fail();
+        }
+    }
+}
+OrderedNumbers.levels = [
+    {
+        "time": 20,
+        "max-numbers": 9,
+        "numbers-per-row": 3
+    },
+    {
+        "time": 30,
+        "max-numbers": 16,
+        "numbers-per-row": 4
+    },
+    {
+        "time": 40,
+        "max-numbers": 25,
+        "numbers-per-row": 5
+    },
+];
