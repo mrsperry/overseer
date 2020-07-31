@@ -58,4 +58,20 @@ class Utils {
 
         return result;
     }
+
+    /**
+     * Creates a random alphanumeric string
+     * @param length The length of the string
+     * @returns The random alphanumeric string
+     */
+    public static getAlphanumericString(length: number): string {
+        const chars: string[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".split("");
+
+        let result: string = "";
+        for (let index: number = 0; index < length; index++) {
+            result += Utils.random(chars);
+        }
+
+        return result;
+    }
 }

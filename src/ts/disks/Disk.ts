@@ -220,13 +220,9 @@ class Disk {
      * @returns The alphanumeric file name
      */
     private generateFileName(): string {
-        const chars: string[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".split("");
-    
-        let result: string = "";
-        for (let index: number = 0; index < Utils.random(Disk.minFileNameLength, Disk.maxFileNameLength); index++) {
-            result += Utils.random(chars);
-        }
+        const name: string = Utils.getAlphanumericString(Utils.random(Disk.minFileNameLength, Disk.maxFileNameLength));
+        const extension: string = Utils.random(DiskManager.getFileExtensions());
 
-        return result + "." + Utils.random(DiskManager.getFileExtensions());
+        return name + "." + extension;
     }
 }

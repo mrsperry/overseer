@@ -106,6 +106,14 @@ class Utils {
         }
         return result;
     }
+    static getAlphanumericString(length) {
+        const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".split("");
+        let result = "";
+        for (let index = 0; index < length; index++) {
+            result += Utils.random(chars);
+        }
+        return result;
+    }
 }
 class DiskManager {
     static async initialize() {
@@ -492,12 +500,9 @@ class Disk {
         this.displayedFiles++;
     }
     generateFileName() {
-        const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".split("");
-        let result = "";
-        for (let index = 0; index < Utils.random(Disk.minFileNameLength, Disk.maxFileNameLength); index++) {
-            result += Utils.random(chars);
-        }
-        return result + "." + Utils.random(DiskManager.getFileExtensions());
+        const name = Utils.getAlphanumericString(Utils.random(Disk.minFileNameLength, Disk.maxFileNameLength));
+        const extension = Utils.random(DiskManager.getFileExtensions());
+        return name + "." + extension;
     }
 }
 Disk.minFileNameLength = 7;
