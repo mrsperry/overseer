@@ -22,6 +22,21 @@ class Utils {
     }
 
     /**
+     *  Durstenfeld shuffle; randomly re-orders an array's contents
+     * @param array The array to shuffle
+     */
+    public static shuffle(array: any[]): any[] {
+        const copy: any[] = array.slice(0);
+
+        for (let index: number = copy.length - 1; index > 0; index--) {
+            const holder: number = Math.floor(Math.random() * (index + 1));
+            [copy[index], copy[holder]] = [copy[holder], copy[index]];
+        }
+
+        return copy;
+    }
+
+    /**
      * Creates an array of unique items
      * @param data The array of data to get elements from
      * @param amount The number of elements in the unique array
