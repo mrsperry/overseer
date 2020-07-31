@@ -19,10 +19,9 @@
     &:before {
         content: "";
         position: absolute;
-        transition: left 500ms ease-in-out;
+        transition: left 400ms ease-in-out;
         background-image: linear-gradient(90deg, 
-                    variables.$clickable-text-hover, 
-                    variables.$clickable-text-hover, 
+                    variables.$clickable-text-hover 50%,
                     variables.$clickable-text);
         bottom: 0rem;
         left: -200%;
