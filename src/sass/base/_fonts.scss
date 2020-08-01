@@ -8,12 +8,12 @@
 
 .clickable, .clickable-no-click {
     color: variables.$clickable-text;
+    transition: color 250ms ease-in-out;
 }
 
 .clickable {
     position: relative;
     cursor: pointer;
-    transition: color 250ms ease-in-out;
     overflow: hidden;
 
     &:before {
