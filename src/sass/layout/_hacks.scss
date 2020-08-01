@@ -32,7 +32,7 @@
             margin-bottom: 1rem;
         }
 
-        .ordered-numbers {
+        table {
             border-collapse: collapse;
 
             td {
@@ -47,28 +47,25 @@
                 }
             }
         }
+        
+        .header {
+            margin-bottom: 1rem;
+
+            ul {
+                display: flex;
+                justify-content: center;
+                flex-wrap: wrap;
+
+                li:not(:last-of-type) {
+                    margin-right: 1rem;
+                }
+            }
+        }
 
         .hidden-passwords {
             display: flex;
             flex-direction: column;
             align-items: center;
-
-            .header {
-                margin-bottom: 1rem;
-
-                ul {
-                    display: flex;
-                    justify-content: center;
-                    flex-wrap: wrap;
-                    list-style-type: none;
-                    width: fit-content;
-                    margin: 0rem;
-
-                    li {
-                        margin: 0rem 1rem;
-                    }
-                }
-            }
 
             .text-line {
                 cursor: default;
