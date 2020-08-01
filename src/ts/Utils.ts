@@ -7,7 +7,16 @@ class Utils {
      * @returns A random item in the array or null if no items are present
      */
     public static random(array: any[]): any;
-    public static random(arg1: number | any[], arg2?: number | undefined): number | any {
+    /**
+     * @returns A random boolean
+     */
+    public static random(): boolean;
+    public static random(arg1?: number | any[], arg2?: number | undefined): number | any {
+        // Return a random boolean
+        if (arg1 === undefined) {
+            return Utils.random(0, 2) === 0;
+        }
+
         if (typeof(arg1) === "number" && arg2 !== undefined) {
             // Return random number between min (inclusive) and max (exclusive)
             return Math.floor(Math.random() * (arg2 - arg1)) + arg1;
