@@ -556,6 +556,112 @@ class Hack {
         });
     }
 }
+class HiddenPasswords extends Hack {
+    constructor(level) {
+        const data = HiddenPasswords.data.levels[level - 1];
+        super(data.time);
+        this.passwords = Utils.createUniqueList(HiddenPasswords.data.passwords, data.passwords);
+        this.markedPasswords = 0;
+        this.lines = data.lines;
+        this.lineLength = HiddenPasswords.lineLength;
+        this.addContent();
+    }
+    addContent() {
+        super.addContent();
+        const parent = $("<section>")
+            .addClass("hidden-passwords")
+            .appendTo(this.content);
+        const header = $("<div>")
+            .text("Suspected passwords:")
+            .addClass("header centered")
+            .appendTo(parent);
+        const passwordContainer = $("<ul>")
+            .appendTo(header);
+        let text = Utils.getAlphanumericString(this.lines * this.lineLength);
+        for (let index = 0; index < text.length / this.lineLength; index++) {
+            $("<p>")
+                .addClass("text-line")
+                .html(text.slice(index * this.lineLength, (index * this.lineLength) + this.lineLength))
+                .appendTo(parent);
+        }
+        const takenLines = [];
+        for (let index = 0; index < this.passwords.length; index++) {
+            const password = this.passwords[index];
+            $("<li>")
+                .attr("id", "hidden-password-" + index)
+                .text(password)
+                .appendTo(passwordContainer);
+            let line;
+            do {
+                line = Utils.random(0, this.lines);
+            } while (takenLines.includes(line));
+            takenLines.push(line);
+            const element = $(parent.children(".text-line")[line]);
+            const insertIndex = Utils.random(0, this.lineLength - password.length);
+            const leftoverText = element.text().slice(insertIndex + password.length);
+            element.text(element.text().slice(0, insertIndex));
+            const passwordElement = $("<span>")
+                .attr("password-index", index)
+                .text(password)
+                .click(() => this.markPassword(passwordElement))
+                .appendTo(element);
+            $("<span>")
+                .text(leftoverText)
+                .appendTo(element);
+        }
+    }
+    markPassword(element) {
+        element.addClass("clickable-no-click")
+            .off("click");
+        const index = Number.parseInt(element.attr("password-index"));
+        $("#hidden-password-" + index).addClass("clickable-no-click");
+        if (++this.markedPasswords === this.passwords.length) {
+            this.success();
+        }
+    }
+}
+HiddenPasswords.lineLength = 55;
+HiddenPasswords.data = {
+    "levels": [
+        {
+            "time": 20,
+            "passwords": 2,
+            "lines": 7
+        },
+        {
+            "time": 30,
+            "passwords": 4,
+            "lines": 13
+        },
+        {
+            "time": 40,
+            "passwords": 6,
+            "lines": 20
+        }
+    ],
+    "passwords": [
+        "variable",
+        "admin",
+        "guest",
+        "password",
+        "codified",
+        "quarantine",
+        "anonymous",
+        "linux",
+        "compiler",
+        "program",
+        "testing",
+        "default",
+        "generic",
+        "public",
+        "global",
+        "shared",
+        "home",
+        "root",
+        "control",
+        "system"
+    ]
+};
 class OrderedNumbers extends Hack {
     constructor(level) {
         const data = OrderedNumbers.levels[level - 1];
