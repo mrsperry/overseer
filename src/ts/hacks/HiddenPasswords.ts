@@ -10,12 +10,12 @@ class HiddenPasswords extends Hack {
                 "lines": 7
             },
             {
-                "time": 30,
+                "time": 35,
                 "passwords": 4,
                 "lines": 13
             },
             {
-                "time": 40,
+                "time": 50,
                 "passwords": 6,
                 "lines": 20
             }
