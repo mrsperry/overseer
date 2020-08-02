@@ -648,7 +648,7 @@ HiddenPasswords.lineLength = 55;
 HiddenPasswords.data = {
     "levels": [
         {
-            "time": 5,
+            "time": 20,
             "passwords": 2,
             "lines": 7
         },

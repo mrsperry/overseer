@@ -80,7 +80,7 @@ abstract class Hack {
         // Don't accept any mouse input
         this.locked = true;
 
-        this.parent.delay(1000)
+        this.parent.delay(1500)
             .fadeOut(400, (): void => {
                 this.parent.remove();
             });
