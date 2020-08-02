@@ -79,68 +79,77 @@ class NumberMultiples extends Hack {
         const table: any = $("<table>")
             .appendTo(parent);
 
-        for (let index: number = 0; index < this.numberOfMultipliers; index++) {
-            // Get random multipliers
-            let multiplier;
-            do {
-                multiplier = Utils.random(NumberMultiples.minMultiplier, NumberMultiples.maxMultiplier + 1);
-            } while (this.multipliers.includes(multiplier));
-            this.multipliers.push(multiplier);
-
-            // Add at one multiple per multiplier
-            let multiple;
-            do {
-                multiple = this.getMultiple(multiplier);
-            } while (this.numbers.includes(multiple));
-            this.multiples.push(multiple);
-            this.numbers.push(multiple);
-
-            // Add this multiplier to the header
-            $("<li>")
-                .text(multiplier)
-                .appendTo(multiplierContainer);
-        }
-
-        for (let index: number = 0; index < (this.gridSize * this.gridSize) - 2; index++) {
-            // Fill the board with numbers
-            let number: number;
-            do {
-                number = Utils.random(2, this.highestNumber + 1);
-            } while (this.numbers.includes(number));
-            this.numbers.push(number);
-
-            // Check if the current number is a multiple of a multiplier
-            for (const multiplier of this.multipliers) {
-                if (number >= multiplier && number % multiplier === 0) {
-                    this.multiples.push(number);
-                    break;
-                }
-            }
-        }
-
-        // Shuffle the list of numbers
-        this.numbers = Utils.shuffle(this.numbers);
-
         // Create the game board
         for (let x: number = 0; x < this.gridSize; x++) {
             const row: any = $("<tr>")
                 .appendTo(table);
 
             for (let y: number = 0; y < this.gridSize; y++) {
-                // Get the number for this cell
-                let number: number = this.numbers[(x * this.gridSize) + y];
+                // Get a random unique number to add to the board
+                let number: number;
+                do {
+                    number = Utils.random(2, this.highestNumber + 1);
+                } while (this.numbers.includes(number));
+                this.numbers.push(number);
 
+                // Create the number's cell
                 const cell: any = $("<td>")
                     .addClass("clickable")
                     .text(number)
                     .click((): void => {
-                        // Mark this cell as active
-                        cell.addClass("active")
-                            .off("click");
+                        if (this.locked) {
+                            return;
+                        }
 
-                        this.checkMultiple(number);
+                        // Mark this cell as active
+                        cell.addClass(this.checkMultiple(number) ? "active" : "active-error")
+                            .off("click");
                     })
                     .appendTo(row);
+            }
+        }
+
+        // Get a list of possible multipliers
+        const multipliers: number[] = [];
+        for (let multiplier: number = NumberMultiples.minMultiplier; multiplier < NumberMultiples.maxMultiplier + 1; multiplier++) {
+            multipliers.push(multiplier);
+        }
+
+        const selected: any[] = [];
+        while (this.multipliers.length !== this.numberOfMultipliers) {
+            // Get a random cell
+            let x, y: number;
+            do {
+                x = Utils.random(0, this.gridSize);
+                y = Utils.random(0, this.gridSize);
+            } while (selected.includes([x, y]));
+            // Record each selected cell
+            selected.push([x, y]);
+
+            // Try to find a random multiplier from the list
+            for (let multiplierIndex: number = 0; multiplierIndex < multipliers.length; multiplierIndex++) {
+                const multiplier: number = multipliers[Utils.random(0, multipliers.length)];
+
+                // Check if the multiplier is unique and the number is evenly divisible by the multiplier
+                if (!this.multipliers.includes(multiplier) && this.numbers[(x * this.gridSize) + y] % multiplier === 0) {
+                    this.multipliers.push(multiplier);
+
+                    // Add this multiplier to the header
+                    $("<li>")
+                        .text(multiplier)
+                        .appendTo(multiplierContainer);
+                    break;
+                }
+            }
+        }
+
+        // Go through each number and record the multiples of the multipliers
+        for (const number of this.numbers) {
+            for (const multiplier of this.multipliers) {
+                if (number % multiplier === 0) {
+                    this.multiples.push(number);
+                    break;
+                }
             }
         }
     }
@@ -148,8 +157,9 @@ class NumberMultiples extends Hack {
     /**
      * Checks if a number is a multiple of a multiplier
      * @param number The number to check
+     * @returns If the number was a multiple
      */
-    public checkMultiple(number: number): void {
+    public checkMultiple(number: number): boolean {
         // Check if the number is a multiple
         let isMultiple: boolean = false;
         for (const multiplier of this.multipliers) {
@@ -161,6 +171,8 @@ class NumberMultiples extends Hack {
 
         if (!isMultiple) {
             this.fail();
+
+            return false;
         } else {
             // Remove this multiple from the list of multiples
             this.multiples.splice(this.multiples.indexOf(number), 1);
@@ -168,20 +180,8 @@ class NumberMultiples extends Hack {
             if (this.multiples.length === 0) {
                 this.success();
             }
+
+            return true;
         }
-    }
-
-    /**
-     * Gets a random multiple of a multiplier
-     * @param multiplier The multiplier to use
-     */
-    private getMultiple(multiplier: number): number {
-        let multiple: number;
-        do {
-            // Find a multiple of the multiplier below the highest number allowed
-            multiple = multiplier * Utils.random(2, Math.floor(this.highestNumber / multiplier));
-        } while (this.multiples.includes(multiple));
-
-        return multiple;
     }
 }

@@ -727,17 +727,14 @@ class NumberMultiples extends Hack {
         }
         const selected = [];
         while (this.multipliers.length !== this.numberOfMultipliers) {
-            console.log("lengths: " + this.multipliers.length + " : " + this.numberOfMultipliers);
             let x, y;
             do {
                 x = Utils.random(0, this.gridSize);
                 y = Utils.random(0, this.gridSize);
             } while (selected.includes([x, y]));
             selected.push([x, y]);
-            console.log("selected: " + x + "," + y);
             for (let multiplierIndex = 0; multiplierIndex < multipliers.length; multiplierIndex++) {
                 const multiplier = multipliers[Utils.random(0, multipliers.length)];
-                console.log("multiplier: " + multiplier);
                 if (!this.multipliers.includes(multiplier) && this.numbers[(x * this.gridSize) + y] % multiplier === 0) {
                     this.multipliers.push(multiplier);
                     $("<li>")
@@ -755,8 +752,6 @@ class NumberMultiples extends Hack {
                 }
             }
         }
-        console.log(this.multiples);
-        console.log(this.multipliers);
     }
     checkMultiple(number) {
         let isMultiple = false;
