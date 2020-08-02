@@ -516,6 +516,7 @@ class Hack {
     constructor(time) {
         this.time = time;
         this.handle = window.setInterval(() => this.countdown(), 1000);
+        this.locked = false;
     }
     addContent() {
         this.parent = $("<div>")
@@ -547,16 +548,19 @@ class Hack {
         }
     }
     success() {
-        this.removeInterface();
+        this.removeInterface(true);
     }
     fail() {
-        this.removeInterface();
+        this.removeInterface(false);
     }
-    removeInterface() {
+    removeInterface(success) {
         window.clearInterval(this.handle);
-        this.parent.fadeOut(400, () => {
+        this.locked = true;
+        this.parent.delay(1000)
+            .fadeOut(400, () => {
             this.parent.remove();
         });
+        this.content.addClass(success ? "success" : "fail");
     }
 }
 class HiddenPasswords extends Hack {
@@ -606,7 +610,12 @@ class HiddenPasswords extends Hack {
             const passwordElement = $("<span>")
                 .attr("password-index", index)
                 .text(password)
-                .click(() => this.markPassword(passwordElement))
+                .click(() => {
+                if (this.locked) {
+                    return;
+                }
+                this.markPassword(passwordElement);
+            })
                 .appendTo(element);
             $("<span>")
                 .text(leftoverText)
@@ -690,57 +699,64 @@ class NumberMultiples extends Hack {
             .appendTo(header);
         const table = $("<table>")
             .appendTo(parent);
-        for (let index = 0; index < this.numberOfMultipliers; index++) {
-            let multiplier;
-            do {
-                multiplier = Utils.random(NumberMultiples.minMultiplier, NumberMultiples.maxMultiplier + 1);
-            } while (this.multipliers.includes(multiplier));
-            this.multipliers.push(multiplier);
-            let multiple;
-            do {
-                multiple = this.getMultiple(multiplier);
-            } while (this.numbers.includes(multiple));
-            this.multiples.push(multiple);
-            this.numbers.push(multiple);
-            $("<li>")
-                .text(multiplier)
-                .appendTo(multiplierContainer);
+        for (let x = 0; x < this.gridSize; x++) {
+            const row = $("<tr>")
+                .appendTo(table);
+            for (let y = 0; y < this.gridSize; y++) {
+                let number;
+                do {
+                    number = Utils.random(2, this.highestNumber + 1);
+                } while (this.numbers.includes(number));
+                this.numbers.push(number);
+                const cell = $("<td>")
+                    .addClass("clickable")
+                    .text(number)
+                    .click(() => {
+                    if (this.locked) {
+                        return;
+                    }
+                    cell.addClass(this.checkMultiple(number) ? "active" : "active-error")
+                        .off("click");
+                })
+                    .appendTo(row);
+            }
         }
-        for (let index = 0; index < (this.gridSize * this.gridSize) - 2; index++) {
-            let number;
+        const multipliers = [];
+        for (let multiplier = NumberMultiples.minMultiplier; multiplier < NumberMultiples.maxMultiplier + 1; multiplier++) {
+            multipliers.push(multiplier);
+        }
+        const selected = [];
+        while (this.multipliers.length !== this.numberOfMultipliers) {
+            console.log("lengths: " + this.multipliers.length + " : " + this.numberOfMultipliers);
+            let x, y;
             do {
-                number = Utils.random(2, this.highestNumber + 1);
-            } while (this.numbers.includes(number));
-            this.numbers.push(number);
+                x = Utils.random(0, this.gridSize);
+                y = Utils.random(0, this.gridSize);
+            } while (selected.includes([x, y]));
+            selected.push([x, y]);
+            console.log("selected: " + x + "," + y);
+            for (let multiplierIndex = 0; multiplierIndex < multipliers.length; multiplierIndex++) {
+                const multiplier = multipliers[Utils.random(0, multipliers.length)];
+                console.log("multiplier: " + multiplier);
+                if (!this.multipliers.includes(multiplier) && this.numbers[(x * this.gridSize) + y] % multiplier === 0) {
+                    this.multipliers.push(multiplier);
+                    $("<li>")
+                        .text(multiplier)
+                        .appendTo(multiplierContainer);
+                    break;
+                }
+            }
+        }
+        for (const number of this.numbers) {
             for (const multiplier of this.multipliers) {
-                if (number >= multiplier && number % multiplier === 0) {
+                if (number % multiplier === 0) {
                     this.multiples.push(number);
                     break;
                 }
             }
         }
-        this.numbers = Utils.shuffle(this.numbers);
-        for (let x = 0; x < this.gridSize; x++) {
-            const row = $("<tr>")
-                .appendTo(table);
-            for (let y = 0; y < this.gridSize; y++) {
-                let number = this.numbers[(x * this.gridSize) + y];
-                const cell = $("<td>")
-                    .addClass("clickable")
-                    .text(number)
-                    .click(() => {
-                    cell.addClass("active")
-                        .off("click");
-                    this.checkMultiple(number);
-                })
-                    .appendTo(row);
-            }
-        }
-    }
-    fail() {
-        super.fail();
-        console.log("remaining multiples:");
         console.log(this.multiples);
+        console.log(this.multipliers);
     }
     checkMultiple(number) {
         let isMultiple = false;
@@ -752,20 +768,15 @@ class NumberMultiples extends Hack {
         }
         if (!isMultiple) {
             this.fail();
+            return false;
         }
         else {
             this.multiples.splice(this.multiples.indexOf(number), 1);
             if (this.multiples.length === 0) {
                 this.success();
             }
+            return true;
         }
-    }
-    getMultiple(multiplier) {
-        let multiple;
-        do {
-            multiple = multiplier * Utils.random(2, Math.floor(this.highestNumber / multiplier));
-        } while (this.multiples.includes(multiple));
-        return multiple;
     }
 }
 NumberMultiples.minMultiplier = 2;
@@ -819,9 +830,12 @@ class OrderedNumbers extends Hack {
                     .addClass("clickable")
                     .text(display)
                     .click(() => {
-                    data.addClass("active")
+                    if (this.locked) {
+                        return;
+                    }
+                    const result = this.addNumber(Number.parseInt(data.attr("data-index")));
+                    data.addClass(result ? "active" : "active-error")
                         .off("click");
-                    this.addNumber(Number.parseInt(data.attr("data-index")));
                 })
                     .appendTo(row);
             }
@@ -833,9 +847,11 @@ class OrderedNumbers extends Hack {
             if (this.order.length === this.maxNumbers) {
                 this.success();
             }
+            return true;
         }
         else {
             this.fail();
+            return false;
         }
     }
 }

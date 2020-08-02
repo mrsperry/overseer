@@ -6,6 +6,8 @@ abstract class Hack {
 
     /** Content section of the hack interface */
     protected content: any;
+    /** If the hack will process mouse events */
+    protected locked: boolean;
 
     /**
      * Starts the hack countdown timer
@@ -13,6 +15,7 @@ abstract class Hack {
      */
     protected constructor(private time: number) {
         this.handle = window.setInterval((): void => this.countdown(), 1000);
+        this.locked = false;
     }
 
     /**
@@ -58,24 +61,31 @@ abstract class Hack {
      * Removes the hack interface when completing a hack
      */
     protected success(): void {
-        this.removeInterface();
+        this.removeInterface(true);
     }
 
     /**
      * Removes the hack interface when failing a hack
      */
     protected fail(): void {
-        this.removeInterface();
+        this.removeInterface(false);
     }
 
     /**
      * Removes the hack interface and turns off the countdown timer
      */
-    private removeInterface(): void {
+    private removeInterface(success: boolean): void {
         window.clearInterval(this.handle);
 
-        this.parent.fadeOut(400, (): void => {
-            this.parent.remove();
-        });
+        // Don't accept any mouse input
+        this.locked = true;
+
+        this.parent.delay(1000)
+            .fadeOut(400, (): void => {
+                this.parent.remove();
+            });
+
+        // Color the border of the hack depending on the success state
+        this.content.addClass(success ? "success" : "fail");
     }
 }

@@ -29,7 +29,7 @@
         height: 1px;
     }
 
-    &.active, &:hover, &:active {
+    &.active, &.active-error, &:hover, &:active {
         color: variables.$clickable-text-hover;
 
         &:before {
@@ -37,7 +37,17 @@
         }
     }
 
-    &.active {
+    &.active-error {
+        color: variables.$clickable-text-error;
+
+        &:before {
+            background-image: linear-gradient(90deg,
+                    variables.$clickable-text-error,
+                    variables.$clickable-text-error);
+        }
+    }
+
+    &.active, &.active-error {
         cursor: auto;
     }
 }

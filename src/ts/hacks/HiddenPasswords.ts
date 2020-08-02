@@ -131,7 +131,13 @@ class HiddenPasswords extends Hack {
             const passwordElement: any = $("<span>")
                 .attr("password-index", index)
                 .text(password)
-                .click((): void => this.markPassword(passwordElement))
+                .click((): void => {
+                    if (this.locked) {
+                        return;
+                    }
+
+                    this.markPassword(passwordElement);
+                })
                 .appendTo(element);
             // Add the leftover text from the right side of the password
             $("<span>")

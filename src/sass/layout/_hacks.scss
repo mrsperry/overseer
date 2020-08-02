@@ -23,9 +23,18 @@
         justify-content: center;
         align-items: center;
         background-color: variables.$main-bg;
+        transition: border-color 250ms ease-in-out;
         border: 1px solid variables.$main-border;
         z-index: 1;
         padding: 2rem;
+
+        &.success {
+            border-color: variables.$clickable-text;
+        }
+
+        &.fail {
+            border-color: variables.$clickable-text-error;
+        }
 
         h1 {
             width: 100%;
@@ -42,7 +51,7 @@
                 padding: 2rem;
                 border: 1px solid variables.$main-border;
 
-                &:hover, &:active, &.active {
+                &:hover, &:active, &.active, &.active-error {
                     background-color: variables.$main-bg-hover;
                 }
             }

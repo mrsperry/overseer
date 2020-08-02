@@ -76,12 +76,16 @@ class OrderedNumbers extends Hack {
                     .addClass("clickable")
                     .text(display)
                     .click((): void => {
-                        // Mark this number as clicked and remove its event handler
-                        data.addClass("active")
-                            .off("click");
+                        if (this.locked) {
+                            return;
+                        }
 
                         // Record this number as clicked
-                        this.addNumber(Number.parseInt(data.attr("data-index")));
+                        const result: boolean = this.addNumber(Number.parseInt(data.attr("data-index")));
+
+                        // Mark this number as clicked and remove its event handler
+                        data.addClass(result ? "active" : "active-error")
+                            .off("click");
                     })
                     .appendTo(row);
             }
@@ -95,16 +99,21 @@ class OrderedNumbers extends Hack {
      * 
      * If all numbers have been pressed in order, the success state will be activated
      * @param index The number to add
+     * @returns If the number was in the correct order
      */
-    private addNumber(index: number): void {
+    private addNumber(index: number): boolean {
         if (index === (this.order.length + 1)) {
             this.order.push(index);
 
             if (this.order.length === this.maxNumbers) {
                 this.success();
             }
+
+            return true;
         } else {
             this.fail();
+
+            return false;
         }
     }
 }
