@@ -52,6 +52,8 @@ class HiddenPasswords extends Hack {
     private lines: number;
     /** The number of characters per line */
     private lineLength: number;
+    /** List of all password elements */
+    private passwordContainer: any[];
 
     /**
      * Creates a new HiddenPasswords hack
@@ -67,6 +69,7 @@ class HiddenPasswords extends Hack {
         this.markedPasswords = 0;
         this.lines = data.lines;
         this.lineLength = HiddenPasswords.lineLength;
+        this.passwordContainer = [];
 
         this.addContent();
     }
@@ -139,6 +142,8 @@ class HiddenPasswords extends Hack {
                     this.markPassword(passwordElement);
                 })
                 .appendTo(element);
+            this.passwordContainer.push(passwordElement);
+            
             // Add the leftover text from the right side of the password
             $("<span>")
                 .text(leftoverText)
@@ -162,6 +167,25 @@ class HiddenPasswords extends Hack {
         // Check if the hack has been completed
         if (++this.markedPasswords === this.passwords.length) {
             this.success();
+        }
+    }
+
+    /**
+     * Called when the player fails to complete the hack in time
+     */
+    public fail(): void {
+        super.fail();
+
+        for (const password of this.passwordContainer) {
+            // Check if this password has already been found
+            if (!password.hasClass("clickable-no-click")) {
+                // Mark the password as not found
+                password.addClass("clickable-no-click active-error");
+
+                // Mark the element on the header as not found
+                const index: number = Number.parseInt(<string>password.attr("password-index"));
+                $("#hidden-password-" + index).addClass("clickable-no-click active-error");
+            }
         }
     }
 }

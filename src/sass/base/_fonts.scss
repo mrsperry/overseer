@@ -52,6 +52,12 @@
     }
 }
 
+.clickable-no-click {
+    &.active-error {
+        color: variables.$clickable-text-error;
+    }
+}
+
 .centered {
     text-align: center;
 }

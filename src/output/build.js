@@ -556,7 +556,7 @@ class Hack {
     removeInterface(success) {
         window.clearInterval(this.handle);
         this.locked = true;
-        this.parent.delay(1000)
+        this.parent.delay(1500)
             .fadeOut(400, () => {
             this.parent.remove();
         });
@@ -571,6 +571,7 @@ class HiddenPasswords extends Hack {
         this.markedPasswords = 0;
         this.lines = data.lines;
         this.lineLength = HiddenPasswords.lineLength;
+        this.passwordContainer = [];
         this.addContent();
     }
     addContent() {
@@ -617,6 +618,7 @@ class HiddenPasswords extends Hack {
                 this.markPassword(passwordElement);
             })
                 .appendTo(element);
+            this.passwordContainer.push(passwordElement);
             $("<span>")
                 .text(leftoverText)
                 .appendTo(element);
@@ -631,12 +633,22 @@ class HiddenPasswords extends Hack {
             this.success();
         }
     }
+    fail() {
+        super.fail();
+        for (const password of this.passwordContainer) {
+            if (!password.hasClass("clickable-no-click")) {
+                password.addClass("clickable-no-click active-error");
+                const index = Number.parseInt(password.attr("password-index"));
+                $("#hidden-password-" + index).addClass("clickable-no-click active-error");
+            }
+        }
+    }
 }
 HiddenPasswords.lineLength = 55;
 HiddenPasswords.data = {
     "levels": [
         {
-            "time": 20,
+            "time": 5,
             "passwords": 2,
             "lines": 7
         },
