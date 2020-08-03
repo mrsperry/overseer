@@ -118,7 +118,7 @@ class Core {
         $("<button>")
             .addClass("upgrade-button")
             .text("[+]")
-            .click(() => this.cancelTask())
+            .click(() => this.overclock())
             .appendTo(this.info);
         $("<button>")
             .addClass("cancel-button")
@@ -127,8 +127,7 @@ class Core {
             .appendTo(this.info);
         this.setCoreTaskDisplay();
         this.updatePower(power);
-        this.updateOverclockButton(this.canOverclock);
-        this.updateCancelButton(false);
+        this.updateButtons();
     }
     updatePower(power) {
         this.power = power;
@@ -161,22 +160,28 @@ class Core {
             this.powerDown = true;
             this.powerReduction = (100 / 400) * 2;
             this.setCoreTaskDisplay();
-            this.updateCancelButton(false);
         }
         this.canvas.drawCore(this.progress);
+        this.updateButtons();
+    }
+    overclock() {
+        this.setTask("Overclocking core", () => {
+            this.updatePower(this.power * 2);
+            this.canOverclock = false;
+        }, this.power * 5000);
     }
     setTask(display, callback, cost) {
         this.setCoreTaskDisplay(display);
         this.handle = window.setInterval(() => this.updateCore(), 1);
         this.cost = cost;
         this.callback = callback;
-        this.updateCancelButton(true);
+        this.updateButtons();
     }
     cancelTask() {
         this.powerDown = true;
         this.powerReduction = (this.progress / 400) * 2;
         this.setCoreTaskDisplay();
-        this.updateCancelButton(false);
+        this.updateButtons();
     }
     setCoreTaskDisplay(display = "") {
         const child = this.info.children(".core-task");
@@ -189,13 +194,11 @@ class Core {
                 .text(display);
         }
     }
-    updateOverclockButton(enabled) {
-        this.info.children(".upgrade-button")
-            .prop("disabled", !enabled);
-    }
-    updateCancelButton(enabled) {
+    updateButtons() {
         this.info.children(".cancel-button")
-            .prop("disabled", !enabled);
+            .prop("disabled", this.powerDown || !this.isBusy());
+        this.info.children(".upgrade-button")
+            .prop("disabled", !this.canOverclock || this.isBusy());
     }
     getID() {
         return this.id;
@@ -205,9 +208,7 @@ class Core {
     }
     setCanOverclock(canOverclock) {
         this.canOverclock = canOverclock;
-        if (canOverclock && !this.isBusy()) {
-            this.updateOverclockButton(canOverclock);
-        }
+        this.updateButtons();
     }
 }
 class CoreManager {
