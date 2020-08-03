@@ -17,10 +17,14 @@ class Core {
     private cost: number = 0;
     /** Callback to run after task completion */
     private callback: any = null;
+
     /** If the core is powering down */
     private powerDown: boolean = false;
     /** The amount of power per update to subtract */
     private powerReduction: number = 0;
+
+    /** If this core can overclock */
+    private canOverclock: boolean = false;
 
     /**
      * Creates a new core
@@ -79,7 +83,7 @@ class Core {
         // Set the power display
         this.updatePower(power);
         // Disable both core buttons
-        this.updateUpgradeButton(false);
+        this.updateOverclockButton(this.canOverclock);
         this.updateCancelButton(false);
     }
 
@@ -187,7 +191,7 @@ class Core {
     /**
      * @param enabled If the upgrade button should be enabled
      */
-    private updateUpgradeButton(enabled: boolean): void {
+    private updateOverclockButton(enabled: boolean): void {
         this.info.children(".upgrade-button")
             .prop("disabled", !enabled);
     }
@@ -239,5 +243,13 @@ class Core {
      */
     public isBusy(): boolean {
         return this.handle !== null;
+    }
+
+    public setCanOverclock(canOverclock: boolean): void {
+        this.canOverclock = canOverclock;
+
+        if (canOverclock && !this.isBusy()) {
+            this.updateOverclockButton(canOverclock);
+        }
     }
 }
