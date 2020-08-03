@@ -183,6 +183,7 @@ class Core {
             this.context.beginPath();
             this.context.arc(0, 0, Core.canvasRadius - 1, 0, Math.PI * 2 * percent);
             this.context.strokeStyle = color;
+            this.context.lineWidth = 2;
             this.context.stroke();
         };
         draw("#333333", 1);
