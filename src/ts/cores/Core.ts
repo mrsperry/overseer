@@ -1,13 +1,10 @@
-class Core {
-    /** Width and height of the core canvases */
-    private static canvasSize = 50;
-    /** Radius of the core canvas */
-    private static canvasRadius = Core.canvasSize / 2;
+/// <reference path="CoreCanvas.ts"/>
 
+class Core {
     /** The core HTML section */
     private info: JQuery<HTMLElement>;
-    /** Canvas context of this core */
-    private context: any;
+    /** The canvas used by this core */
+    private canvas: CoreCanvas;
 
     /** Window handler for this core's interval */
     private handle: any = null;
@@ -39,10 +36,10 @@ class Core {
             .hide()
             .fadeIn()
             .appendTo("#cores");
-        const canvas: any = $("<canvas>")
-            .attr("width", Core.canvasSize)
-            .attr("height", Core.canvasSize)
-            .appendTo(parent);
+
+        // Draw an idle core
+        this.canvas = new CoreCanvas(parent);
+        this.canvas.drawCore(0);
 
         // Append all the information about the core
         this.info = $("<div>")
@@ -69,14 +66,6 @@ class Core {
             .text("[x]")
             .click((): void => this.cancelTask())
             .appendTo(this.info);
-            
-        // Initial transformations of the canvas
-        this.context = canvas[0].getContext("2d");
-        this.context.translate(Core.canvasRadius, Core.canvasRadius);
-        // Rotate -90 degrees to start at the top when drawing
-        this.context.rotate((-90 * Math.PI) / 180);
-        // Draw the outline of the core
-        this.drawCore();
 
         // Set the idle display
         this.setCoreTaskDisplay();
@@ -140,9 +129,7 @@ class Core {
             this.updateCancelButton(false);
         }
 
-        // Clear the canvas then draw the core
-        this.clearCoreCanvas();
-        this.drawCore();
+        this.canvas.drawCore(this.progress);
     }
 
     /**
@@ -202,33 +189,6 @@ class Core {
     private updateCancelButton(enabled: boolean): void {
         this.info.children(".cancel-button")
             .prop("disabled", !enabled);
-    }
-
-    /**
-     * Draws the core
-     */
-    private drawCore(): void {
-        const draw: Function = (color: string, percent: number): void => {
-            this.context.beginPath();
-            // Arc from the top of the canvas to the current progress percent
-            this.context.arc(0, 0, Core.canvasRadius - 1, 0, Math.PI * 2 * percent);
-            // Set the color of the stroke
-            this.context.strokeStyle = color;
-            this.context.lineWidth = 2;
-            this.context.stroke();
-        };
-
-        // Draw the outline
-        draw("#333333", 1);
-        // Draw the current progress
-        draw($("body").css("--clickable-text"), this.progress / 100);
-    }
-
-    /**
-     * Clears the core canvas
-     */
-    private clearCoreCanvas(): void {
-        this.context.clearRect(-Core.canvasRadius, -Core.canvasRadius, Core.canvasSize, Core.canvasSize);
     }
 
     /**

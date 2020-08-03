@@ -57,6 +57,31 @@ class Messenger {
         }
     }
 }
+class CoreCanvas {
+    constructor(parent) {
+        const canvas = $("<canvas>")
+            .attr("width", CoreCanvas.canvasSize)
+            .attr("height", CoreCanvas.canvasSize)
+            .appendTo(parent);
+        this.context = canvas[0].getContext("2d");
+        this.context.translate(CoreCanvas.canvasRadius, CoreCanvas.canvasRadius);
+        this.context.rotate((-90 * Math.PI) / 180);
+    }
+    drawCore(progress) {
+        this.context.clearRect(-CoreCanvas.canvasRadius, -CoreCanvas.canvasRadius, CoreCanvas.canvasSize, CoreCanvas.canvasSize);
+        const draw = (color, percent) => {
+            this.context.beginPath();
+            this.context.arc(0, 0, CoreCanvas.canvasRadius - 1, 0, Math.PI * 2 * percent);
+            this.context.strokeStyle = color;
+            this.context.lineWidth = 2;
+            this.context.stroke();
+        };
+        draw("#333333", 1);
+        draw($("body").css("--clickable-text"), progress / 100);
+    }
+}
+CoreCanvas.canvasSize = 50;
+CoreCanvas.canvasRadius = CoreCanvas.canvasSize / 2;
 class Core {
     constructor(id, power) {
         this.id = id;
@@ -67,16 +92,15 @@ class Core {
         this.callback = null;
         this.powerDown = false;
         this.powerReduction = 0;
+        this.canOverclock = false;
         const parent = $("<div>")
             .attr("id", "core-" + id)
             .addClass("core")
             .hide()
             .fadeIn()
             .appendTo("#cores");
-        const canvas = $("<canvas>")
-            .attr("width", Core.canvasSize)
-            .attr("height", Core.canvasSize)
-            .appendTo(parent);
+        this.canvas = new CoreCanvas(parent);
+        this.canvas.drawCore(0);
         this.info = $("<div>")
             .addClass("core-info")
             .appendTo(parent);
@@ -101,13 +125,9 @@ class Core {
             .text("[x]")
             .click(() => this.cancelTask())
             .appendTo(this.info);
-        this.context = canvas[0].getContext("2d");
-        this.context.translate(Core.canvasRadius, Core.canvasRadius);
-        this.context.rotate((-90 * Math.PI) / 180);
-        this.drawCore();
         this.setCoreTaskDisplay();
         this.updatePower(power);
-        this.updateUpgradeButton(false);
+        this.updateOverclockButton(this.canOverclock);
         this.updateCancelButton(false);
     }
     updatePower(power) {
@@ -143,8 +163,7 @@ class Core {
             this.setCoreTaskDisplay();
             this.updateCancelButton(false);
         }
-        this.clearCoreCanvas();
-        this.drawCore();
+        this.canvas.drawCore(this.progress);
     }
     setTask(display, callback, cost) {
         this.setCoreTaskDisplay(display);
@@ -170,7 +189,7 @@ class Core {
                 .text(display);
         }
     }
-    updateUpgradeButton(enabled) {
+    updateOverclockButton(enabled) {
         this.info.children(".upgrade-button")
             .prop("disabled", !enabled);
     }
@@ -178,29 +197,19 @@ class Core {
         this.info.children(".cancel-button")
             .prop("disabled", !enabled);
     }
-    drawCore() {
-        const draw = (color, percent) => {
-            this.context.beginPath();
-            this.context.arc(0, 0, Core.canvasRadius - 1, 0, Math.PI * 2 * percent);
-            this.context.strokeStyle = color;
-            this.context.lineWidth = 2;
-            this.context.stroke();
-        };
-        draw("#333333", 1);
-        draw($("body").css("--clickable-text"), this.progress / 100);
-    }
-    clearCoreCanvas() {
-        this.context.clearRect(-Core.canvasRadius, -Core.canvasRadius, Core.canvasSize, Core.canvasSize);
-    }
     getID() {
         return this.id;
     }
     isBusy() {
         return this.handle !== null;
     }
+    setCanOverclock(canOverclock) {
+        this.canOverclock = canOverclock;
+        if (canOverclock && !this.isBusy()) {
+            this.updateOverclockButton(canOverclock);
+        }
+    }
 }
-Core.canvasSize = 50;
-Core.canvasRadius = Core.canvasSize / 2;
 class CoreManager {
     static initialize() {
         CoreManager.coreList = State.getValue("cores.count") || [];
