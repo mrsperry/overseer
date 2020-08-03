@@ -1,3 +1,5 @@
+/// <reference path="Core.ts"/>
+
 class CoreManager {
     /** The list of available cores */
     private static coreList: Core[];
@@ -7,6 +9,8 @@ class CoreManager {
      */
     public static initialize(): void {
         CoreManager.coreList = State.getValue("cores.count") || [];
+
+        this.addCore(100);
     }
 
     /**

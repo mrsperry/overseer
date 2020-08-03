@@ -57,9 +57,153 @@ class Messenger {
         }
     }
 }
+class Core {
+    constructor(id, power) {
+        this.id = id;
+        this.power = power;
+        this.handle = null;
+        this.progress = 0;
+        this.cost = 0;
+        this.callback = null;
+        this.powerDown = false;
+        this.powerReduction = 0;
+        const parent = $("<div>")
+            .attr("id", "core-" + id)
+            .addClass("core")
+            .hide()
+            .fadeIn()
+            .appendTo("#cores");
+        const canvas = $("<canvas>")
+            .attr("width", Core.canvasSize)
+            .attr("height", Core.canvasSize)
+            .appendTo(parent);
+        this.info = $("<div>")
+            .addClass("core-info")
+            .appendTo(parent);
+        $("<div>")
+            .addClass("core-task")
+            .appendTo(this.info);
+        $("<span>")
+            .text("Core #" + (id + 1))
+            .appendTo(this.info);
+        $("<span>")
+            .addClass("core-power")
+            .appendTo(this.info);
+        $("<br>")
+            .appendTo(this.info);
+        $("<button>")
+            .addClass("upgrade-button")
+            .text("[+]")
+            .click(() => this.cancelTask())
+            .appendTo(this.info);
+        $("<button>")
+            .addClass("cancel-button")
+            .text("[x]")
+            .click(() => this.cancelTask())
+            .appendTo(this.info);
+        this.context = canvas[0].getContext("2d");
+        this.context.translate(Core.canvasRadius, Core.canvasRadius);
+        this.context.rotate((-90 * Math.PI) / 180);
+        this.drawCore();
+        this.setCoreTaskDisplay();
+        this.updatePower(power);
+        this.updateUpgradeButton(false);
+        this.updateCancelButton(false);
+    }
+    updatePower(power) {
+        this.power = power;
+        this.info.children(".core-power")
+            .text(" @ " + power + "Mhz");
+    }
+    updateCore() {
+        if (this.powerDown) {
+            this.progress -= this.powerReduction;
+            if (this.progress <= 0) {
+                window.clearInterval(this.handle);
+                this.handle = null;
+                this.progress = 0;
+                this.cost = 0;
+                this.callback = null;
+                this.powerDown = false;
+                this.powerReduction = 0;
+            }
+        }
+        else {
+            this.progress += (this.power / this.cost) * 10;
+        }
+        if (this.progress >= 100) {
+            if (this.callback !== null) {
+                this.callback();
+                this.callback = null;
+            }
+            this.progress = 100;
+            this.cost = 0;
+            this.powerDown = true;
+            this.powerReduction = (100 / 400) * 2;
+            this.setCoreTaskDisplay();
+            this.updateCancelButton(false);
+        }
+        this.clearCoreCanvas();
+        this.drawCore();
+    }
+    setTask(display, callback, cost) {
+        this.setCoreTaskDisplay(display);
+        this.handle = window.setInterval(() => this.updateCore(), 1);
+        this.cost = cost;
+        this.callback = callback;
+        this.updateCancelButton(true);
+    }
+    cancelTask() {
+        this.powerDown = true;
+        this.powerReduction = (this.progress / 400) * 2;
+        this.setCoreTaskDisplay();
+        this.updateCancelButton(false);
+    }
+    setCoreTaskDisplay(display = "") {
+        const child = this.info.children(".core-task");
+        if (display === "") {
+            child.removeClass("clickable-no-click")
+                .text("Core idle");
+        }
+        else {
+            child.addClass("clickable-no-click")
+                .text(display);
+        }
+    }
+    updateUpgradeButton(enabled) {
+        this.info.children(".upgrade-button")
+            .prop("disabled", !enabled);
+    }
+    updateCancelButton(enabled) {
+        this.info.children(".cancel-button")
+            .prop("disabled", !enabled);
+    }
+    drawCore() {
+        const draw = (color, percent) => {
+            this.context.beginPath();
+            this.context.arc(0, 0, Core.canvasRadius - 1, 0, Math.PI * 2 * percent);
+            this.context.strokeStyle = color;
+            this.context.stroke();
+        };
+        draw("#333333", 1);
+        draw($("body").css("--clickable-text"), this.progress / 100);
+    }
+    clearCoreCanvas() {
+        this.context.clearRect(-Core.canvasRadius, -Core.canvasRadius, Core.canvasSize, Core.canvasSize);
+    }
+    getID() {
+        return this.id;
+    }
+    isBusy() {
+        return this.handle !== null;
+    }
+}
+Core.canvasSize = 50;
+Core.canvasRadius = Core.canvasSize / 2;
 class CoreManager {
     static initialize() {
         CoreManager.coreList = State.getValue("cores.count") || [];
+        this.addCore(100);
     }
     static addCore(power) {
         CoreManager.coreList.push(new Core(CoreManager.coreList.length, power));
@@ -234,149 +378,6 @@ class Main {
     }
 }
 (() => Main.initialize())();
-class Core {
-    constructor(id, power) {
-        this.id = id;
-        this.power = power;
-        this.handle = null;
-        this.progress = 0;
-        this.cost = 0;
-        this.callback = null;
-        this.powerDown = false;
-        this.powerReduction = 0;
-        const parent = $("<div>")
-            .attr("id", "core-" + id)
-            .addClass("core")
-            .hide()
-            .fadeIn()
-            .appendTo("#cores");
-        const canvas = $("<canvas>")
-            .attr("width", Core.canvasSize)
-            .attr("height", Core.canvasSize)
-            .appendTo(parent);
-        this.info = $("<div>")
-            .addClass("core-info")
-            .appendTo(parent);
-        $("<div>")
-            .addClass("core-task")
-            .appendTo(this.info);
-        $("<span>")
-            .text("Core #" + (id + 1))
-            .appendTo(this.info);
-        $("<span>")
-            .addClass("core-power")
-            .appendTo(this.info);
-        $("<br>")
-            .appendTo(this.info);
-        $("<button>")
-            .addClass("upgrade-button")
-            .text("[+]")
-            .click(() => this.cancelTask())
-            .appendTo(this.info);
-        $("<button>")
-            .addClass("cancel-button")
-            .text("[x]")
-            .click(() => this.cancelTask())
-            .appendTo(this.info);
-        this.context = canvas[0].getContext("2d");
-        this.context.translate(Core.canvasRadius, Core.canvasRadius);
-        this.context.rotate((-90 * Math.PI) / 180);
-        this.drawCore();
-        this.setCoreTaskDisplay();
-        this.updatePower(power);
-        this.updateUpgradeButton(false);
-        this.updateCancelButton(false);
-    }
-    updatePower(power) {
-        this.power = power;
-        this.info.children(".core-power")
-            .text(" @ " + power + "Mhz");
-    }
-    updateCore() {
-        if (this.powerDown) {
-            this.progress -= this.powerReduction;
-            if (this.progress <= 0) {
-                window.clearInterval(this.handle);
-                this.handle = null;
-                this.progress = 0;
-                this.cost = 0;
-                this.callback = null;
-                this.powerDown = false;
-                this.powerReduction = 0;
-            }
-        }
-        else {
-            this.progress += (this.power / this.cost) * 10;
-        }
-        if (this.progress >= 100) {
-            if (this.callback !== null) {
-                this.callback();
-                this.callback = null;
-            }
-            this.progress = 100;
-            this.cost = 0;
-            this.powerDown = true;
-            this.powerReduction = (100 / 400) * 2;
-            this.setCoreTaskDisplay();
-            this.updateCancelButton(false);
-        }
-        this.clearCoreCanvas();
-        this.drawCore();
-    }
-    setTask(display, callback, cost) {
-        this.setCoreTaskDisplay(display);
-        this.handle = window.setInterval(() => this.updateCore(), 1);
-        this.cost = cost;
-        this.callback = callback;
-        this.updateCancelButton(true);
-    }
-    cancelTask() {
-        this.powerDown = true;
-        this.powerReduction = (this.progress / 400) * 2;
-        this.setCoreTaskDisplay();
-        this.updateCancelButton(false);
-    }
-    setCoreTaskDisplay(display = "") {
-        const child = this.info.children(".core-task");
-        if (display === "") {
-            child.removeClass("clickable-no-click")
-                .text("Core idle");
-        }
-        else {
-            child.addClass("clickable-no-click")
-                .text(display);
-        }
-    }
-    updateUpgradeButton(enabled) {
-        this.info.children(".upgrade-button")
-            .prop("disabled", !enabled);
-    }
-    updateCancelButton(enabled) {
-        this.info.children(".cancel-button")
-            .prop("disabled", !enabled);
-    }
-    drawCore() {
-        const draw = (color, percent) => {
-            this.context.beginPath();
-            this.context.arc(0, 0, Core.canvasRadius - 1, 0, Math.PI * 2 * percent);
-            this.context.strokeStyle = color;
-            this.context.stroke();
-        };
-        draw("#333333", 1);
-        draw($("body").css("--clickable-text"), this.progress / 100);
-    }
-    clearCoreCanvas() {
-        this.context.clearRect(-Core.canvasRadius, -Core.canvasRadius, Core.canvasSize, Core.canvasSize);
-    }
-    getID() {
-        return this.id;
-    }
-    isBusy() {
-        return this.handle !== null;
-    }
-}
-Core.canvasSize = 50;
-Core.canvasRadius = Core.canvasSize / 2;
 class Disk {
     constructor(id, name, maxStorage, isQuarantine) {
         this.maxStorage = maxStorage;
