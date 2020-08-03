@@ -168,10 +168,14 @@ class Core {
             this.cost = 0;
             this.powerDown = true;
             this.powerReduction = (100 / 400) * 2;
-            this.setCoreTaskDisplay();
+            if (!this.searchingForFiles) {
+                this.setCoreTaskDisplay();
+            }
         }
         this.canvas.drawCore(this.progress);
-        this.updateButtons();
+        if (!this.searchingForFiles) {
+            this.updateButtons();
+        }
     }
     overclock() {
         this.setTask("Overclocking core", () => {
@@ -193,11 +197,13 @@ class Core {
         this.updateButtons();
     }
     cancelTask() {
-        this.powerDown = true;
-        this.powerReduction = (this.progress / 400) * 2;
         if (this.searchingForFiles) {
             this.searchingForFiles = false;
         }
+        if (!this.powerDown) {
+            this.powerReduction = (this.progress / 400) * 2;
+        }
+        this.powerDown = true;
         this.setCoreTaskDisplay();
         this.updateButtons();
     }

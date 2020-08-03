@@ -111,6 +111,7 @@ class Core {
                 this.powerDown = false;
                 this.powerReduction = 0;
 
+                // Infinitely search for files
                 if (this.searchingForFiles) {
                     this.searchForFiles();
                 }
@@ -135,11 +136,16 @@ class Core {
             this.powerReduction = (100 / 400) * 2;
 
             // Update core display
-            this.setCoreTaskDisplay();
+            if (!this.searchingForFiles) {
+                this.setCoreTaskDisplay();
+            }
         }
 
         this.canvas.drawCore(this.progress);
-        this.updateButtons();
+
+        if (!this.searchingForFiles) {
+            this.updateButtons();
+        }
     }
 
     /**
@@ -179,15 +185,18 @@ class Core {
     }
 
     /**
-     * Cancels the current task and removes the cancel task button
+     * Cancels the current task
      */
     public cancelTask(): void {
-        this.powerDown = true;
-        this.powerReduction = (this.progress / 400) * 2;
-
         if (this.searchingForFiles) {
             this.searchingForFiles = false;
         }
+
+        if (!this.powerDown) {
+            this.powerReduction = (this.progress / 400) * 2;
+        }
+
+        this.powerDown = true;
 
         this.setCoreTaskDisplay();
         this.updateButtons();
