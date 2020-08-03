@@ -22,6 +22,8 @@ class Core {
 
     /** If this core can overclock */
     private canOverclock: boolean = false;
+    /** If this core is infinitely searching for files */
+    private searchingForFiles: boolean = false;
 
     /**
      * Creates a new core
@@ -66,6 +68,11 @@ class Core {
             .text("[x]")
             .click((): void => this.cancelTask())
             .appendTo(this.info);
+        $("<button>")
+            .addClass("search-button")
+            .text("[search]")
+            .click((): void => this.searchForFiles())
+            .appendTo(this.info)
 
         // Set the idle display
         this.setCoreTaskDisplay();
@@ -103,6 +110,10 @@ class Core {
                 this.callback = null;
                 this.powerDown = false;
                 this.powerReduction = 0;
+
+                if (this.searchingForFiles) {
+                    this.searchForFiles();
+                }
             }
         } else {
             // Update the core's progress
@@ -143,6 +154,17 @@ class Core {
     }
 
     /**
+     * Starts an infinite core task that will add files to disks until cancelled
+     */
+    private searchForFiles(): void {
+        this.searchingForFiles = true;
+
+        this.setTask("Searching for files", (): void => {
+            DiskManager.addFileToDisk(Utils.random(1, 50), false);
+        }, this.power * 50);
+    }
+
+    /**
      * Sets a new task to run on this core
      * @param display The display name of the task
      * @param callback A function to run when the task is completed (before power down)
@@ -162,6 +184,10 @@ class Core {
     public cancelTask(): void {
         this.powerDown = true;
         this.powerReduction = (this.progress / 400) * 2;
+
+        if (this.searchingForFiles) {
+            this.searchingForFiles = false;
+        }
 
         this.setCoreTaskDisplay();
         this.updateButtons();
@@ -194,6 +220,9 @@ class Core {
 
         this.info.children(".upgrade-button")
             .prop("disabled", !this.canOverclock || this.isBusy());
+
+        this.info.children(".search-button")
+            .prop("disabled", this.powerDown || this.isBusy());
     }
 
     /**

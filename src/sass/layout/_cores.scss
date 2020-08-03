@@ -16,7 +16,7 @@
             margin-left: 1rem;
         }
 
-        .upgrade-button, .cancel-button {
+        .upgrade-button, .cancel-button, .search-button {
             color: variables.$clickable-text;
             transition: color 250ms ease-in-out,
                         opacity 250ms ease-in-out;

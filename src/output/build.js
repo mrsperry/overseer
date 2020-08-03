@@ -93,6 +93,7 @@ class Core {
         this.powerDown = false;
         this.powerReduction = 0;
         this.canOverclock = false;
+        this.searchingForFiles = false;
         const parent = $("<div>")
             .attr("id", "core-" + id)
             .addClass("core")
@@ -125,6 +126,11 @@ class Core {
             .text("[x]")
             .click(() => this.cancelTask())
             .appendTo(this.info);
+        $("<button>")
+            .addClass("search-button")
+            .text("[search]")
+            .click(() => this.searchForFiles())
+            .appendTo(this.info);
         this.setCoreTaskDisplay();
         this.updatePower(power);
         this.updateButtons();
@@ -145,6 +151,9 @@ class Core {
                 this.callback = null;
                 this.powerDown = false;
                 this.powerReduction = 0;
+                if (this.searchingForFiles) {
+                    this.searchForFiles();
+                }
             }
         }
         else {
@@ -170,6 +179,12 @@ class Core {
             this.canOverclock = false;
         }, this.power * 5000);
     }
+    searchForFiles() {
+        this.searchingForFiles = true;
+        this.setTask("Searching for files", () => {
+            DiskManager.addFileToDisk(Utils.random(1, 50), false);
+        }, this.power * 50);
+    }
     setTask(display, callback, cost) {
         this.setCoreTaskDisplay(display);
         this.handle = window.setInterval(() => this.updateCore(), 1);
@@ -180,6 +195,9 @@ class Core {
     cancelTask() {
         this.powerDown = true;
         this.powerReduction = (this.progress / 400) * 2;
+        if (this.searchingForFiles) {
+            this.searchingForFiles = false;
+        }
         this.setCoreTaskDisplay();
         this.updateButtons();
     }
@@ -199,6 +217,8 @@ class Core {
             .prop("disabled", this.powerDown || !this.isBusy());
         this.info.children(".upgrade-button")
             .prop("disabled", !this.canOverclock || this.isBusy());
+        this.info.children(".search-button")
+            .prop("disabled", this.powerDown || this.isBusy());
     }
     getID() {
         return this.id;
