@@ -21,7 +21,7 @@ class Disk {
      * @param maxStorage Maximum number of kilobytes the disk can hold
      * @param isQuarantine If the disk is a quarantine disk
      */
-    public constructor(id: number, name: string, private maxStorage: number, private isQuarantine: boolean) {
+    public constructor(id: number, private name: string, private maxStorage: number, private isQuarantine: boolean) {
         // Create the disk display
         this.parent = $("<div>")
             .attr("id", "disk-" + id)
@@ -158,7 +158,8 @@ class Disk {
      */
     private updateFileDisplay(delay: number = 0): void {
         const parent: any = $("#disk-view");
-        const header: any = parent.children(".header");
+        const header: any = parent.children(".header")
+            .off("click");
 
         if (this.files.length == 0) {
             header.text("No files to display")
@@ -171,7 +172,7 @@ class Disk {
                     .click();
             } else {
                 header.text("Scan files")
-                    .click();
+                    .click((): void => this.scanFiles());
             }
         }
 
@@ -190,6 +191,54 @@ class Disk {
             }
 
             extra.text("...and " + (this.files.length - Disk.maxDisplayedFiles) + " more");
+        }
+    }
+
+    /**
+     * Scans the files on this disk for threats
+     * 
+     * This will clear the disk and move and threats to quarantine
+     */
+    private scanFiles(): void {
+        const parent: any = $("#disk-view");
+        const header: any = parent.children(".header");
+
+        const task: CoreTask = CoreTask.create("Scanning: " + this.name, this.getUsage() * 10)
+            .setOnComplete((): void => {
+                const length: number = this.files.length;
+
+                let threats: number = 0;
+                for (let index: number = 0; index < length; index++) {
+                    const file: DiskFile = this.files[index];
+
+                    // Move infected files to quarantine
+                    if (file.getIsThreat()) {
+                        threats++;
+                        DiskManager.addFileToQuarantine(file);
+                    }
+                }
+                this.files = [];
+
+                // Remove files from the display
+                if (this.displayed) {
+                    for (const child of parent.children(".file")) {
+                        $(child).fadeOut(400, (): void => {
+                            $(child).remove();
+                        });
+                    }
+                }
+
+                this.updateFileDisplay();
+                this.updateUsage();
+                Messenger.write("Scanned " + length + " files and found " + threats + " threat(s)");
+            })
+            // Reset header if the scan is cancelled
+            .setOnCancel((): void => header.addClass("clickable").click((): void => this.scanFiles()));
+        
+        // Update header if the task can be run
+        if (task.run()) {
+            header.removeClass("clickable")
+                .off("click");
         }
     }
 

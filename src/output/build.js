@@ -219,7 +219,6 @@ class Core {
         this.searchingForFiles = true;
         CoreTask.create("Searching for files", this.power * 50)
             .setOnComplete(() => DiskManager.addFileToDisk())
-            .setOnCancel(() => Messenger.write("Search cancelled"))
             .run();
     }
     setTask(task) {
@@ -460,6 +459,7 @@ class Main {
 (() => Main.initialize())();
 class Disk {
     constructor(id, name, maxStorage, isQuarantine) {
+        this.name = name;
         this.maxStorage = maxStorage;
         this.isQuarantine = isQuarantine;
         this.files = [];
@@ -536,7 +536,8 @@ class Disk {
     }
     updateFileDisplay(delay = 0) {
         const parent = $("#disk-view");
-        const header = parent.children(".header");
+        const header = parent.children(".header")
+            .off("click");
         if (this.files.length == 0) {
             header.text("No files to display")
                 .removeClass("clickable");
@@ -549,7 +550,7 @@ class Disk {
             }
             else {
                 header.text("Scan files")
-                    .click();
+                    .click(() => this.scanFiles());
             }
         }
         if (this.files.length > Disk.maxDisplayedFiles) {
@@ -563,6 +564,36 @@ class Disk {
                     .appendTo(parent);
             }
             extra.text("...and " + (this.files.length - Disk.maxDisplayedFiles) + " more");
+        }
+    }
+    scanFiles() {
+        const parent = $("#disk-view");
+        const header = parent.children(".header");
+        const task = CoreTask.create("Scanning: " + this.name, this.getUsage() * 100)
+            .setOnComplete(() => {
+            const length = this.files.length;
+            let threats = 0;
+            for (let index = 0; index < length; index++) {
+                const file = this.files[index];
+                if (file.getIsThreat()) {
+                    threats++;
+                    DiskManager.addFileToQuarantine(file);
+                }
+            }
+            this.files = [];
+            for (const child of parent.children(".file")) {
+                $(child).fadeOut(400, () => {
+                    $(child).remove();
+                });
+            }
+            this.updateFileDisplay();
+            this.updateUsage();
+            Messenger.write("Scanned " + length + " files and found " + threats + " threat(s)");
+        })
+            .setOnCancel(() => header.addClass("clickable").click(() => this.scanFiles()));
+        if (task.run()) {
+            header.removeClass("clickable")
+                .off("click");
         }
     }
     displayFile(file, delay = 0) {
@@ -590,7 +621,7 @@ class DiskFile {
         const extension = Utils.random(DiskManager.getFileExtensions());
         this.name = name + "." + extension;
         this.size = Utils.random(1, 20 + ((threatLevel - 1) * 100));
-        this.isThreat = Utils.random(0, 175 - (threatLevel * 50)) == 0;
+        this.isThreat = Utils.random(0, 15 + (threatLevel * 10)) == 0;
     }
     getName() {
         return this.name;

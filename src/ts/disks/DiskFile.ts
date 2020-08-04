@@ -18,7 +18,7 @@ class DiskFile {
 
         this.size = Utils.random(1, 20 + ((threatLevel - 1) * 100));
 
-        this.isThreat = Utils.random(0, 175 - (threatLevel * 50)) == 0;
+        this.isThreat = Utils.random(0, 15 + (threatLevel * 10)) == 0;
     }
 
     /**
