@@ -1,4 +1,5 @@
 /// <reference path="CoreCanvas.ts"/>
+/// <reference path="CoreTask.ts"/>
 
 class Core {
     /** The core HTML section */
@@ -10,10 +11,8 @@ class Core {
     private handle: any = null;
     /** Current task progress */
     private progress: number = 0;
-    /** Current task cost */
-    private cost: number = 0;
-    /** Callback to run after task completion */
-    private callback: any = null;
+    /** The current core task */
+    private task: CoreTask = CoreTask.create("", 0);
 
     /** If the core is powering down */
     private powerDown: boolean = false;
@@ -106,8 +105,6 @@ class Core {
                 window.clearInterval(this.handle);
                 this.handle = null;
                 this.progress = 0;
-                this.cost = 0;
-                this.callback = null;
                 this.powerDown = false;
                 this.powerReduction = 0;
 
@@ -118,20 +115,16 @@ class Core {
             }
         } else {
             // Update the core's progress
-            this.progress += (this.power / this.cost) * 10;
+            this.progress += (this.power / this.task.getCost()) * 10;
         }
 
         // Check if the task is completed
         if (this.progress >= 100) {
             // Run the callback
-            if (this.callback !== null) {
-                this.callback();
-                this.callback = null;
-            }
+            this.task.onComplete();
 
             // Reset variables for power down
             this.progress = 100;
-            this.cost = 0;
             this.powerDown = true;
             this.powerReduction = (100 / 400) * 2;
 
@@ -152,11 +145,12 @@ class Core {
      * Doubles the core's power
      */
     private overclock(): void {
-        this.setTask("Overclocking core", (): void => {
-            this.updatePower(this.power * 2);
+        CoreTask.create("Overclocking core", this.power * 5000)
+            .setOnComplete((): void => {
+                this.updatePower(this.power * 2);
 
-            this.canOverclock = false;
-        }, this.power * 5000);
+                this.canOverclock = false;
+            }).run();
     }
 
     /**
@@ -165,22 +159,18 @@ class Core {
     private searchForFiles(): void {
         this.searchingForFiles = true;
 
-        this.setTask("Searching for files", (): void => {
-            DiskManager.addFileToDisk();
-        }, this.power * 50);
+        CoreTask.create("Searching for files", this.power * 50)
+            .setOnComplete((): void => DiskManager.addFileToDisk())
+            .run();
     }
 
     /**
-     * Sets a new task to run on this core
-     * @param display The display name of the task
-     * @param callback A function to run when the task is completed (before power down)
-     * @param cost The cost of this task
+     * Runs a task on this core
+     * @param task The task to start
      */
-    public setTask(display: string, callback: any, cost: number): void {
-        this.setCoreTaskDisplay(display);
+    public setTask(task: CoreTask): void {
+        this.task = task;
         this.handle = window.setInterval((): void => this.updateCore(), 1);
-        this.cost = cost;
-        this.callback = callback;
         this.updateButtons();
     }
 
@@ -198,6 +188,7 @@ class Core {
 
         this.powerDown = true;
 
+        this.task.onCancel();
         this.setCoreTaskDisplay();
         this.updateButtons();
     }

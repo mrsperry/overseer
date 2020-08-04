@@ -82,14 +82,51 @@ class CoreCanvas {
 }
 CoreCanvas.canvasSize = 50;
 CoreCanvas.canvasRadius = CoreCanvas.canvasSize / 2;
+class CoreTask {
+    constructor(display, cost) {
+        this.display = display;
+        this.cost = cost;
+        this.complete = null;
+        this.cancel = null;
+    }
+    static create(display, cost) {
+        return new CoreTask(display, cost);
+    }
+    getDisplay() {
+        return this.display;
+    }
+    getCost() {
+        return this.cost;
+    }
+    setOnComplete(onComplete) {
+        this.complete = onComplete;
+        return this;
+    }
+    setOnCancel(onCancel) {
+        this.cancel = onCancel;
+        return this;
+    }
+    onComplete() {
+        if (this.complete !== null) {
+            this.complete();
+        }
+    }
+    onCancel() {
+        if (this.cancel !== null) {
+            this.cancel();
+        }
+    }
+    run() {
+        return CoreManager.startCoreTask(this);
+    }
+}
 class Core {
     constructor(id, power) {
         this.id = id;
         this.power = power;
         this.handle = null;
         this.progress = 0;
-        this.cost = 0;
-        this.callback = null;
+        this.task = CoreTask.create("", 0);
         this.powerDown = false;
         this.powerReduction = 0;
         this.canOverclock = false;
@@ -147,8 +184,6 @@ class Core {
                 window.clearInterval(this.handle);
                 this.handle = null;
                 this.progress = 0;
-                this.cost = 0;
-                this.callback = null;
                 this.powerDown = false;
                 this.powerReduction = 0;
                 if (this.searchingForFiles) {
@@ -157,15 +192,11 @@ class Core {
             }
         }
         else {
-            this.progress += (this.power / this.cost) * 10;
+            this.progress += (this.power / this.task.getCost()) * 10;
         }
         if (this.progress >= 100) {
-            if (this.callback !== null) {
-                this.callback();
-                this.callback = null;
-            }
+            this.task.onComplete();
             this.progress = 100;
-            this.cost = 0;
             this.powerDown = true;
             this.powerReduction = (100 / 400) * 2;
             if (!this.searchingForFiles) {
@@ -178,22 +209,22 @@ class Core {
         }
     }
     overclock() {
-        this.setTask("Overclocking core", () => {
+        CoreTask.create("Overclocking core", this.power * 5000)
+            .setOnComplete(() => {
             this.updatePower(this.power * 2);
             this.canOverclock = false;
-        }, this.power * 5000);
+        }).run();
     }
     searchForFiles() {
         this.searchingForFiles = true;
-        this.setTask("Searching for files", () => {
-            DiskManager.addFileToDisk();
-        }, this.power * 50);
+        CoreTask.create("Searching for files", this.power * 50)
+            .setOnComplete(() => DiskManager.addFileToDisk())
+            .setOnCancel(() => Messenger.write("Search cancelled"))
+            .run();
     }
-    setTask(display, callback, cost) {
-        this.setCoreTaskDisplay(display);
+    setTask(task) {
+        this.task = task;
         this.handle = window.setInterval(() => this.updateCore(), 1);
-        this.cost = cost;
-        this.callback = callback;
         this.updateButtons();
     }
     cancelTask() {
@@ -204,6 +235,7 @@ class Core {
             this.powerReduction = (this.progress / 400) * 2;
         }
         this.powerDown = true;
+        this.task.onCancel();
         this.setCoreTaskDisplay();
         this.updateButtons();
     }
@@ -245,10 +277,10 @@ class CoreManager {
     static addCore(power) {
         CoreManager.coreList.push(new Core(CoreManager.coreList.length, power));
     }
-    static startCoreTask(display, callback, cost) {
+    static startCoreTask(task) {
         for (const core of CoreManager.coreList) {
             if (!core.isBusy()) {
-                core.setTask(display, callback, cost);
+                core.setTask(task);
                 return true;
             }
         }

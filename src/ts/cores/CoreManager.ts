@@ -22,16 +22,14 @@ class CoreManager {
     }
 
     /**
-     * Runs a task on the first available core
-     * @param display The name of this task
-     * @param callback The function to run after task completion
-     * @param cost The cost of the task
-     * @returns If there is an available core for this task
+     * Runs a task on the first available core, if any are not busy
+     * @param task The task to run
+     * @returns If the task was run
      */
-    public static startCoreTask(display: string, callback: any, cost: any): boolean {
+    public static startCoreTask(task: CoreTask): boolean {
         for (const core of CoreManager.coreList) {
             if (!core.isBusy()) {
-                core.setTask(display, callback, cost);
+                core.setTask(task);
                 return true;
             }
         }
