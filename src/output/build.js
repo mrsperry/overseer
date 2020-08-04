@@ -186,7 +186,7 @@ class Core {
     searchForFiles() {
         this.searchingForFiles = true;
         this.setTask("Searching for files", () => {
-            DiskManager.addFileToDisk(Utils.random(1, 50), false);
+            DiskManager.addFileToDisk(State.getValue("threat-level") || 1, false);
         }, this.power * 50);
     }
     setTask(display, callback, cost) {
@@ -316,12 +316,12 @@ class DiskManager {
         DiskManager.disks.push(disk);
         return disk;
     }
-    static addFileToDisk(size, quarantine) {
+    static addFileToDisk(threatLevel, quarantine) {
         for (const disk of DiskManager.disks) {
             if ((quarantine && !disk.isQuarantineStorage()) || (!quarantine && disk.isQuarantineStorage())) {
                 continue;
             }
-            if (disk.addFile(size)) {
+            if (disk.addFile(threatLevel)) {
                 return;
             }
         }
@@ -448,12 +448,9 @@ class Disk {
         this.updateFileDisplay(this.displayedFiles * Disk.displayDelay);
         this.setDisplayed(true);
     }
-    addFile(size) {
-        if (this.maxStorage - this.getUsage() >= size) {
-            const file = {
-                "name": this.generateFileName(),
-                "size": size
-            };
+    addFile(threatLevel) {
+        const file = new DiskFile(threatLevel);
+        if (this.maxStorage - this.getUsage() >= file.getSize()) {
             this.files.push(file);
             if (this.isDisplayed()) {
                 if (this.displayedFiles !== Disk.maxDisplayedFiles) {
@@ -486,7 +483,7 @@ class Disk {
     getUsage() {
         let usage = 0;
         for (const file of this.files) {
-            usage += file.size;
+            usage += file.getSize();
         }
         return usage;
     }
@@ -540,16 +537,33 @@ class Disk {
             .appendTo(parent);
         this.displayedFiles++;
     }
-    generateFileName() {
-        const name = Utils.getAlphanumericString(Utils.random(Disk.minFileNameLength, Disk.maxFileNameLength));
-        const extension = Utils.random(DiskManager.getFileExtensions());
-        return name + "." + extension;
-    }
 }
-Disk.minFileNameLength = 7;
-Disk.maxFileNameLength = 16;
 Disk.maxDisplayedFiles = 11;
 Disk.displayDelay = 50;
+class DiskFile {
+    constructor(threatLevel) {
+        this.threatLevel = threatLevel;
+        const name = Utils.getAlphanumericString(Utils.random(DiskFile.minNameLength, DiskFile.maxNameLength));
+        const extension = Utils.random(DiskManager.getFileExtensions());
+        this.name = name + "." + extension;
+        this.size = Utils.random(1, 20 + ((threatLevel - 1) * 100));
+        this.isThreat = Utils.random(0, 175 - (threatLevel * 50)) == 0;
+    }
+    getName() {
+        return this.name;
+    }
+    getSize() {
+        return this.size;
+    }
+    isThread() {
+        return this.isThreat;
+    }
+    getThreatLevel() {
+        return this.threatLevel;
+    }
+}
+DiskFile.minNameLength = 7;
+DiskFile.maxNameLength = 16;
 class Hack {
     constructor(time) {
         this.time = time;

@@ -1,8 +1,4 @@
 class Disk {
-    /** Min file name length */
-    private static minFileNameLength: number = 7;
-    /** Max file name length */
-    private static maxFileNameLength: number = 16;
     /** Max number of files to be displayed */
     private static maxDisplayedFiles: number = 11;
     /** Number of milliseconds to delay before fading in when displaying files */
@@ -12,7 +8,7 @@ class Disk {
     private parent: JQuery<HTMLElement>;
 
     /** List of files this disk currently handles */
-    private files: any[] = [];
+    private files: DiskFile[] = [];
     /** If the files in this disk are being displayed */
     private displayed: boolean = false;
     /** The number of files currently displayed */
@@ -71,14 +67,11 @@ class Disk {
      * @param size The size in kilobytes of the file
      * @returns If there was enough room to add the file
      */
-    public addFile(size: number): boolean {
+    public addFile(threatLevel: number): boolean {
+        const file: DiskFile = new DiskFile(threatLevel);
+
         // Check if there is enough space on the disk for this file
-        if (this.maxStorage - this.getUsage() >= size) {
-            // Create the file
-            const file: any = {
-                "name": this.generateFileName(),
-                "size": size
-            };
+        if (this.maxStorage - this.getUsage() >= file.getSize()) {
             this.files.push(file);
 
             // Update the file display
@@ -136,7 +129,7 @@ class Disk {
         let usage: number = 0;
 
         for (const file of this.files) {
-            usage += file.size;
+            usage += file.getSize();
         }
 
         return usage;
@@ -198,7 +191,7 @@ class Disk {
      * @param file The file to display
      * @param delay The amount of delay in milliseconds before the file is shown
      */
-    private displayFile(file: any, delay: number = 0): void {
+    private displayFile(file: DiskFile, delay: number = 0): void {
         const parent: any = $("<div>")
             .addClass("file")
             .hide()
@@ -206,23 +199,12 @@ class Disk {
             .fadeIn()
             .appendTo($("#disk-view"));
         $("<span>")
-            .text(file.name)
+            .text(file.getName())
             .appendTo(parent);
         $("<span>")
-            .text(file.size + "kb")
+            .text(file.getSize() + "kb")
             .appendTo(parent);
         
         this.displayedFiles++;
-    }
-
-    /**
-     * Generates a random alphanumeric file name with a random file extension
-     * @returns The alphanumeric file name
-     */
-    private generateFileName(): string {
-        const name: string = Utils.getAlphanumericString(Utils.random(Disk.minFileNameLength, Disk.maxFileNameLength));
-        const extension: string = Utils.random(DiskManager.getFileExtensions());
-
-        return name + "." + extension;
     }
 }
