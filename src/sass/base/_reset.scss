@@ -1,6 +1,11 @@
 * {
+    cursor: default;
     font-weight: normal;
     font-size: 1rem;
+    -ms-user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
     padding: 0rem;
     border: none;
     margin: 0rem;
