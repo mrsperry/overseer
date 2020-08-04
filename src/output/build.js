@@ -186,7 +186,7 @@ class Core {
     searchForFiles() {
         this.searchingForFiles = true;
         this.setTask("Searching for files", () => {
-            DiskManager.addFileToDisk(State.getValue("threat-level") || 1, false);
+            DiskManager.addFileToDisk();
         }, this.power * 50);
     }
     setTask(display, callback, cost) {
@@ -316,15 +316,26 @@ class DiskManager {
         DiskManager.disks.push(disk);
         return disk;
     }
-    static addFileToDisk(threatLevel, quarantine) {
+    static addFileToDisk() {
         for (const disk of DiskManager.disks) {
-            if ((quarantine && !disk.isQuarantineStorage()) || (!quarantine && disk.isQuarantineStorage())) {
+            if (disk.isQuarantineStorage()) {
                 continue;
             }
-            if (disk.addFile(threatLevel)) {
+            if (disk.addFile(this.quarantineLevel)) {
                 return;
             }
         }
+    }
+    static addFileToQuarantine(file) {
+        for (const disk of DiskManager.disks) {
+            if (!disk.isQuarantineStorage()) {
+                continue;
+            }
+            if (disk.addFile(file)) {
+                return true;
+            }
+        }
+        return false;
     }
     static displayFiles(disk) {
         if (disk.isDisplayed()) {
@@ -448,8 +459,8 @@ class Disk {
         this.updateFileDisplay(this.displayedFiles * Disk.displayDelay);
         this.setDisplayed(true);
     }
-    addFile(threatLevel) {
-        const file = new DiskFile(threatLevel);
+    addFile(arg1) {
+        const file = typeof (arg1) === "number" ? new DiskFile(arg1) : arg1;
         if (this.maxStorage - this.getUsage() >= file.getSize()) {
             this.files.push(file);
             if (this.isDisplayed()) {
@@ -530,10 +541,10 @@ class Disk {
             .fadeIn()
             .appendTo($("#disk-view"));
         $("<span>")
-            .text(file.name)
+            .text(file.getName())
             .appendTo(parent);
         $("<span>")
-            .text(file.size + "kb")
+            .text(file.getSize() + "kb")
             .appendTo(parent);
         this.displayedFiles++;
     }
@@ -555,7 +566,7 @@ class DiskFile {
     getSize() {
         return this.size;
     }
-    isThread() {
+    getIsThreat() {
         return this.isThreat;
     }
     getThreatLevel() {

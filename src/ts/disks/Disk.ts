@@ -63,12 +63,19 @@ class Disk {
     }
 
     /**
-     * Tries to add a file to the disk
-     * @param size The size in kilobytes of the file
-     * @returns If there was enough room to add the file
+     * Tries to add a file to this disk
+     * @param file The file to add
+     * @returns If the file was added
      */
-    public addFile(threatLevel: number): boolean {
-        const file: DiskFile = new DiskFile(threatLevel);
+    public addFile(file: DiskFile): boolean;
+    /**
+     * Creates a new file and tries to add it to this disk
+     * @param threatLevel The threat level of the file
+     * @returns If the file was added
+     */
+    public addFile(threatLevel: number): boolean;
+    public addFile(arg1: DiskFile | number): boolean {
+        const file: DiskFile = typeof(arg1) === "number" ? new DiskFile(arg1) : arg1;
 
         // Check if there is enough space on the disk for this file
         if (this.maxStorage - this.getUsage() >= file.getSize()) {
