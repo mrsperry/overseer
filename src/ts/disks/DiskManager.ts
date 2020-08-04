@@ -55,14 +55,14 @@ class DiskManager {
      * @param size The size of the file in kilobytes
      * @param quarantine If the file should be added to a quarantine drive
      */
-    public static addFileToDisk(threatLevel: number, quarantine: boolean): void {
+    public static addFileToDisk(quarantine: boolean): void {
         for (const disk of DiskManager.disks) {
             // Have regular files go to regular disks; quarantine file to quarantine disks
             if ((quarantine && !disk.isQuarantineStorage()) || (!quarantine && disk.isQuarantineStorage())) {
                 continue;
             }
 
-            if (disk.addFile(threatLevel)) {
+            if (disk.addFile(this.quarantineLevel)) {
                 return;
             }
         }

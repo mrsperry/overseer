@@ -166,7 +166,7 @@ class Core {
         this.searchingForFiles = true;
 
         this.setTask("Searching for files", (): void => {
-            DiskManager.addFileToDisk(State.getValue("threat-level") || 1, false);
+            DiskManager.addFileToDisk(false);
         }, this.power * 50);
     }
 
