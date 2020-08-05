@@ -230,7 +230,7 @@ class Disk {
 
                 this.updateFileDisplay();
                 this.updateUsage();
-                Messenger.write("Scanned " + length + " files and found " + threats + " threat(s)");
+                Messenger.write("Scanned " + length + " files and found " + threats + " " + (threats === 1 ? "vulnerability" : "vulnerabilities"));
             })
             // Reset header if the scan is cancelled
             .setOnCancel((): void => header.addClass("clickable").click((): void => this.scanFiles()));

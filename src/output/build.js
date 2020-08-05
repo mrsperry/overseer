@@ -591,7 +591,7 @@ class Disk {
             }
             this.updateFileDisplay();
             this.updateUsage();
-            Messenger.write("Scanned " + length + " files and found " + threats + " threat(s)");
+            Messenger.write("Scanned " + length + " files and found " + threats + " " + (threats === 1 ? "vulnerability" : "vulnerabilities"));
         })
             .setOnCancel(() => header.addClass("clickable").click(() => this.scanFiles()));
         if (task.run()) {
