@@ -224,6 +224,7 @@ class Core {
     setTask(task) {
         this.task = task;
         this.handle = window.setInterval(() => this.updateCore(), 1);
+        this.setCoreTaskDisplay(task.getDisplay());
         this.updateButtons();
     }
     cancelTask() {
@@ -569,7 +570,7 @@ class Disk {
     scanFiles() {
         const parent = $("#disk-view");
         const header = parent.children(".header");
-        const task = CoreTask.create("Scanning: " + this.name, this.getUsage() * 100)
+        const task = CoreTask.create("Scanning: " + this.name, this.getUsage() * 10)
             .setOnComplete(() => {
             const length = this.files.length;
             let threats = 0;
@@ -581,10 +582,12 @@ class Disk {
                 }
             }
             this.files = [];
-            for (const child of parent.children(".file")) {
-                $(child).fadeOut(400, () => {
-                    $(child).remove();
-                });
+            if (this.displayed) {
+                for (const child of parent.children(".file")) {
+                    $(child).fadeOut(400, () => {
+                        $(child).remove();
+                    });
+                }
             }
             this.updateFileDisplay();
             this.updateUsage();

@@ -171,6 +171,7 @@ class Core {
     public setTask(task: CoreTask): void {
         this.task = task;
         this.handle = window.setInterval((): void => this.updateCore(), 1);
+        this.setCoreTaskDisplay(task.getDisplay());
         this.updateButtons();
     }
 
