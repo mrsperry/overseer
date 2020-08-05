@@ -28,7 +28,7 @@ class Research {
         Research.reliability += amount;
 
         $("#research").children(".reliability")
-            .text("Reliability: " + Research.reliability);
+            .text("Reliability: " + Research.reliability.toFixed(2));
 
         this.displayResearch();
     }

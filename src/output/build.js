@@ -418,7 +418,7 @@ class Research {
     static addReliability(amount) {
         Research.reliability += amount;
         $("#research").children(".reliability")
-            .text("Reliability: " + Research.reliability);
+            .text("Reliability: " + Research.reliability.toFixed(2));
         this.displayResearch();
     }
     static displayResearch() {
@@ -547,7 +547,7 @@ class Disk {
             header.addClass("clickable");
             if (this.isQuarantine) {
                 header.text("Purge files")
-                    .click();
+                    .click(() => this.purgeFiles());
             }
             else {
                 header.text("Scan files")
@@ -599,6 +599,34 @@ class Disk {
                 .off("click");
         }
     }
+    purgeFiles() {
+        const parent = $("#disk-view");
+        const header = parent.children(".header");
+        const task = CoreTask.create("Purging: " + this.name, this.getUsage())
+            .setOnComplete(() => {
+            let reliability = 0;
+            for (const file of this.files) {
+                reliability += file.getSize() / 100;
+            }
+            Research.addReliability(reliability);
+            Messenger.write("Purged " + this.files.length + " file" + (this.files.length === 1 ? "" : "s") + " and gained " + reliability + " reliability");
+            this.files = [];
+            if (this.displayed) {
+                for (const child of parent.children(".file")) {
+                    $(child).fadeOut(400, () => {
+                        $(child).remove();
+                    });
+                }
+            }
+            this.updateFileDisplay();
+            this.updateUsage();
+        })
+            .setOnCancel(() => header.addClass("clickable").click(() => this.purgeFiles()));
+        if (task.run()) {
+            header.removeClass("clickable")
+                .off("click");
+        }
+    }
     displayFile(file, delay = 0) {
         const parent = $("<div>")
             .addClass("file")
@@ -624,7 +652,7 @@ class DiskFile {
         const extension = Utils.random(DiskManager.getFileExtensions());
         this.name = name + "." + extension;
         this.size = Utils.random(1, 20 + ((threatLevel - 1) * 100));
-        this.isThreat = Utils.random(0, 15 + (threatLevel * 10)) == 0;
+        this.isThreat = Utils.random(0, 1 + (threatLevel * 10)) == 0;
     }
     getName() {
         return this.name;

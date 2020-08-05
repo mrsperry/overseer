@@ -169,7 +169,7 @@ class Disk {
 
             if (this.isQuarantine) {
                 header.text("Purge files")
-                    .click();
+                    .click((): void => this.purgeFiles());
             } else {
                 header.text("Scan files")
                     .click((): void => this.scanFiles());
@@ -236,6 +236,46 @@ class Disk {
             .setOnCancel((): void => header.addClass("clickable").click((): void => this.scanFiles()));
         
         // Update header if the task can be run
+        if (task.run()) {
+            header.removeClass("clickable")
+                .off("click");
+        }
+    }
+
+    /**
+     * Purges files from a quarantine disk for reliability
+     */
+    public purgeFiles(): void {
+        const parent: any = $("#disk-view");
+        const header: any = parent.children(".header");
+
+        const task: CoreTask = CoreTask.create("Purging: " + this.name, this.getUsage())
+            .setOnComplete((): void => {
+                // Get the amount of reliability to add
+                let reliability: number = 0;
+                for (const file of this.files) {
+                    reliability += file.getSize() / 100;
+                }
+                Research.addReliability(reliability);
+                Messenger.write("Purged " + this.files.length + " file" + (this.files.length === 1 ? "" : "s") + " and gained " + reliability.toFixed(2) + " reliability");
+                this.files = [];
+
+                // Remove files from the display
+                if (this.displayed) {
+                    for (const child of parent.children(".file")) {
+                        $(child).fadeOut(400, (): void => {
+                            $(child).remove();
+                        });
+                    }
+                }
+
+                this.updateFileDisplay();
+                this.updateUsage();
+            })
+            // Reset the header
+            .setOnCancel((): void => header.addClass("clickable").click((): void => this.purgeFiles()));
+
+        // Only update the header if the task is run
         if (task.run()) {
             header.removeClass("clickable")
                 .off("click");
