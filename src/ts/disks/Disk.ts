@@ -202,6 +202,8 @@ class Disk {
                 callback();
 
                 this.files = [];
+                this.displayedFiles = 0;
+                
                 // Remove files from the display
                 if (this.displayed) {
                     for (const child of parent.children(".file")) {

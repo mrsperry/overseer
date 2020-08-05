@@ -569,6 +569,7 @@ class Disk {
             .setOnComplete(() => {
             callback();
             this.files = [];
+            this.displayedFiles = 0;
             if (this.displayed) {
                 for (const child of parent.children(".file")) {
                     $(child).fadeOut(400, () => {
