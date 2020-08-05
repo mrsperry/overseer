@@ -544,15 +544,9 @@ class Disk {
                 .removeClass("clickable");
         }
         else {
-            header.addClass("clickable");
-            if (this.isQuarantine) {
-                header.text("Purge files")
-                    .click(() => this.purgeFiles());
-            }
-            else {
-                header.text("Scan files")
-                    .click(() => this.scanFiles());
-            }
+            header.addClass("clickable")
+                .text((this.isQuarantine ? "Purge" : "Scan") + " files")
+                .click(() => this.wipeDisk(this.isQuarantine));
         }
         if (this.files.length > Disk.maxDisplayedFiles) {
             let extra = parent.children(".extra-files");
@@ -567,20 +561,13 @@ class Disk {
             extra.text("...and " + (this.files.length - Disk.maxDisplayedFiles) + " more");
         }
     }
-    scanFiles() {
+    wipeDisk(operation) {
         const parent = $("#disk-view");
         const header = parent.children(".header");
-        const task = CoreTask.create("Scanning: " + this.name, this.getUsage() * 10)
+        const callback = () => operation ? this.purgeFiles() : this.scanFiles();
+        const task = CoreTask.create((operation ? "Purging" : "Scanning") + ": " + this.name, this.getUsage())
             .setOnComplete(() => {
-            const length = this.files.length;
-            let threats = 0;
-            for (let index = 0; index < length; index++) {
-                const file = this.files[index];
-                if (file.getIsThreat()) {
-                    threats++;
-                    DiskManager.addFileToQuarantine(file);
-                }
-            }
+            callback();
             this.files = [];
             if (this.displayed) {
                 for (const child of parent.children(".file")) {
@@ -591,41 +578,32 @@ class Disk {
             }
             this.updateFileDisplay();
             this.updateUsage();
-            Messenger.write("Scanned " + length + " files and found " + threats + " " + (threats === 1 ? "vulnerability" : "vulnerabilities"));
         })
-            .setOnCancel(() => header.addClass("clickable").click(() => this.scanFiles()));
+            .setOnCancel(() => header.addClass("clickable").click(() => callback()));
         if (task.run()) {
             header.removeClass("clickable")
                 .off("click");
         }
     }
-    purgeFiles() {
-        const parent = $("#disk-view");
-        const header = parent.children(".header");
-        const task = CoreTask.create("Purging: " + this.name, this.getUsage())
-            .setOnComplete(() => {
-            let reliability = 0;
-            for (const file of this.files) {
-                reliability += file.getSize() / 100;
+    scanFiles() {
+        const length = this.files.length;
+        let threats = 0;
+        for (let index = 0; index < length; index++) {
+            const file = this.files[index];
+            if (file.getIsThreat()) {
+                threats++;
+                DiskManager.addFileToQuarantine(file);
             }
-            Research.addReliability(reliability);
-            Messenger.write("Purged " + this.files.length + " file" + (this.files.length === 1 ? "" : "s") + " and gained " + reliability + " reliability");
-            this.files = [];
-            if (this.displayed) {
-                for (const child of parent.children(".file")) {
-                    $(child).fadeOut(400, () => {
-                        $(child).remove();
-                    });
-                }
-            }
-            this.updateFileDisplay();
-            this.updateUsage();
-        })
-            .setOnCancel(() => header.addClass("clickable").click(() => this.purgeFiles()));
-        if (task.run()) {
-            header.removeClass("clickable")
-                .off("click");
         }
+        Messenger.write("Scanned " + length + " files and found " + threats + " " + (threats === 1 ? "vulnerability" : "vulnerabilities"));
+    }
+    purgeFiles() {
+        let reliability = 0;
+        for (const file of this.files) {
+            reliability += file.getSize() / 100;
+        }
+        Research.addReliability(reliability);
+        Messenger.write("Purged " + this.files.length + " file" + (this.files.length === 1 ? "" : "s") + " and gained " + reliability.toFixed(2) + " reliability");
     }
     displayFile(file, delay = 0) {
         const parent = $("<div>")

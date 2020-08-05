@@ -165,15 +165,9 @@ class Disk {
             header.text("No files to display")
                 .removeClass("clickable");
         } else {
-            header.addClass("clickable");
-
-            if (this.isQuarantine) {
-                header.text("Purge files")
-                    .click((): void => this.purgeFiles());
-            } else {
-                header.text("Scan files")
-                    .click((): void => this.scanFiles());
-            }
+            header.addClass("clickable")
+                .text((this.isQuarantine ? "Purge" : "Scan") + " files")
+                .click((): void => this.wipeDisk(this.isQuarantine));
         }
 
         // Check if an extra files indicator is needed
@@ -195,30 +189,19 @@ class Disk {
     }
 
     /**
-     * Scans the files on this disk for threats
-     * 
-     * This will clear the disk and move and threats to quarantine
+     * Performs an operation on the disk then clears it
+     * @param operation The operation to perform: true for purging, false for scanning
      */
-    private scanFiles(): void {
+    private wipeDisk(operation: boolean): void {
         const parent: any = $("#disk-view");
         const header: any = parent.children(".header");
+        const callback: Function = (): void => operation ? this.purgeFiles() : this.scanFiles();
 
-        const task: CoreTask = CoreTask.create("Scanning: " + this.name, this.getUsage() * 10)
+        const task: CoreTask = CoreTask.create((operation ? "Purging" : "Scanning") + ": " + this.name, this.getUsage())
             .setOnComplete((): void => {
-                const length: number = this.files.length;
+                callback();
 
-                let threats: number = 0;
-                for (let index: number = 0; index < length; index++) {
-                    const file: DiskFile = this.files[index];
-
-                    // Move infected files to quarantine
-                    if (file.getIsThreat()) {
-                        threats++;
-                        DiskManager.addFileToQuarantine(file);
-                    }
-                }
                 this.files = [];
-
                 // Remove files from the display
                 if (this.displayed) {
                     for (const child of parent.children(".file")) {
@@ -230,10 +213,8 @@ class Disk {
 
                 this.updateFileDisplay();
                 this.updateUsage();
-                Messenger.write("Scanned " + length + " files and found " + threats + " " + (threats === 1 ? "vulnerability" : "vulnerabilities"));
             })
-            // Reset header if the scan is cancelled
-            .setOnCancel((): void => header.addClass("clickable").click((): void => this.scanFiles()));
+            .setOnCancel((): void => header.addClass("clickable").click((): void => callback()));
         
         // Update header if the task can be run
         if (task.run()) {
@@ -243,43 +224,38 @@ class Disk {
     }
 
     /**
+     * Scans the files on this disk for threats
+     * 
+     * Threats found are moved to quarantine
+     */
+    private scanFiles(): void {
+        const length: number = this.files.length;
+
+        let threats: number = 0;
+        for (let index: number = 0; index < length; index++) {
+            const file: DiskFile = this.files[index];
+
+            // Move infected files to quarantine
+            if (file.getIsThreat()) {
+                threats++;
+                DiskManager.addFileToQuarantine(file);
+            }
+        }
+
+        Messenger.write("Scanned " + length + " files and found " + threats + " " + (threats === 1 ? "vulnerability" : "vulnerabilities"));
+    }
+
+    /**
      * Purges files from a quarantine disk for reliability
      */
     public purgeFiles(): void {
-        const parent: any = $("#disk-view");
-        const header: any = parent.children(".header");
-
-        const task: CoreTask = CoreTask.create("Purging: " + this.name, this.getUsage())
-            .setOnComplete((): void => {
-                // Get the amount of reliability to add
-                let reliability: number = 0;
-                for (const file of this.files) {
-                    reliability += file.getSize() / 100;
-                }
-                Research.addReliability(reliability);
-                Messenger.write("Purged " + this.files.length + " file" + (this.files.length === 1 ? "" : "s") + " and gained " + reliability.toFixed(2) + " reliability");
-                this.files = [];
-
-                // Remove files from the display
-                if (this.displayed) {
-                    for (const child of parent.children(".file")) {
-                        $(child).fadeOut(400, (): void => {
-                            $(child).remove();
-                        });
-                    }
-                }
-
-                this.updateFileDisplay();
-                this.updateUsage();
-            })
-            // Reset the header
-            .setOnCancel((): void => header.addClass("clickable").click((): void => this.purgeFiles()));
-
-        // Only update the header if the task is run
-        if (task.run()) {
-            header.removeClass("clickable")
-                .off("click");
+        let reliability: number = 0;
+        for (const file of this.files) {
+            reliability += file.getSize() / 100;
         }
+        Research.addReliability(reliability);
+
+        Messenger.write("Purged " + this.files.length + " file" + (this.files.length === 1 ? "" : "s") + " and gained " + reliability.toFixed(2) + " reliability");
     }
 
     /**
