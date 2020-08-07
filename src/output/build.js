@@ -699,6 +699,104 @@ class Hack {
         this.content.addClass(success ? "success" : "fail");
     }
 }
+class Cryptogram extends Hack {
+    constructor(level) {
+        const data = Cryptogram.levels[level - 1];
+        super(data.time);
+        this.password = Utils.createUniqueList(Cryptogram.letters.split(""), data.characters).join("");
+        this.progress = "";
+        this.addContent();
+    }
+    addContent() {
+        super.addContent();
+        const header = $("<div>")
+            .addClass("header centered")
+            .text("Password cipher:")
+            .appendTo(this.content);
+        const letterContainer = $("<ul>")
+            .appendTo(header);
+        for (let index = 0; index < this.password.length; index++) {
+            $("<li>")
+                .attr("id", "cipher-" + index)
+                .text("0x" + this.password.charCodeAt(index).toString(16))
+                .appendTo(letterContainer);
+        }
+        $("<h1>")
+            .attr("id", "password")
+            .addClass("centered")
+            .appendTo(this.content);
+        const listContainer = $("<div>")
+            .addClass("cryptogram")
+            .appendTo(this.content);
+        const letters = Cryptogram.letters;
+        const listCount = 4;
+        const letterCount = Math.ceil(letters.length / listCount);
+        for (let lists = 0; lists < listCount; lists++) {
+            const list = $("<ol>")
+                .appendTo(listContainer);
+            for (let index = 0; index < letterCount; index++) {
+                const currentIndex = (lists * letterCount) + index;
+                const letter = letters[currentIndex];
+                const code = $("<li>")
+                    .text(letter + ": 0x" + letters.charCodeAt(currentIndex).toString(16))
+                    .click(() => {
+                    if (this.locked) {
+                        return;
+                    }
+                    code.addClass("clickable-no-click");
+                    if (this.validateInput(letter.toUpperCase())) {
+                        code.off("click");
+                    }
+                    else {
+                        code.addClass("active-error");
+                    }
+                })
+                    .appendTo(list);
+                if (this.password.includes(letter)) {
+                    code.addClass("password-letter");
+                }
+            }
+        }
+    }
+    fail() {
+        super.fail();
+        for (const letter of $(".password-letter")) {
+            if (!$(letter).hasClass("clickable-no-click")) {
+                $(letter).addClass("clickable-no-click active-error");
+            }
+        }
+    }
+    validateInput(letter) {
+        this.progress += letter;
+        if (this.password.charAt(this.progress.length - 1) !== letter) {
+            super.fail();
+            return false;
+        }
+        if (this.progress === this.password) {
+            this.success();
+        }
+        $("#cipher-" + (this.progress.length - 1))
+            .addClass("clickable-no-click");
+        $("#password")
+            .text(this.progress);
+        return true;
+    }
+}
+Cryptogram.letters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+Cryptogram.levels = [
+    {
+        "time": 20,
+        "characters": 5
+    },
+    {
+        "time": 25,
+        "characters": 7
+    },
+    {
+        "time": 30,
+        "characters": 10
+    }
+];
 class HiddenPasswords extends Hack {
     constructor(level) {
         const data = HiddenPasswords.data.levels[level - 1];
