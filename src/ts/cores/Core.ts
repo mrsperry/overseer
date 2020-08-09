@@ -21,6 +21,10 @@ class Core {
 
     /** If this core can overclock */
     private canOverclock: boolean = false;
+    /** The maximum upgrades this core can receive */
+    private maxUpgrades: number = 0;
+    /** The number of times this core has overclocked */
+    private upgrades: number = 0;
     /** If this core is infinitely searching for files */
     private searchingForFiles: boolean = false;
 
@@ -149,6 +153,7 @@ class Core {
             .setOnComplete((): void => {
                 this.updatePower(this.power * 2);
 
+                this.upgrades++;
                 this.canOverclock = false;
             }).run();
     }
@@ -240,9 +245,22 @@ class Core {
         return this.handle !== null;
     }
 
+    /**
+     * @param canOverclock If this core can overclock
+     */
     public setCanOverclock(canOverclock: boolean): void {
         this.canOverclock = canOverclock;
 
         this.updateButtons();
+    }
+
+    /**
+     * Sets the maximum number of upgrades for this core and updates core buttons
+     * @param max The new maximum number of upgrades
+     */
+    public setMaxUpgrades(max: number): void {
+        this.maxUpgrades = max;
+
+        this.setCanOverclock(this.maxUpgrades > this.upgrades);
     }
 }

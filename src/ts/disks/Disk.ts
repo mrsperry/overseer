@@ -123,6 +123,14 @@ class Disk {
     }
 
     /**
+     * @param size The new size of the disk
+     */
+    public setSize(size: number): void {
+        this.maxStorage = size;
+        this.updateUsage();
+    }
+
+    /**
      * @returns If this disk is a quarantine disk
      */
     public isQuarantineStorage(): boolean {

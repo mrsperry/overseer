@@ -3,12 +3,14 @@
 class CoreManager {
     /** The list of available cores */
     private static coreList: Core[];
+    private static maxCoreUpgrades: number;
 
     /**
      * Retrieves the core states
      */
     public static initialize(): void {
         CoreManager.coreList = State.getValue("cores.count") || [];
+        CoreManager.maxCoreUpgrades = State.getValue("cores.max-upgrades") || 0;
 
         this.addCore(100);
     }
@@ -35,5 +37,16 @@ class CoreManager {
         }
 
         return false;
+    }
+
+    /**
+     * Increments the maximum number of core upgrades for each core
+     */
+    public static upgradeCoreSpeeds(): void {
+        CoreManager.maxCoreUpgrades++;
+
+        for (const core of CoreManager.coreList) {
+            core.setMaxUpgrades(CoreManager.maxCoreUpgrades);
+        }
     }
 }

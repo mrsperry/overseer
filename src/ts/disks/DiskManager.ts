@@ -9,8 +9,10 @@ class DiskManager {
     /** List of available disk names */
     private static diskNames: string[];
 
-    /** Current level of quarantine used for quarantine disks */
-    private static quarantineLevel: number;
+    /** The size of all disks */
+    private static diskSize: number;
+    /** Current level of threat used for quarantine disks */
+    private static threatLevel: number;
 
     /**
      * Initializes disk names and displays
@@ -24,27 +26,28 @@ class DiskManager {
         DiskManager.diskNames = [];
         DiskManager.generateDiskNames(diskNameData, 3);
 
+        // Set the initial size of disks
+        DiskManager.diskSize = 500;
         // Set initial quarantine level
-        DiskManager.quarantineLevel = 0;
+        DiskManager.threatLevel = 1;
 
         // Add an initial disk and display its files by default
-        DiskManager.displayFiles(DiskManager.addDisk(500, false));
+        DiskManager.displayFiles(DiskManager.addDisk(false));
         // Add an initial quarantine disk
-        DiskManager.addDisk(500, true);
+        DiskManager.addDisk(true);
     }
 
     /**
      * Adds a new disk
-     * @param maxStorage The maximum number of kilobytes the disk can handle
      * @param isQuarantine If the disk is a quarantine disk
      * @returns The added disk
      */
-    public static addDisk(maxStorage: number, isQuarantine: boolean): Disk {
+    public static addDisk(isQuarantine: boolean): Disk {
         // Get the name of the disk
         const name: string = isQuarantine ? DiskManager.getQuarantineName() : DiskManager.getDiskName();
 
         // Create the disk
-        const disk: Disk = new Disk(DiskManager.disks.length, name, maxStorage, isQuarantine);
+        const disk: Disk = new Disk(DiskManager.disks.length, name, DiskManager.diskSize, isQuarantine);
     
         DiskManager.disks.push(disk);
         return disk;
@@ -59,7 +62,7 @@ class DiskManager {
                 continue;
             }
 
-            if (disk.addFile(this.quarantineLevel)) {
+            if (disk.addFile(this.threatLevel)) {
                 return;
             }
         }
@@ -115,6 +118,24 @@ class DiskManager {
     }
 
     /**
+     * Doubles the current disk size and updates all disks to the new size
+     */
+    public static upgradeDiskStorage(): void {
+        DiskManager.diskSize *= 2;
+
+        for (const disk of DiskManager.disks) {
+            disk.setSize(DiskManager.diskSize);
+        }
+    }
+
+    /**
+     * Increments the threat level
+     */
+    public static addThreatLevel(): void {
+        DiskManager.threatLevel++;
+    }
+
+    /**
      * @returns The list of available file extensions
      */
     public static getFileExtensions(): string[] {
@@ -150,6 +171,6 @@ class DiskManager {
      * @returns Gets the current quarantine disk name
      */
     private static getQuarantineName(): string {
-        return "/quarantine/level-" + ++DiskManager.quarantineLevel;
+        return "/quarantine/level-" + DiskManager.threatLevel;
     }
 }

@@ -130,6 +130,8 @@ class Core {
         this.powerDown = false;
         this.powerReduction = 0;
         this.canOverclock = false;
+        this.maxUpgrades = 0;
+        this.upgrades = 0;
         this.searchingForFiles = false;
         const parent = $("<div>")
             .attr("id", "core-" + id)
@@ -212,6 +214,7 @@ class Core {
         CoreTask.create("Overclocking core", this.power * 5000)
             .setOnComplete(() => {
             this.updatePower(this.power * 2);
+            this.upgrades++;
             this.canOverclock = false;
         }).run();
     }
@@ -268,10 +271,15 @@ class Core {
         this.canOverclock = canOverclock;
         this.updateButtons();
     }
+    setMaxUpgrades(max) {
+        this.maxUpgrades = max;
+        this.setCanOverclock(this.maxUpgrades > this.upgrades);
+    }
 }
 class CoreManager {
     static initialize() {
         CoreManager.coreList = State.getValue("cores.count") || [];
+        CoreManager.maxCoreUpgrades = State.getValue("cores.max-upgrades") || 0;
         this.addCore(100);
     }
     static addCore(power) {
@@ -285,6 +293,12 @@ class CoreManager {
             }
         }
         return false;
+    }
+    static upgradeCoreSpeeds() {
+        CoreManager.maxCoreUpgrades++;
+        for (const core of CoreManager.coreList) {
+            core.setMaxUpgrades(CoreManager.maxCoreUpgrades);
+        }
     }
 }
 class Utils {
@@ -338,13 +352,14 @@ class DiskManager {
         DiskManager.fileExtensions = diskNameData.extensions;
         DiskManager.diskNames = [];
         DiskManager.generateDiskNames(diskNameData, 3);
-        DiskManager.quarantineLevel = 0;
-        DiskManager.displayFiles(DiskManager.addDisk(500, false));
-        DiskManager.addDisk(500, true);
+        DiskManager.diskSize = 500;
+        DiskManager.threatLevel = 1;
+        DiskManager.displayFiles(DiskManager.addDisk(false));
+        DiskManager.addDisk(true);
     }
-    static addDisk(maxStorage, isQuarantine) {
+    static addDisk(isQuarantine) {
         const name = isQuarantine ? DiskManager.getQuarantineName() : DiskManager.getDiskName();
-        const disk = new Disk(DiskManager.disks.length, name, maxStorage, isQuarantine);
+        const disk = new Disk(DiskManager.disks.length, name, DiskManager.diskSize, isQuarantine);
         DiskManager.disks.push(disk);
         return disk;
     }
@@ -353,7 +368,7 @@ class DiskManager {
             if (disk.isQuarantineStorage()) {
                 continue;
             }
-            if (disk.addFile(this.quarantineLevel)) {
+            if (disk.addFile(this.threatLevel)) {
                 return;
             }
         }
@@ -389,6 +404,15 @@ class DiskManager {
             display();
         }
     }
+    static upgradeDiskStorage() {
+        DiskManager.diskSize *= 2;
+        for (const disk of DiskManager.disks) {
+            disk.setSize(DiskManager.diskSize);
+        }
+    }
+    static addThreatLevel() {
+        DiskManager.threatLevel++;
+    }
     static getFileExtensions() {
         return DiskManager.fileExtensions;
     }
@@ -406,7 +430,7 @@ class DiskManager {
         return DiskManager.diskNames.shift() || "Unavailable";
     }
     static getQuarantineName() {
-        return "/quarantine/level-" + ++DiskManager.quarantineLevel;
+        return "/quarantine/level-" + DiskManager.threatLevel;
     }
 }
 class Research {
@@ -433,6 +457,11 @@ class Research {
             }
             const parent = $("<button>")
                 .attr("id", "research-" + index)
+                .click(() => {
+                Research.purchaseResearch(index, item.type);
+                parent.prop("disabled", true)
+                    .fadeOut(400, () => parent.hide());
+            })
                 .hide()
                 .delay(Research.displayDelay * index)
                 .fadeIn()
@@ -441,9 +470,26 @@ class Research {
                 .text(item.title)
                 .appendTo(parent);
             $("<span>")
-                .text(item.description)
+                .text("+" + Research.formatID(item.type))
                 .appendTo(parent);
         }
+    }
+    static purchaseResearch(index, type) {
+        Research.purchased.push(index);
+        switch (type) {
+            case "core-speeds":
+                CoreManager.upgradeCoreSpeeds();
+                break;
+            case "disk-size":
+                DiskManager.upgradeDiskStorage();
+                break;
+            case "threat-level":
+                DiskManager.addThreatLevel();
+                break;
+        }
+    }
+    static formatID(id) {
+        return id.substring(0, 1).toUpperCase() + id.substring(1, id.length).split("-").join(" ");
     }
 }
 Research.displayDelay = 50;
@@ -520,6 +566,10 @@ class Disk {
             element.removeClass("active");
             this.displayedFiles = 0;
         }
+    }
+    setSize(size) {
+        this.maxStorage = size;
+        this.updateUsage();
     }
     isQuarantineStorage() {
         return this.isQuarantine;

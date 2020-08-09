@@ -31,7 +31,7 @@ class Utils {
     }
 
     /**
-     *  Durstenfeld shuffle; randomly re-orders an array's contents
+     * Durstenfeld shuffle; randomly re-orders an array's contents
      * @param array The array to shuffle
      */
     public static shuffle(array: any[]): any[] {

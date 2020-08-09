@@ -55,6 +55,12 @@ class Research {
             // Create the element
             const parent: any = $("<button>")
                 .attr("id", "research-" + index)
+                .click((): void => {
+                    Research.purchaseResearch(index, item.type);
+
+                    parent.prop("disabled", true)
+                        .fadeOut(400, (): void => parent.hide());
+                })
                 .hide()
                 .delay(Research.displayDelay * index)
                 .fadeIn()
@@ -63,8 +69,37 @@ class Research {
                 .text(item.title)
                 .appendTo(parent);
             $("<span>")
-                .text(item.description)
+                .text("+" + Research.formatID(item.type))
                 .appendTo(parent);
         }
+    }
+
+    /**
+     * @param index The index number of the research
+     * @param type The type of research to purchase
+     */
+    public static purchaseResearch(index: number, type: string): void {
+        Research.purchased.push(index);
+
+        switch (type) {
+            case "core-speeds":
+                CoreManager.upgradeCoreSpeeds();
+                break;
+            case "disk-size":
+                DiskManager.upgradeDiskStorage();
+                break;
+            case "threat-level":
+                DiskManager.addThreatLevel();
+                break;
+        }
+    }
+
+    /**
+     * urns an ID to a display string "id-example" -> "Id example"
+     * @param id The ID to format
+     * @returns The formatted ID
+     */
+    private static formatID(id: string): string {
+        return id.substring(0, 1).toUpperCase() + id.substring(1, id.length).split("-").join(" ");
     }
 }
