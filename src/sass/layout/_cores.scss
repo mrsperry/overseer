@@ -22,11 +22,19 @@
                         opacity 250ms ease-in-out;
             margin-right: 0.5rem;
 
+            &:hover, &:active {
+                color: variables.$clickable-text-hover;
+            }
+
             &:disabled {
                 cursor: auto;
                 opacity: 0.5;
                 color: variables.$main-text;
             }
+        }
+
+        .search-button {
+            margin-right: 0rem;
         }
     }
 }
