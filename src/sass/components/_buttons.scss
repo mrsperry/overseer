@@ -1,7 +1,20 @@
+@use "../utils/variables";
+
 button {
     cursor: pointer;
     outline: none;
     background-color: inherit;
+
+    &:hover, &:active {
+        :first-child {
+            color: variables.$clickable-text-hover;
+        }
+    }
+
+    :first-child {
+        color: variables.$clickable-text;
+        transition: color 250ms ease-in-out;
+    }
 
     > * {
         cursor: pointer;
