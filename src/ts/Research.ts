@@ -90,12 +90,13 @@ class Research {
                 break;
             case "threat-level":
                 DiskManager.addThreatLevel();
+                DiskManager.addDisk(true);
                 break;
         }
     }
 
     /**
-     * urns an ID to a display string "id-example" -> "Id example"
+     * Turns an ID to a display string "id-example" -> "Id example"
      * @param id The ID to format
      * @returns The formatted ID
      */

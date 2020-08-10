@@ -485,6 +485,7 @@ class Research {
                 break;
             case "threat-level":
                 DiskManager.addThreatLevel();
+                DiskManager.addDisk(true);
                 break;
         }
     }
