@@ -4,8 +4,10 @@ body {
     display: flex;
     justify-content: center;
     background-color: variables.$main-bg;
+    box-sizing: border-box;
     min-width: 100vw;
     min-height: 100vh;
+    padding: 1rem;
 
     section {
         display: grid;
