@@ -48,15 +48,22 @@ class Messenger {
             .hide()
             .fadeIn()
             .prependTo("#messages");
+        if (Messenger.messages.length > Messenger.maxMessages) {
+            Messenger.messages.shift();
+            $("#messages")
+                .children("p:last-child")
+                .remove();
+        }
         this.applyOpacity();
     }
     static applyOpacity() {
         const children = $("#messages").children();
         for (let index = 0; index < children.length; index++) {
-            $(children[index]).css("opacity", 1 - (index / 15));
+            $(children[index]).css("opacity", 1 - (index / Messenger.maxMessages));
         }
     }
 }
+Messenger.maxMessages = 15;
 class CoreCanvas {
     constructor(parent) {
         const canvas = $("<canvas>")

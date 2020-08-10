@@ -1,6 +1,8 @@
 class Messenger {
     /** All displayed messages */
     private static messages: string[];
+    /** Max number of messages displayed at once */
+    private static maxMessages: number = 15;
 
     /**
      * Retrieves messages from the current state and writes them
@@ -26,6 +28,15 @@ class Messenger {
             .fadeIn()
             .prependTo("#messages");
 
+        // Check if a message needs to be removed
+        if (Messenger.messages.length > Messenger.maxMessages) {
+            Messenger.messages.shift();
+
+            $("#messages")
+                .children("p:last-child")
+                .remove();
+        }
+
         this.applyOpacity();
     }
 
@@ -36,7 +47,7 @@ class Messenger {
         const children: any = $("#messages").children();
 
         for (let index: number = 0; index < children.length; index++) {
-            $(children[index]).css("opacity", 1 - (index / 15));
+            $(children[index]).css("opacity", 1 - (index / Messenger.maxMessages));
         }
     }
 }
