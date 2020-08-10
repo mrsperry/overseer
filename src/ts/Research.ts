@@ -38,23 +38,29 @@ class Research {
      */
     private static displayResearch(): void {
         for (let index: number = 0; index < Research.data.length; index++) {
+            // Get the button element that may not exist
+            const button: any = $("#research").children("button").get(index);
             // Get the ID associated with this research option
-            const id: any = $($("#research").children("button").get(index)).attr("id");
+            const id: any = $(button).attr("id");
 
-            // Check if the option has been purchased or if it is already displayed
-            if (Research.purchased.includes(index) || id !== undefined) {
-                continue;
-            }
-            
             // Since options should be ordered by display cost (and subsequently cost), return if this display cost is too high
             const item: any = Research.data[index];
             if (item.display > Research.reliability) {
                 return;
             }
 
+            // Check if the option has been purchased or if it is already displayed
+            if (Research.purchased.includes(index) || id !== undefined) {
+                if (button !== undefined) {
+                    $(button).prop("disabled", Research.reliability < item.cost);
+                }
+                continue;
+            }
+
             // Create the element
             const parent: any = $("<button>")
                 .attr("id", "research-" + index)
+                .prop("disabled", Research.reliability < item.cost)
                 .click((): void => {
                     Research.purchaseResearch(index, item.type);
 

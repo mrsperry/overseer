@@ -462,16 +462,21 @@ class Research {
     }
     static displayResearch() {
         for (let index = 0; index < Research.data.length; index++) {
-            const id = $($("#research").children("button").get(index)).attr("id");
-            if (Research.purchased.includes(index) || id !== undefined) {
-                continue;
-            }
+            const button = $("#research").children("button").get(index);
+            const id = $(button).attr("id");
             const item = Research.data[index];
             if (item.display > Research.reliability) {
                 return;
             }
+            if (Research.purchased.includes(index) || id !== undefined) {
+                if (button !== undefined) {
+                    $(button).prop("disabled", Research.reliability < item.cost);
+                }
+                continue;
+            }
             const parent = $("<button>")
                 .attr("id", "research-" + index)
+                .prop("disabled", Research.reliability < item.cost)
                 .click(() => {
                 Research.purchaseResearch(index, item.type);
                 parent.prop("disabled", true)

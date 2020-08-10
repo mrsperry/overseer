@@ -36,6 +36,11 @@
             }
         }
 
+        &:disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
         &:before, &:after, :first-child:before, :first-child:after {
             content: "";
             position: absolute;
