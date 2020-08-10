@@ -116,8 +116,8 @@ class CoreTask {
             this.cancel();
         }
     }
-    run() {
-        return CoreManager.startCoreTask(this);
+    run(core = undefined) {
+        return CoreManager.startCoreTask(this, core);
     }
 }
 class Core {
@@ -216,13 +216,13 @@ class Core {
             this.updatePower(this.power * 2);
             this.upgrades++;
             this.canOverclock = false;
-        }).run();
+        }).run(this);
     }
     searchForFiles() {
         this.searchingForFiles = true;
         CoreTask.create("Searching for files", this.power * 50)
             .setOnComplete(() => DiskManager.addFileToDisk())
-            .run();
+            .run(this);
     }
     setTask(task) {
         this.task = task;
@@ -285,8 +285,16 @@ class CoreManager {
     static addCore(power) {
         CoreManager.coreList.push(new Core(CoreManager.coreList.length, power));
     }
-    static startCoreTask(task) {
-        for (const core of CoreManager.coreList) {
+    static startCoreTask(task, core) {
+        if (core === undefined) {
+            for (const currentCore of CoreManager.coreList) {
+                if (!currentCore.isBusy()) {
+                    currentCore.setTask(task);
+                    return true;
+                }
+            }
+        }
+        else {
             if (!core.isBusy()) {
                 core.setTask(task);
                 return true;

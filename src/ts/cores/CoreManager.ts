@@ -26,10 +26,18 @@ class CoreManager {
     /**
      * Runs a task on the first available core, if any are not busy
      * @param task The task to run
+     * @param core The core to run the task on
      * @returns If the task was run
      */
-    public static startCoreTask(task: CoreTask): boolean {
-        for (const core of CoreManager.coreList) {
+    public static startCoreTask(task: CoreTask, core?: Core | undefined): boolean {
+        if (core === undefined) {
+            for (const currentCore of CoreManager.coreList) {
+                if (!currentCore.isBusy()) {
+                    currentCore.setTask(task);
+                    return true;
+                }
+            }
+        } else {
             if (!core.isBusy()) {
                 core.setTask(task);
                 return true;

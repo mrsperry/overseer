@@ -68,9 +68,10 @@ class CoreTask {
 
     /**
      * Runs this task on the first available core
+     * @param core The core to run this task on
      * @returns If the task was run
      */
-    public run(): boolean {
-        return CoreManager.startCoreTask(this);
+    public run(core: Core | undefined = undefined): boolean {
+        return CoreManager.startCoreTask(this, core);
     }
 }

@@ -155,7 +155,7 @@ class Core {
 
                 this.upgrades++;
                 this.canOverclock = false;
-            }).run();
+            }).run(this);
     }
 
     /**
@@ -166,7 +166,7 @@ class Core {
 
         CoreTask.create("Searching for files", this.power * 50)
             .setOnComplete((): void => DiskManager.addFileToDisk())
-            .run();
+            .run(this);
     }
 
     /**
