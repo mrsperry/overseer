@@ -12,7 +12,7 @@ class CoreManager {
         CoreManager.coreList = State.getValue("cores.count") || [];
         CoreManager.maxCoreUpgrades = State.getValue("cores.max-upgrades") || 0;
 
-        this.addCore(100);
+        this.addCore(1);
     }
 
     /**

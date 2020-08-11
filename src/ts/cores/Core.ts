@@ -119,7 +119,7 @@ class Core {
             }
         } else {
             // Update the core's progress
-            this.progress += (this.power / this.task.getCost()) * 10;
+            this.progress += (this.power / this.task.getCost()) * 2;
         }
 
         // Check if the task is completed
@@ -149,7 +149,7 @@ class Core {
      * Doubles the core's power
      */
     private overclock(): void {
-        CoreTask.create("Overclocking core", this.power * 5000)
+        CoreTask.create("Overclocking core", this.power * 1000)
             .setOnComplete((): void => {
                 this.updatePower(this.power * 2);
 
@@ -164,7 +164,7 @@ class Core {
     private searchForFiles(): void {
         this.searchingForFiles = true;
 
-        CoreTask.create("Searching for files", this.power * 50)
+        CoreTask.create("Searching for files", this.power * 5)
             .setOnComplete((): void => DiskManager.addFileToDisk())
             .run(this);
     }

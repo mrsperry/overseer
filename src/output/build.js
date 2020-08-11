@@ -201,7 +201,7 @@ class Core {
             }
         }
         else {
-            this.progress += (this.power / this.task.getCost()) * 10;
+            this.progress += (this.power / this.task.getCost()) * 2;
         }
         if (this.progress >= 100) {
             this.task.onComplete();
@@ -218,7 +218,7 @@ class Core {
         }
     }
     overclock() {
-        CoreTask.create("Overclocking core", this.power * 5000)
+        CoreTask.create("Overclocking core", this.power * 1000)
             .setOnComplete(() => {
             this.updatePower(this.power * 2);
             this.upgrades++;
@@ -227,7 +227,7 @@ class Core {
     }
     searchForFiles() {
         this.searchingForFiles = true;
-        CoreTask.create("Searching for files", this.power * 50)
+        CoreTask.create("Searching for files", this.power * 5)
             .setOnComplete(() => DiskManager.addFileToDisk())
             .run(this);
     }
@@ -287,7 +287,7 @@ class CoreManager {
     static initialize() {
         CoreManager.coreList = State.getValue("cores.count") || [];
         CoreManager.maxCoreUpgrades = State.getValue("cores.max-upgrades") || 0;
-        this.addCore(100);
+        this.addCore(1);
     }
     static addCore(power) {
         CoreManager.coreList.push(new Core(CoreManager.coreList.length, power));
@@ -636,6 +636,7 @@ class Disk {
         const parent = $("#disk-view");
         const header = parent.children(".header");
         const callback = () => operation ? this.purgeFiles() : this.scanFiles();
+        console.log(this.getUsage() * 100);
         const task = CoreTask.create((operation ? "Purging" : "Scanning") + ": " + this.name, this.getUsage())
             .setOnComplete(() => {
             callback();
