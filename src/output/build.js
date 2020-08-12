@@ -42,6 +42,22 @@ class Messenger {
         }
     }
     static write(text) {
+        if (text === Messenger.messages[Messenger.messages.length - 1]) {
+            const previous = $("#messages").children("p")[0];
+            if ($(previous).children("span").length === 0) {
+                $("<span>")
+                    .text(" x2")
+                    .hide()
+                    .fadeIn()
+                    .appendTo(previous);
+            }
+            else {
+                const child = $(previous).children("span")[0];
+                const text = $(child).text();
+                $(child).text(" x" + (Number.parseInt(text.substring(2, text.length)) + 1));
+            }
+            return;
+        }
         Messenger.messages.push(text);
         $("<p>")
             .text(text)
