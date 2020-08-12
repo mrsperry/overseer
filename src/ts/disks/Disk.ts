@@ -227,7 +227,7 @@ class Disk {
             })
             .setOnCancel((): void => header.addClass("clickable")
                 .removeClass("disabled")
-                .click((): void => callback()));
+                .click((): void => this.wipeDisk(operation)));
         
         // Update header if the task can be run
         if (task.run()) {

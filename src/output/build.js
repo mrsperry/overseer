@@ -679,7 +679,7 @@ class Disk {
         })
             .setOnCancel(() => header.addClass("clickable")
             .removeClass("disabled")
-            .click(() => callback()));
+            .click(() => this.wipeDisk(operation)));
         if (task.run()) {
             header.removeClass("clickable")
                 .addClass("disabled")
