@@ -16,11 +16,14 @@
             margin-left: 1rem;
         }
 
-        .upgrade-button, .cancel-button, .search-button {
+        .core-button {
             color: variables.$clickable-text;
             transition: color 250ms ease-in-out,
                         opacity 250ms ease-in-out;
-            margin-right: 0.5rem;
+
+            &:not(:last-child) {
+                margin-right: 0.5rem;
+            }
 
             &:hover, &:active {
                 color: variables.$clickable-text-hover;
@@ -33,8 +36,12 @@
             }
         }
 
-        .search-button {
-            margin-right: 0rem;
+        .cancel-button {
+            color: variables.$clickable-text-error;
+
+            &:hover, &:active {
+                color: variables.$clickable-text-error-hover;
+            }
         }
     }
 }

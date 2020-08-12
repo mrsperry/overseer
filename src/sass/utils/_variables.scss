@@ -9,7 +9,8 @@ $offset-bg-hover: #333333;
 
 $clickable-text: hsl(130, 60%, 60%);
 $clickable-text-hover: hsl(130, 60%, 80%);
-$clickable-text-error: hsl(0, 61%, 60%);
+$clickable-text-error: hsl(0, 60%, 60%);
+$clickable-text-error-hover: hsl(0, 60%, 80%);
 
 :root {
     --clickable-text: hsl(130, 60%, 60%);

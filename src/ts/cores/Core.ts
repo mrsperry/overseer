@@ -50,17 +50,17 @@ class Core {
         $("<br>")
             .appendTo(this.info);
         $("<button>")
-            .addClass("upgrade-button")
+            .addClass("core-button overclock-button")
             .text("[+]")
             .click((): void => this.overclock())
             .appendTo(this.info);
         $("<button>")
-            .addClass("cancel-button")
+            .addClass("core-button cancel-button")
             .text("[x]")
             .click((): void => this.cancelTask())
             .appendTo(this.info);
         $("<button>")
-            .addClass("search-button")
+            .addClass("core-button search-button")
             .text("[search]")
             .click((): void => this.searchForFiles())
             .appendTo(this.info)
@@ -149,7 +149,7 @@ class Core {
         this.info.children(".cancel-button")
             .prop("disabled", !this.isBusy());
 
-        this.info.children(".upgrade-button")
+        this.info.children(".overclock-button")
             .prop("disabled", !this.canOverclock || this.isBusy());
 
         this.info.children(".search-button")
