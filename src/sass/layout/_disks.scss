@@ -25,7 +25,12 @@
         margin-left: 1rem;
 
         h1 {
+            transition: opacity 250ms ease-in-out;
             align-self: center;
+
+            &.disabled {
+                opacity: 0.5;
+            }
         }
     }
 

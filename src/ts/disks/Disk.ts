@@ -167,6 +167,7 @@ class Disk {
     private updateFileDisplay(delay: number = 0): void {
         const parent: any = $("#disk-view");
         const header: any = parent.children(".header")
+            .removeClass("disabled")
             .off("click");
 
         if (this.files.length == 0) {
@@ -224,11 +225,14 @@ class Disk {
                 this.updateFileDisplay();
                 this.updateUsage();
             })
-            .setOnCancel((): void => header.addClass("clickable").click((): void => callback()));
+            .setOnCancel((): void => header.addClass("clickable")
+                .removeClass("disabled")
+                .click((): void => callback()));
         
         // Update header if the task can be run
         if (task.run()) {
             header.removeClass("clickable")
+                .addClass("disabled")
                 .off("click");
         }
     }

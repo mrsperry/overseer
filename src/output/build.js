@@ -634,6 +634,7 @@ class Disk {
     updateFileDisplay(delay = 0) {
         const parent = $("#disk-view");
         const header = parent.children(".header")
+            .removeClass("disabled")
             .off("click");
         if (this.files.length == 0) {
             header.text("No files to display")
@@ -676,9 +677,12 @@ class Disk {
             this.updateFileDisplay();
             this.updateUsage();
         })
-            .setOnCancel(() => header.addClass("clickable").click(() => callback()));
+            .setOnCancel(() => header.addClass("clickable")
+            .removeClass("disabled")
+            .click(() => callback()));
         if (task.run()) {
             header.removeClass("clickable")
+                .addClass("disabled")
                 .off("click");
         }
     }
