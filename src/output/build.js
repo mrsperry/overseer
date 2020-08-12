@@ -93,17 +93,60 @@ class CoreTask {
     constructor(display, cost) {
         this.display = display;
         this.cost = cost;
+        this.core = null;
+        this.handle = null;
+        this.progress = 0;
+        this.infinite = false;
+        this.isRunning = false;
         this.complete = null;
         this.cancel = null;
     }
     static create(display, cost) {
         return new CoreTask(display, cost);
     }
+    updateCore() {
+        this.progress += (this.core.getPower() / this.getCost()) * 2;
+        this.core.getCanvas().drawCore(this.infinite ? 100 : this.progress);
+        if (this.progress >= 100) {
+            if (this.complete !== null) {
+                this.complete();
+            }
+            if (this.infinite) {
+                this.progress = 0;
+            }
+            else {
+                this.cleanup();
+            }
+        }
+    }
+    cleanup() {
+        this.isRunning = false;
+        if (this.handle !== null) {
+            window.clearInterval(this.handle);
+        }
+        this.core.getCanvas().drawCore(0);
+        this.core.setCoreTaskDisplay();
+        this.core.updateButtons();
+    }
+    isBusy() {
+        return this.isRunning;
+    }
     getDisplay() {
         return this.display;
     }
     getCost() {
         return this.cost;
+    }
+    isInfinite() {
+        return this.infinite;
+    }
+    setIsInfinite(infinite) {
+        this.infinite = infinite;
+        return this;
+    }
+    setCore(core) {
+        this.core = core;
+        return this;
     }
     setOnComplete(onComplete) {
         this.complete = onComplete;
@@ -113,33 +156,34 @@ class CoreTask {
         this.cancel = onCancel;
         return this;
     }
-    onComplete() {
-        if (this.complete !== null) {
-            this.complete();
-        }
-    }
     onCancel() {
+        if (this.isInfinite()) {
+            this.setIsInfinite(false);
+        }
         if (this.cancel !== null) {
             this.cancel();
         }
+        this.cleanup();
     }
-    run(core = undefined) {
-        return CoreManager.startCoreTask(this, core);
+    run(core) {
+        if (CoreManager.startCoreTask(this, core)) {
+            this.isRunning = true;
+            this.handle = window.setInterval(() => this.updateCore(), 1);
+            this.core.setCoreTaskDisplay(this.display);
+            this.core.updateButtons();
+            return true;
+        }
+        return false;
     }
 }
 class Core {
     constructor(id, power) {
         this.id = id;
         this.power = power;
-        this.handle = null;
-        this.progress = 0;
-        this.task = CoreTask.create("", 0);
-        this.powerDown = false;
-        this.powerReduction = 0;
+        this.task = null;
         this.canOverclock = false;
         this.maxUpgrades = 0;
         this.upgrades = 0;
-        this.searchingForFiles = false;
         const parent = $("<div>")
             .attr("id", "core-" + id)
             .addClass("core")
@@ -186,37 +230,6 @@ class Core {
         this.info.children(".core-power")
             .text(" @ " + power + "Mhz");
     }
-    updateCore() {
-        if (this.powerDown) {
-            this.progress -= this.powerReduction;
-            if (this.progress <= 0) {
-                window.clearInterval(this.handle);
-                this.handle = null;
-                this.progress = 0;
-                this.powerDown = false;
-                this.powerReduction = 0;
-                if (this.searchingForFiles) {
-                    this.searchForFiles();
-                }
-            }
-        }
-        else {
-            this.progress += (this.power / this.task.getCost()) * 2;
-        }
-        if (this.progress >= 100) {
-            this.task.onComplete();
-            this.progress = 100;
-            this.powerDown = true;
-            this.powerReduction = (100 / 400) * 2;
-            if (!this.searchingForFiles) {
-                this.setCoreTaskDisplay();
-            }
-        }
-        this.canvas.drawCore(this.progress);
-        if (!this.searchingForFiles) {
-            this.updateButtons();
-        }
-    }
     overclock() {
         CoreTask.create("Overclocking core", this.power * 1000)
             .setOnComplete(() => {
@@ -226,26 +239,16 @@ class Core {
         }).run(this);
     }
     searchForFiles() {
-        this.searchingForFiles = true;
         CoreTask.create("Searching for files", this.power * 5)
+            .setIsInfinite(true)
             .setOnComplete(() => DiskManager.addFileToDisk())
             .run(this);
     }
     setTask(task) {
         this.task = task;
-        this.handle = window.setInterval(() => this.updateCore(), 1);
-        this.setCoreTaskDisplay(task.getDisplay());
-        this.updateButtons();
     }
     cancelTask() {
-        if (this.searchingForFiles) {
-            this.searchingForFiles = false;
-        }
-        if (!this.powerDown) {
-            this.powerReduction = (this.progress / 400) * 2;
-        }
-        this.powerDown = true;
-        this.task.onCancel();
+        this.task?.onCancel();
         this.setCoreTaskDisplay();
         this.updateButtons();
     }
@@ -262,17 +265,23 @@ class Core {
     }
     updateButtons() {
         this.info.children(".cancel-button")
-            .prop("disabled", this.powerDown || !this.isBusy());
+            .prop("disabled", !this.isBusy());
         this.info.children(".upgrade-button")
             .prop("disabled", !this.canOverclock || this.isBusy());
         this.info.children(".search-button")
-            .prop("disabled", this.powerDown || this.isBusy());
+            .prop("disabled", this.isBusy());
     }
     getID() {
         return this.id;
     }
+    getCanvas() {
+        return this.canvas;
+    }
+    getPower() {
+        return this.power;
+    }
     isBusy() {
-        return this.handle !== null;
+        return this.task?.isBusy() || false;
     }
     setCanOverclock(canOverclock) {
         this.canOverclock = canOverclock;
@@ -296,14 +305,14 @@ class CoreManager {
         if (core === undefined) {
             for (const currentCore of CoreManager.coreList) {
                 if (!currentCore.isBusy()) {
-                    currentCore.setTask(task);
+                    currentCore.setTask(task.setCore(currentCore));
                     return true;
                 }
             }
         }
         else {
             if (!core.isBusy()) {
-                core.setTask(task);
+                core.setTask(task.setCore(core));
                 return true;
             }
         }
@@ -636,7 +645,6 @@ class Disk {
         const parent = $("#disk-view");
         const header = parent.children(".header");
         const callback = () => operation ? this.purgeFiles() : this.scanFiles();
-        console.log(this.getUsage() * 100);
         const task = CoreTask.create((operation ? "Purging" : "Scanning") + ": " + this.name, this.getUsage())
             .setOnComplete(() => {
             callback();

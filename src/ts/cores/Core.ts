@@ -6,18 +6,8 @@ class Core {
     private info: JQuery<HTMLElement>;
     /** The canvas used by this core */
     private canvas: CoreCanvas;
-
-    /** Window handler for this core's interval */
-    private handle: any = null;
-    /** Current task progress */
-    private progress: number = 0;
     /** The current core task */
-    private task: CoreTask = CoreTask.create("", 0);
-
-    /** If the core is powering down */
-    private powerDown: boolean = false;
-    /** The amount of power per update to subtract */
-    private powerReduction: number = 0;
+    private task: CoreTask | null = null;
 
     /** If this core can overclock */
     private canOverclock: boolean = false;
@@ -25,8 +15,6 @@ class Core {
     private maxUpgrades: number = 0;
     /** The number of times this core has overclocked */
     private upgrades: number = 0;
-    /** If this core is infinitely searching for files */
-    private searchingForFiles: boolean = false;
 
     /**
      * Creates a new core
@@ -97,55 +85,6 @@ class Core {
     }
 
     /**
-     * Updates the core's progress on its current task
-     */
-    public updateCore(): void {
-        // Check if the core is powering down
-        if (this.powerDown) {
-            this.progress -= this.powerReduction;
-
-            // Reset the state of this core when power down is complete
-            if (this.progress <= 0) {
-                window.clearInterval(this.handle);
-                this.handle = null;
-                this.progress = 0;
-                this.powerDown = false;
-                this.powerReduction = 0;
-
-                // Infinitely search for files
-                if (this.searchingForFiles) {
-                    this.searchForFiles();
-                }
-            }
-        } else {
-            // Update the core's progress
-            this.progress += (this.power / this.task.getCost()) * 2;
-        }
-
-        // Check if the task is completed
-        if (this.progress >= 100) {
-            // Run the callback
-            this.task.onComplete();
-
-            // Reset variables for power down
-            this.progress = 100;
-            this.powerDown = true;
-            this.powerReduction = (100 / 400) * 2;
-
-            // Update core display
-            if (!this.searchingForFiles) {
-                this.setCoreTaskDisplay();
-            }
-        }
-
-        this.canvas.drawCore(this.progress);
-
-        if (!this.searchingForFiles) {
-            this.updateButtons();
-        }
-    }
-
-    /**
      * Doubles the core's power
      */
     private overclock(): void {
@@ -162,9 +101,8 @@ class Core {
      * Starts an infinite core task that will add files to disks until cancelled
      */
     private searchForFiles(): void {
-        this.searchingForFiles = true;
-
         CoreTask.create("Searching for files", this.power * 5)
+            .setIsInfinite(true)
             .setOnComplete((): void => DiskManager.addFileToDisk())
             .run(this);
     }
@@ -175,26 +113,13 @@ class Core {
      */
     public setTask(task: CoreTask): void {
         this.task = task;
-        this.handle = window.setInterval((): void => this.updateCore(), 1);
-        this.setCoreTaskDisplay(task.getDisplay());
-        this.updateButtons();
     }
 
     /**
      * Cancels the current task
      */
     public cancelTask(): void {
-        if (this.searchingForFiles) {
-            this.searchingForFiles = false;
-        }
-
-        if (!this.powerDown) {
-            this.powerReduction = (this.progress / 400) * 2;
-        }
-
-        this.powerDown = true;
-
-        this.task.onCancel();
+        this.task?.onCancel();
         this.setCoreTaskDisplay();
         this.updateButtons();
     }
@@ -205,7 +130,7 @@ class Core {
      * If no string is provided, the core's display will be set to an idle state
      * @param display The text to display
      */
-    private setCoreTaskDisplay(display: string = ""): void {
+    public setCoreTaskDisplay(display: string = ""): void {
         const child: any = this.info.children(".core-task");
 
         if (display === "") {
@@ -220,15 +145,15 @@ class Core {
     /**
      * Updates the core's function buttons
      */
-    private updateButtons(): void {
+    public updateButtons(): void {
         this.info.children(".cancel-button")
-            .prop("disabled", this.powerDown || !this.isBusy());
+            .prop("disabled", !this.isBusy());
 
         this.info.children(".upgrade-button")
             .prop("disabled", !this.canOverclock || this.isBusy());
 
         this.info.children(".search-button")
-            .prop("disabled", this.powerDown || this.isBusy());
+            .prop("disabled", this.isBusy());
     }
 
     /**
@@ -239,10 +164,24 @@ class Core {
     }
 
     /**
+     * @returns The canvas this core draws to
+     */
+    public getCanvas(): CoreCanvas {
+        return this.canvas;
+    }
+
+    /**
+     * @returns The power of this core
+     */
+    public getPower(): number {
+        return this.power;
+    }
+
+    /**
      * @returns If this core can handle a new task
      */
     public isBusy(): boolean {
-        return this.handle !== null;
+        return this.task?.isBusy() || false;
     }
 
     /**

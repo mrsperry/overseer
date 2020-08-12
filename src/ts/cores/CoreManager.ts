@@ -33,13 +33,13 @@ class CoreManager {
         if (core === undefined) {
             for (const currentCore of CoreManager.coreList) {
                 if (!currentCore.isBusy()) {
-                    currentCore.setTask(task);
+                    currentCore.setTask(task.setCore(currentCore));
                     return true;
                 }
             }
         } else {
             if (!core.isBusy()) {
-                core.setTask(task);
+                core.setTask(task.setCore(core));
                 return true;
             }
         }
