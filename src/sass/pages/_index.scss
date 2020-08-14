@@ -11,10 +11,10 @@ body {
 
     section {
         display: grid;
-        grid-template-columns: 1fr 1fr 1fr 1fr;
-        grid-template-rows: 1fr 1fr 1fr;
+        grid-template-columns: 350px 700px 350px;
+        grid-template-rows: 140px;
         column-gap: 2rem;
-        max-width: 1400px;
+        row-gap: 2rem;
         width: 100%;
         height: 100%;
 
@@ -24,18 +24,18 @@ body {
         }
 
         #cores {
-            grid-column: 2 / 4;
+            grid-column: 2;
             grid-row: 1;
         }
 
         #research {
-            grid-column: 4;
+            grid-column: 3;
             grid-row: 1 / 4;
         }
 
         #disks {
-            grid-column: 2 / 4;
-            grid-row: 2 / 4;
+            grid-column: 2;
+            grid-row: 2;
         }
     }
 }

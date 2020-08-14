@@ -3,14 +3,17 @@
 #cores {
     display: flex;
     flex-wrap: wrap;
-    margin-bottom: 2rem;
 
     .core {
         position: relative;
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         width: 50%;
         margin-bottom: 1rem;
+
+        &:nth-child(3), &:nth-child(4) {
+            margin: 1rem 0rem 0rem;
+        }
 
         .core-info {
             margin-left: 1rem;
