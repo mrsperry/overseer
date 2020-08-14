@@ -561,6 +561,7 @@ class Disk {
         this.files = [];
         this.displayed = false;
         this.displayedFiles = 0;
+        this.isWiping = false;
         this.parent = $("<div>")
             .attr("id", "disk-" + id)
             .addClass("disk")
@@ -644,7 +645,7 @@ class Disk {
                 .removeClass("clickable");
         }
         else {
-            header.addClass("clickable")
+            header.addClass(this.isWiping ? "disabled" : "clickable")
                 .text((this.isQuarantine ? "Purge" : "Scan") + " files")
                 .click(() => this.wipeDisk(this.isQuarantine));
         }
@@ -676,14 +677,19 @@ class Disk {
                         $(child).remove();
                     });
                 }
+                this.updateFileDisplay();
             }
-            this.updateFileDisplay();
             this.updateUsage();
+            this.isWiping = false;
         })
-            .setOnCancel(() => header.addClass("clickable")
-            .removeClass("disabled")
-            .click(() => this.wipeDisk(operation)));
+            .setOnCancel(() => {
+            this.isWiping = false;
+            header.addClass("clickable")
+                .removeClass("disabled")
+                .click(() => this.wipeDisk(operation));
+        });
         if (task.run()) {
+            this.isWiping = true;
             header.removeClass("clickable")
                 .addClass("disabled")
                 .off("click");

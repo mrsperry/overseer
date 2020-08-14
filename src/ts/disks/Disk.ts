@@ -13,6 +13,8 @@ class Disk {
     private displayed: boolean = false;
     /** The number of files currently displayed */
     private displayedFiles: number = 0;
+    /** If the disk is currently being wiped */
+    private isWiping: boolean = false;
 
     /**
      * Creates a new disk to store files
@@ -174,7 +176,7 @@ class Disk {
             header.text("No files to display")
                 .removeClass("clickable");
         } else {
-            header.addClass("clickable")
+            header.addClass(this.isWiping ? "disabled" : "clickable")
                 .text((this.isQuarantine ? "Purge" : "Scan") + " files")
                 .click((): void => this.wipeDisk(this.isQuarantine));
         }
@@ -220,17 +222,26 @@ class Disk {
                             $(child).remove();
                         });
                     }
+
+                    this.updateFileDisplay();
                 }
 
-                this.updateFileDisplay();
                 this.updateUsage();
+
+                this.isWiping = false;
             })
-            .setOnCancel((): void => header.addClass("clickable")
-                .removeClass("disabled")
-                .click((): void => this.wipeDisk(operation)));
+            .setOnCancel((): void => {
+                this.isWiping = false;
+
+                header.addClass("clickable")
+                    .removeClass("disabled")
+                    .click((): void => this.wipeDisk(operation));
+            });
         
         // Update header if the task can be run
         if (task.run()) {
+            this.isWiping = true;
+
             header.removeClass("clickable")
                 .addClass("disabled")
                 .off("click");
