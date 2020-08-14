@@ -111,6 +111,7 @@ class CoreTask {
         this.cost = cost;
         this.core = null;
         this.handle = null;
+        this.startTime = 0;
         this.progress = 0;
         this.infinite = false;
         this.isRunning = false;
@@ -121,7 +122,7 @@ class CoreTask {
         return new CoreTask(display, cost);
     }
     updateCore() {
-        this.progress += (this.core.getPower() / this.getCost()) * 2;
+        this.progress = (this.core.getPower() / (this.getCost() * 2)) * (Date.now() - this.startTime);
         this.core.getCanvas().drawCore(this.infinite ? 100 : this.progress);
         if (this.progress >= 100) {
             if (this.complete !== null) {
@@ -129,6 +130,7 @@ class CoreTask {
             }
             if (this.infinite) {
                 this.progress = 0;
+                this.startTime = Date.now();
             }
             else {
                 this.cleanup();
@@ -185,6 +187,7 @@ class CoreTask {
         if (CoreManager.startCoreTask(this, core)) {
             this.isRunning = true;
             this.handle = window.setInterval(() => this.updateCore(), 1);
+            this.startTime = Date.now();
             this.core.setCoreTaskDisplay(this.display);
             this.core.updateButtons();
             return true;

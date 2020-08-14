@@ -3,6 +3,8 @@ class CoreTask {
     private core: any = null;
     /** Window handler for this core's interval */
     private handle: number | null = null;
+    /** The time this task was started */
+    private startTime: number = 0;
     /** Current task progress */
     private progress: number = 0;
     /** If this task should run until cancelled */
@@ -31,7 +33,7 @@ class CoreTask {
      */
     public updateCore(): void {
         // Update the progress of the core
-        this.progress += (this.core.getPower() / this.getCost()) * 2;
+        this.progress = (this.core.getPower() / (this.getCost() * 2)) * (Date.now() - this.startTime);
         // Draw the progress
         this.core.getCanvas().drawCore(this.infinite ? 100 : this.progress);
 
@@ -44,6 +46,7 @@ class CoreTask {
             // Reroll progress or cleanup
             if (this.infinite) {
                 this.progress = 0;
+                this.startTime = Date.now();
             } else {
                 this.cleanup();
             }
@@ -152,6 +155,7 @@ class CoreTask {
             // Mark the core as running and start updating
             this.isRunning = true;
             this.handle = window.setInterval((): void => this.updateCore(), 1);
+            this.startTime = Date.now();
 
             // Update parent core's displays
             this.core.setCoreTaskDisplay(this.display);
