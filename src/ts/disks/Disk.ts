@@ -206,7 +206,7 @@ class Disk {
         const header: any = parent.children(".header");
         const callback: Function = (): void => operation ? this.purgeFiles() : this.scanFiles();
 
-        const task: CoreTask = CoreTask.create((operation ? "Purging" : "Scanning") + ": " + this.name, this.getUsage())
+        const task: CoreTask = CoreTask.create((operation ? "Purge" : "Scan") + ": " + this.name, this.getUsage())
             .setOnComplete((): void => {
                 callback();
 

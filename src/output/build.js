@@ -665,7 +665,7 @@ class Disk {
         const parent = $("#disk-view");
         const header = parent.children(".header");
         const callback = () => operation ? this.purgeFiles() : this.scanFiles();
-        const task = CoreTask.create((operation ? "Purging" : "Scanning") + ": " + this.name, this.getUsage())
+        const task = CoreTask.create((operation ? "Purge" : "Scan") + ": " + this.name, this.getUsage())
             .setOnComplete(() => {
             callback();
             this.files = [];
