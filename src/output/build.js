@@ -486,29 +486,33 @@ class Research {
         Research.reliability += amount;
         $("#research").children(".reliability")
             .text("Reliability: " + Research.reliability.toFixed(2));
-        this.displayResearch();
+        Research.displayResearch();
     }
     static displayResearch() {
         for (let index = 0; index < Research.data.length; index++) {
-            const button = $("#research").children("button").get(index);
-            const id = $(button).attr("id");
             const item = Research.data[index];
-            if (item.display > Research.reliability) {
-                return;
-            }
-            if (Research.purchased.includes(index) || id !== undefined) {
-                if (button !== undefined) {
-                    $(button).prop("disabled", Research.reliability < item.cost);
-                }
+            const disabled = Research.reliability <= 1 + (index * Research.costExponent);
+            const child = $("#research-" + index);
+            if (child.length !== 0) {
+                $(child).prop("disabled", disabled);
                 continue;
+            }
+            if (Research.purchased.includes(index) || Research.reliability <= 1 + (index * Research.displayExponent)) {
+                continue;
+            }
+            if ($("#research").children("button").length === Research.maxDisplayed) {
+                return;
             }
             const parent = $("<button>")
                 .attr("id", "research-" + index)
-                .prop("disabled", Research.reliability < item.cost)
+                .prop("disabled", disabled)
                 .click(() => {
                 Research.purchaseResearch(index, item.type);
                 parent.prop("disabled", true)
-                    .fadeOut(400, () => parent.hide());
+                    .fadeOut(400, () => {
+                    parent.remove();
+                    Research.displayResearch();
+                });
             })
                 .hide()
                 .delay(Research.displayDelay * index)
@@ -547,8 +551,11 @@ class Research {
         return id.substring(0, 1).toUpperCase() + id.substring(1, id.length).split("-").join(" ");
     }
 }
+Research.maxDisplayed = 5;
 Research.displayDelay = 50;
 Research.reliability = 0;
+Research.costExponent = 2.5;
+Research.displayExponent = 1.5;
 class Main {
     static initialize() {
         State.load();

@@ -1,4 +1,6 @@
 class Research {
+    /** The maximum number of research options to display at once */
+    private static maxDisplayed: number = 5;
     /** The delay to use when displaying multiple research options at the same time */
     private static displayDelay: number = 50;
 
@@ -9,6 +11,10 @@ class Research {
 
     /** The current reliability of the player */
     private static reliability: number = 0;
+    /** Exponent used when calculating the cost of research options */
+    private static costExponent: number = 2.5;
+    /** Exponent used when calculating if research options should be displayed */
+    private static displayExponent: number = 1.5;
 
     /**
      * Sets the initial reliability rating and marks research options as purchased
@@ -30,7 +36,7 @@ class Research {
         $("#research").children(".reliability")
             .text("Reliability: " + Research.reliability.toFixed(2));
 
-        this.displayResearch();
+            Research.displayResearch();
     }
 
     /**
@@ -38,34 +44,41 @@ class Research {
      */
     private static displayResearch(): void {
         for (let index: number = 0; index < Research.data.length; index++) {
-            // Get the button element that may not exist
-            const button: any = $("#research").children("button").get(index);
-            // Get the ID associated with this research option
-            const id: any = $(button).attr("id");
-
-            // Since options should be ordered by display cost (and subsequently cost), return if this display cost is too high
+            // Get the research option
             const item: any = Research.data[index];
-            if (item.display > Research.reliability) {
-                return;
+            // Check if this option should be disabled (reliability <= cost)
+            const disabled: boolean = Research.reliability <= 1 + (index * Research.costExponent);
+
+            // If the option is already displayed update its disable state
+            const child: any = $("#research-" + index);
+            if (child.length !== 0) {
+                $(child).prop("disabled", disabled);
+                continue;
             }
 
-            // Check if the option has been purchased or if it is already displayed
-            if (Research.purchased.includes(index) || id !== undefined) {
-                if (button !== undefined) {
-                    $(button).prop("disabled", Research.reliability < item.cost);
-                }
+            // Check if this option has been purchased or if there is not enough reliability to display (reliability <= display cost)
+            if (Research.purchased.includes(index) || Research.reliability <= 1 + (index * Research.displayExponent)) {
                 continue;
+            }
+
+            // Limit the number of displayed options
+            if ($("#research").children("button").length === Research.maxDisplayed) {
+                return;
             }
 
             // Create the element
             const parent: any = $("<button>")
                 .attr("id", "research-" + index)
-                .prop("disabled", Research.reliability < item.cost)
+                .prop("disabled", disabled)
                 .click((): void => {
                     Research.purchaseResearch(index, item.type);
 
                     parent.prop("disabled", true)
-                        .fadeOut(400, (): void => parent.hide());
+                        .fadeOut(400, (): void => {
+                            parent.remove();
+
+                            Research.displayResearch();
+                        });
                 })
                 .hide()
                 .delay(Research.displayDelay * index)
