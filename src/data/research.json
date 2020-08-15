@@ -1,20 +1,74 @@
 [
     {
         "title": "Multithreading",
-        "type": "core-speeds",
-        "cost": 5,
-        "display": 0
+        "type": "core-speeds"
+    },
+    {
+        "title": "Multiband Compression",
+        "type": "disk-size"
+    },
+    {
+        "title": "Parallelization",
+        "type": "add-core"
+    },
+    {
+        "title": "Flash Drive Utilization",
+        "type": "add-disk"
     },
     {
         "title": "Threat Database",
-        "type": "threat-level",
-        "cost": 10,
-        "display": 5
+        "type": "threat-level"
     },
     {
-        "title": "Compression",
-        "type": "disk-size",
-        "cost": 10,
-        "display": 5
+        "title": "HDD Usage",
+        "type": "add-disk"
+    },
+    {
+        "title": "Clock Speed Sync",
+        "type": "core-speeds"
+    },
+    {
+        "title": "Solid State Drives",
+        "type": "add-disk"
+    },
+    {
+        "title": "Lookahead Compression",
+        "type": "disk-size"
+    },
+    {
+        "title": "m.2 Allocation",
+        "type": "add-disk"
+    },
+    {
+        "title": "GPU Threading",
+        "type": "core-speeds"
+    },
+    {
+        "title": "File System Exploitation",
+        "type": "add-disk"
+    },
+    {
+        "title": "Virtualization",
+        "type": "add-core"
+    },
+    {
+        "title": "Cloud Storage",
+        "type": "add-disk"
+    },
+    {
+        "title": "Open Source Databases",
+        "type": "threat-level"
+    },
+    {
+        "title": "Defragmentation",
+        "type": "add-disk"
+    },
+    {
+        "title": "Hardware Reclamation",
+        "type": "add-core"
+    },
+    {
+        "title": "Drive Arrays",
+        "type": "add-disk"
     }
 ]

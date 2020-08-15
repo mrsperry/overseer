@@ -88,8 +88,14 @@ class Research {
         Research.purchased.push(index);
 
         switch (type) {
+            case "add-core":
+                CoreManager.addCore(1);
+                break;
             case "core-speeds":
                 CoreManager.upgradeCoreSpeeds();
+                break;
+            case "add-disk":
+                DiskManager.addDisk(false);
                 break;
             case "disk-size":
                 DiskManager.upgradeDiskStorage();
