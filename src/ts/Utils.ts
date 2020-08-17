@@ -83,4 +83,22 @@ class Utils {
 
         return result;
     }
+
+    /**
+     * Capitalizes the first letter of a string
+     * @param item The string to capitalize
+     */
+    public static capitalize(item: string): string {
+        return item.charAt(0).toUpperCase() + item.substring(1, item.length);
+    }
+
+    /**
+     * Capitalizes the first letter of an ID string and removes dashes ("i-am-id" -> "I am id")
+     * @param id The ID string
+     */
+    public static formatID(id: string): string {
+        const words: string[] = id.split("-");
+        words[0] = Utils.capitalize(words[0]);
+        return words.join(" ");
+    }
 }
