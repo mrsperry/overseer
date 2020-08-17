@@ -16,6 +16,8 @@ abstract class Hack {
     protected constructor(private time: number) {
         this.handle = window.setInterval((): void => this.countdown(), 1000);
         this.locked = false;
+
+        Stats.increment("hacks", "timed-hacked");
     }
 
     /**
@@ -62,6 +64,8 @@ abstract class Hack {
      */
     protected success(): void {
         this.removeInterface(true);
+
+        Stats.increment("hacks", "completed-hacks");
     }
 
     /**
@@ -69,6 +73,8 @@ abstract class Hack {
      */
     protected fail(): void {
         this.removeInterface(false);
+
+        Stats.increment("hacks", "failed-hacks");
     }
 
     /**

@@ -106,12 +106,16 @@ class OrderedNumbers extends Hack {
             this.order.push(index);
 
             if (this.order.length === this.maxNumbers) {
-                this.success();
+                super.success();
+
+                Stats.increment("hacks", "ordered-numbers-completed");
             }
 
             return true;
         } else {
-            this.fail();
+            super.fail();
+
+            Stats.increment("hacks", "ordered-number-failed");
 
             return false;
         }

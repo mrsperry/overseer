@@ -167,6 +167,8 @@ class HiddenPasswords extends Hack {
         // Check if the hack has been completed
         if (++this.markedPasswords === this.passwords.length) {
             this.success();
+
+            Stats.increment("hacks", "hidden-passwords-completed");
         }
     }
 
@@ -187,5 +189,7 @@ class HiddenPasswords extends Hack {
                 $("#hidden-password-" + index).addClass("clickable-no-click active-error");
             }
         }
+
+        Stats.increment("hacks", "hidden-passwords-failed");
     }
 }

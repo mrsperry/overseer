@@ -49,6 +49,8 @@ class CoreTask {
                 this.startTime = Date.now();
             } else {
                 this.cleanup();
+
+                Stats.increment("cores", "tasks-completed");
             }
         }
     }
@@ -144,6 +146,8 @@ class CoreTask {
         }
 
         this.cleanup();
+
+        Stats.increment("cores", "tasks-cancelled");
     }
 
     /**

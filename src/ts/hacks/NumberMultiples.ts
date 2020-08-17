@@ -170,15 +170,19 @@ class NumberMultiples extends Hack {
         }
 
         if (!isMultiple) {
-            this.fail();
+            super.fail();
 
+            Stats.increment("hacks", "number-multiplies-failed");
+            
             return false;
         } else {
             // Remove this multiple from the list of multiples
             this.multiples.splice(this.multiples.indexOf(number), 1);
 
             if (this.multiples.length === 0) {
-                this.success();
+                super.success();
+
+                Stats.increment("hacks", "number-multiples-completed");
             }
 
             return true;

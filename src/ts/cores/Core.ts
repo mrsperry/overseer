@@ -94,6 +94,8 @@ class Core {
 
                 this.upgrades++;
                 this.canOverclock = false;
+
+                Stats.increment("cores", "times-overclocked");
             }).run(this);
     }
 

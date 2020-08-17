@@ -126,6 +126,8 @@ class Cryptogram extends Hack {
                 $(letter).addClass("clickable-no-click active-error")
             }
         }
+
+        Stats.increment("hacks", "cryptograms-failed");
     }
 
     /**
@@ -137,12 +139,14 @@ class Cryptogram extends Hack {
 
         // Check if the letter is in order
         if (this.password.charAt(this.progress.length - 1) !== letter) {
-            super.fail();
+            this.fail();
             return false;
         }
 
         if (this.progress === this.password) {
             this.success();
+
+            Stats.increment("hacks", "cryptograms-completed");
         }
 
         // Mark the header element as found

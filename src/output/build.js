@@ -34,6 +34,33 @@ class State {
         }
     }
 }
+class Stats {
+    static async initialize() {
+        Stats.data = State.getValue("stats") || await $.getJSON("src/data/stats.json");
+    }
+    static increment(namespace, id) {
+        Stats.data[namespace][id]++;
+    }
+    static add(namespace, id, amount) {
+        Stats.data[namespace][id] += amount;
+    }
+    static useHighest(namespace, id, value) {
+        const current = Stats.data[namespace][id];
+        if (current === undefined || current < value) {
+            Stats.data[namespace][id] = value;
+        }
+    }
+    static generateReport() {
+        let result = "";
+        for (const namespace in Stats.data) {
+            result += "\n" + Utils.capitalize(namespace) + ":\n";
+            for (const stat in Stats.data[namespace]) {
+                result += Utils.formatID(stat) + ": " + Stats.data[namespace][stat] + "\n";
+            }
+        }
+        return result;
+    }
+}
 class Messenger {
     static initialize() {
         Messenger.messages = State.getValue("messages") || [];
@@ -134,6 +161,7 @@ class CoreTask {
             }
             else {
                 this.cleanup();
+                Stats.increment("cores", "tasks-completed");
             }
         }
     }
@@ -182,6 +210,7 @@ class CoreTask {
             this.cancel();
         }
         this.cleanup();
+        Stats.increment("cores", "tasks-cancelled");
     }
     run(core) {
         if (CoreManager.startCoreTask(this, core)) {
@@ -255,6 +284,7 @@ class Core {
             this.updatePower(this.power * 2);
             this.upgrades++;
             this.canOverclock = false;
+            Stats.increment("cores", "times-overclocked");
         }).run(this);
     }
     searchForFiles() {
@@ -319,6 +349,7 @@ class CoreManager {
     }
     static addCore(power) {
         CoreManager.coreList.push(new Core(CoreManager.coreList.length, power));
+        Stats.increment("cores", "number-of-cores");
     }
     static startCoreTask(task, core) {
         if (core === undefined) {
@@ -387,6 +418,14 @@ class Utils {
         }
         return result;
     }
+    static capitalize(item) {
+        return item.charAt(0).toUpperCase() + item.substring(1, item.length);
+    }
+    static formatID(id) {
+        const words = id.split("-");
+        words[0] = Utils.capitalize(words[0]);
+        return words.join(" ");
+    }
 }
 class DiskManager {
     static async initialize() {
@@ -404,6 +443,7 @@ class DiskManager {
         const name = isQuarantine ? DiskManager.getQuarantineName() : DiskManager.getDiskName();
         const disk = new Disk(DiskManager.disks.length, name, DiskManager.diskSize, isQuarantine);
         DiskManager.disks.push(disk);
+        Stats.increment("disks", "number-of-" + (isQuarantine ? "quarantines" : "disks"));
         return disk;
     }
     static addFileToDisk() {
@@ -412,6 +452,7 @@ class DiskManager {
                 continue;
             }
             if (disk.addFile(this.threatLevel)) {
+                Stats.increment("disks", "files-discovered");
                 return;
             }
         }
@@ -422,6 +463,7 @@ class DiskManager {
                 continue;
             }
             if (disk.addFile(file)) {
+                Stats.increment("disks", "threats-quarantined");
                 return true;
             }
         }
@@ -487,6 +529,8 @@ class Research {
         $("#research").children(".reliability")
             .text("Reliability: " + Research.reliability.toFixed(2));
         Research.displayResearch();
+        Stats.useHighest("research", "highest-reliability", this.reliability);
+        Stats.useHighest("research", "highest-reliability-gained", amount);
     }
     static displayResearch() {
         for (let index = 0; index < Research.data.length; index++) {
@@ -522,12 +566,13 @@ class Research {
                 .text(item.title)
                 .appendTo(parent);
             $("<span>")
-                .text("+" + Research.formatID(item.type))
+                .text("+" + Utils.formatID(item.type))
                 .appendTo(parent);
         }
     }
     static purchaseResearch(index, type) {
         Research.purchased.push(index);
+        Stats.increment("research", "research-purchased");
         switch (type) {
             case "add-core":
                 CoreManager.addCore(1);
@@ -547,9 +592,6 @@ class Research {
                 break;
         }
     }
-    static formatID(id) {
-        return id.substring(0, 1).toUpperCase() + id.substring(1, id.length).split("-").join(" ");
-    }
 }
 Research.maxDisplayed = 5;
 Research.displayDelay = 50;
@@ -557,12 +599,13 @@ Research.reliability = 0;
 Research.costExponent = 2.5;
 Research.displayExponent = 1.5;
 class Main {
-    static initialize() {
+    static async initialize() {
         State.load();
+        await Stats.initialize();
         Messenger.initialize();
         CoreManager.initialize();
         DiskManager.initialize();
-        Research.initialize();
+        await Research.initialize();
     }
 }
 (() => Main.initialize())();
@@ -719,6 +762,7 @@ class Disk {
             }
         }
         Messenger.write("Scanned " + length + " files and found " + threats + " " + (threats === 1 ? "vulnerability" : "vulnerabilities"));
+        Stats.add("disks", "files-scanned", length);
     }
     purgeFiles() {
         let reliability = 0;
@@ -727,6 +771,7 @@ class Disk {
         }
         Research.addReliability(reliability);
         Messenger.write("Purged " + this.files.length + " file" + (this.files.length === 1 ? "" : "s") + " and gained " + reliability.toFixed(2) + " reliability");
+        Stats.add("disks", "threats-purged", this.files.length);
     }
     displayFile(file, delay = 0) {
         const parent = $("<div>")
@@ -775,6 +820,7 @@ class Hack {
         this.time = time;
         this.handle = window.setInterval(() => this.countdown(), 1000);
         this.locked = false;
+        Stats.increment("hacks", "timed-hacked");
     }
     addContent() {
         this.parent = $("<div>")
@@ -807,9 +853,11 @@ class Hack {
     }
     success() {
         this.removeInterface(true);
+        Stats.increment("hacks", "completed-hacks");
     }
     fail() {
         this.removeInterface(false);
+        Stats.increment("hacks", "failed-hacks");
     }
     removeInterface(success) {
         window.clearInterval(this.handle);
@@ -887,15 +935,17 @@ class Cryptogram extends Hack {
                 $(letter).addClass("clickable-no-click active-error");
             }
         }
+        Stats.increment("hacks", "cryptograms-failed");
     }
     validateInput(letter) {
         this.progress += letter;
         if (this.password.charAt(this.progress.length - 1) !== letter) {
-            super.fail();
+            this.fail();
             return false;
         }
         if (this.progress === this.password) {
             this.success();
+            Stats.increment("hacks", "cryptograms-completed");
         }
         $("#cipher-" + (this.progress.length - 1))
             .addClass("clickable-no-click");
@@ -987,6 +1037,7 @@ class HiddenPasswords extends Hack {
         $("#hidden-password-" + index).addClass("clickable-no-click");
         if (++this.markedPasswords === this.passwords.length) {
             this.success();
+            Stats.increment("hacks", "hidden-passwords-completed");
         }
     }
     fail() {
@@ -998,6 +1049,7 @@ class HiddenPasswords extends Hack {
                 $("#hidden-password-" + index).addClass("clickable-no-click active-error");
             }
         }
+        Stats.increment("hacks", "hidden-passwords-failed");
     }
 }
 HiddenPasswords.lineLength = 55;
@@ -1130,13 +1182,15 @@ class NumberMultiples extends Hack {
             }
         }
         if (!isMultiple) {
-            this.fail();
+            super.fail();
+            Stats.increment("hacks", "number-multiplies-failed");
             return false;
         }
         else {
             this.multiples.splice(this.multiples.indexOf(number), 1);
             if (this.multiples.length === 0) {
-                this.success();
+                super.success();
+                Stats.increment("hacks", "number-multiples-completed");
             }
             return true;
         }
@@ -1208,12 +1262,14 @@ class OrderedNumbers extends Hack {
         if (index === (this.order.length + 1)) {
             this.order.push(index);
             if (this.order.length === this.maxNumbers) {
-                this.success();
+                super.success();
+                Stats.increment("hacks", "ordered-numbers-completed");
             }
             return true;
         }
         else {
-            this.fail();
+            super.fail();
+            Stats.increment("hacks", "ordered-number-failed");
             return false;
         }
     }

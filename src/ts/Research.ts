@@ -36,7 +36,10 @@ class Research {
         $("#research").children(".reliability")
             .text("Reliability: " + Research.reliability.toFixed(2));
 
-            Research.displayResearch();
+        Research.displayResearch();
+
+        Stats.useHighest("research", "highest-reliability", this.reliability);
+        Stats.useHighest("research", "highest-reliability-gained", amount);
     }
 
     /**
@@ -88,7 +91,7 @@ class Research {
                 .text(item.title)
                 .appendTo(parent);
             $("<span>")
-                .text("+" + Research.formatID(item.type))
+                .text("+" + Utils.formatID(item.type))
                 .appendTo(parent);
         }
     }
@@ -99,6 +102,7 @@ class Research {
      */
     public static purchaseResearch(index: number, type: string): void {
         Research.purchased.push(index);
+        Stats.increment("research", "research-purchased");
 
         switch (type) {
             case "add-core":
@@ -118,14 +122,5 @@ class Research {
                 DiskManager.addDisk(true);
                 break;
         }
-    }
-
-    /**
-     * Turns an ID to a display string "id-example" -> "Id example"
-     * @param id The ID to format
-     * @returns The formatted ID
-     */
-    private static formatID(id: string): string {
-        return id.substring(0, 1).toUpperCase() + id.substring(1, id.length).split("-").join(" ");
     }
 }

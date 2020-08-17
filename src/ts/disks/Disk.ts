@@ -268,6 +268,7 @@ class Disk {
         }
 
         Messenger.write("Scanned " + length + " files and found " + threats + " " + (threats === 1 ? "vulnerability" : "vulnerabilities"));
+        Stats.add("disks", "files-scanned", length);
     }
 
     /**
@@ -281,6 +282,7 @@ class Disk {
         Research.addReliability(reliability);
 
         Messenger.write("Purged " + this.files.length + " file" + (this.files.length === 1 ? "" : "s") + " and gained " + reliability.toFixed(2) + " reliability");
+        Stats.add("disks", "threats-purged", this.files.length);
     }
 
     /**

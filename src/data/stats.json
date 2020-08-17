@@ -1,0 +1,34 @@
+{
+    "cores": {
+        "number-of-cores": 0,
+        "tasks-completed": 0,
+        "tasks-cancelled": 0,
+        "times-overclocked": 0
+    },
+    "disks": {
+        "number-of-disks": 0,
+        "number-of-quarantines": 0,
+        "files-discovered": 0,
+        "files-scanned": 0,
+        "threats-quarantined": 0,
+        "threats-purged": 0
+    },
+    "research": {
+        "research-purchased": 0,
+        "highest-reliability": 0,
+        "highest-reliability-gain": 0
+    },
+    "hacks": {
+        "times-hacked": 0,
+        "completed-hacks": 0,
+        "failed-hacks": 0,
+        "ordered-numbers-completed": 0,
+        "ordered-numbers-failed": 0,
+        "hidden-passwords-completed": 0,
+        "hidden-passwords-failed": 0,
+        "number-multiples-completed": 0,
+        "number-multiples-failed": 0,
+        "cryptograms-completed": 0,
+        "cryptograms-failed": 0
+    }
+}

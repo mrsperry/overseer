@@ -50,6 +50,9 @@ class DiskManager {
         const disk: Disk = new Disk(DiskManager.disks.length, name, DiskManager.diskSize, isQuarantine);
     
         DiskManager.disks.push(disk);
+
+        Stats.increment("disks", "number-of-" + (isQuarantine ? "quarantines" : "disks"));
+
         return disk;
     }
 
@@ -63,6 +66,7 @@ class DiskManager {
             }
 
             if (disk.addFile(this.threatLevel)) {
+                Stats.increment("disks", "files-discovered");
                 return;
             }
         }
@@ -79,6 +83,7 @@ class DiskManager {
             }
 
             if (disk.addFile(file)) {
+                Stats.increment("disks", "threats-quarantined");
                 return true;
             }
         }

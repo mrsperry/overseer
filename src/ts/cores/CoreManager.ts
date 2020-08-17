@@ -21,6 +21,8 @@ class CoreManager {
      */
     public static addCore(power: number): void {
         CoreManager.coreList.push(new Core(CoreManager.coreList.length, power));
+
+        Stats.increment("cores", "number-of-cores");
     }
 
     /**
