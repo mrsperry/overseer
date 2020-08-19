@@ -153,6 +153,13 @@ class Disk {
     }
 
     /**
+     * @returns The list of all files on this disk
+     */
+    public getFiles(): DiskFile[] {
+        return this.files;
+    }
+
+    /**
      * Sets the HTML usage display using a percentage
      */
     private updateUsage(): void {
@@ -206,7 +213,7 @@ class Disk {
     private wipeDisk(operation: boolean): void {
         const parent: any = $("#disk-view");
         const header: any = parent.children(".header");
-        const callback: Function = (): void => operation ? this.purgeFiles() : this.scanFiles();
+        const callback: Function = (): void => operation ? Disk.purgeFiles(this) : Disk.scanFiles(this);
 
         const task: CoreTask = CoreTask.create((operation ? "Purge" : "Scan") + ": " + this.name, this.getUsage())
             .setOnComplete((): void => {
@@ -249,43 +256,6 @@ class Disk {
     }
 
     /**
-     * Scans the files on this disk for threats
-     * 
-     * Threats found are moved to quarantine
-     */
-    private scanFiles(): void {
-        const length: number = this.files.length;
-
-        let threats: number = 0;
-        for (let index: number = 0; index < length; index++) {
-            const file: DiskFile = this.files[index];
-
-            // Move infected files to quarantine
-            if (file.getIsThreat()) {
-                threats++;
-                DiskManager.addFileToQuarantine(file);
-            }
-        }
-
-        Messenger.write("Scanned " + length + " files and found " + threats + " " + (threats === 1 ? "vulnerability" : "vulnerabilities"));
-        Stats.add("disks", "files-scanned", length);
-    }
-
-    /**
-     * Purges files from a quarantine disk for reliability
-     */
-    public purgeFiles(): void {
-        let reliability: number = 0;
-        for (const file of this.files) {
-            reliability += file.getSize() / 100;
-        }
-        Research.addReliability(reliability);
-
-        Messenger.write("Purged " + this.files.length + " file" + (this.files.length === 1 ? "" : "s") + " and gained " + reliability.toFixed(2) + " reliability");
-        Stats.add("disks", "threats-purged", this.files.length);
-    }
-
-    /**
      * Displays a file on the file display
      * @param file The file to display
      * @param delay The amount of delay in milliseconds before the file is shown
@@ -305,5 +275,46 @@ class Disk {
             .appendTo(parent);
         
         this.displayedFiles++;
+    }
+
+    /**
+     * Scans the files on this disk for threats
+     * 
+     * Threats found are moved to quarantine
+     */
+    public static scanFiles(disk: Disk): void {
+        const files: DiskFile[] = disk.getFiles();
+        const length: number = files.length;
+
+        let threats: number = 0;
+        for (let index: number = 0; index < length; index++) {
+            const file: DiskFile = files[index];
+
+            // Move infected files to quarantine
+            if (file.getIsThreat()) {
+                threats++;
+                DiskManager.addFileToQuarantine(file);
+            }
+        }
+
+        Messenger.write("Scanned " + length + " files and found " + threats + " " + (threats === 1 ? "vulnerability" : "vulnerabilities"));
+        Stats.add("disks", "files-scanned", length);
+    }
+
+    /**
+     * Purges files from a quarantine disk for reliability
+     */
+    public static purgeFiles(disk: Disk): void {
+        const files: DiskFile[] = disk.getFiles();
+        const length: number = files.length;
+
+        let reliability: number = 0;
+        for (const file of files) {
+            reliability += file.getSize() / 100;
+        }
+        Research.addReliability(reliability);
+
+        Messenger.write("Purged " + length + " file" + (length === 1 ? "" : "s") + " and gained " + reliability.toFixed(2) + " reliability");
+        Stats.add("disks", "threats-purged", length);
     }
 }

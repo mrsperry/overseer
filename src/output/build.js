@@ -257,7 +257,7 @@ class Core {
         $("<button>")
             .addClass("core-button overclock-button")
             .text("[+]")
-            .click(() => this.overclock())
+            .click(() => Core.overclock(this))
             .appendTo(this.info);
         $("<button>")
             .addClass("core-button cancel-button")
@@ -267,7 +267,7 @@ class Core {
         $("<button>")
             .addClass("core-button search-button")
             .text("[search]")
-            .click(() => this.searchForFiles())
+            .click(() => Core.searchForFiles(this))
             .appendTo(this.info);
         this.setCoreTaskDisplay();
         this.updatePower(power);
@@ -277,21 +277,6 @@ class Core {
         this.power = power;
         this.info.children(".core-power")
             .text(" @ " + power + "Mhz");
-    }
-    overclock() {
-        CoreTask.create("Overclocking core", this.power * 1000)
-            .setOnComplete(() => {
-            this.updatePower(this.power * 2);
-            this.upgrades++;
-            this.canOverclock = false;
-            Stats.increment("cores", "times-overclocked");
-        }).run(this);
-    }
-    searchForFiles() {
-        CoreTask.create("Searching for files", this.power * 5)
-            .setIsInfinite(true)
-            .setOnComplete(() => DiskManager.addFileToDisk())
-            .run(this);
     }
     setTask(task) {
         this.task = task;
@@ -320,6 +305,10 @@ class Core {
         this.info.children(".search-button")
             .prop("disabled", this.isBusy());
     }
+    upgrade() {
+        this.upgrades++;
+        this.canOverclock = this.upgrades < this.maxUpgrades && !this.isBusy();
+    }
     getID() {
         return this.id;
     }
@@ -339,6 +328,20 @@ class Core {
     setMaxUpgrades(max) {
         this.maxUpgrades = max;
         this.setCanOverclock(this.maxUpgrades > this.upgrades);
+    }
+    static overclock(core) {
+        CoreTask.create("Overclocking core", core.power * 1000)
+            .setOnComplete(() => {
+            core.updatePower(core.power * 2);
+            core.upgrade();
+            Stats.increment("cores", "times-overclocked");
+        }).run(core);
+    }
+    static searchForFiles(core) {
+        CoreTask.create("Searching for files", core.power * 5)
+            .setIsInfinite(true)
+            .setOnComplete(() => DiskManager.addFileToDisk())
+            .run(core);
     }
 }
 class CoreManager {
@@ -687,6 +690,9 @@ class Disk {
         }
         return usage;
     }
+    getFiles() {
+        return this.files;
+    }
     updateUsage() {
         this.parent.children(".disk-usage")
             .text(Math.floor((this.getUsage() / this.maxStorage) * 100) + "%");
@@ -721,7 +727,7 @@ class Disk {
     wipeDisk(operation) {
         const parent = $("#disk-view");
         const header = parent.children(".header");
-        const callback = () => operation ? this.purgeFiles() : this.scanFiles();
+        const callback = () => operation ? Disk.purgeFiles(this) : Disk.scanFiles(this);
         const task = CoreTask.create((operation ? "Purge" : "Scan") + ": " + this.name, this.getUsage())
             .setOnComplete(() => {
             callback();
@@ -751,28 +757,6 @@ class Disk {
                 .off("click");
         }
     }
-    scanFiles() {
-        const length = this.files.length;
-        let threats = 0;
-        for (let index = 0; index < length; index++) {
-            const file = this.files[index];
-            if (file.getIsThreat()) {
-                threats++;
-                DiskManager.addFileToQuarantine(file);
-            }
-        }
-        Messenger.write("Scanned " + length + " files and found " + threats + " " + (threats === 1 ? "vulnerability" : "vulnerabilities"));
-        Stats.add("disks", "files-scanned", length);
-    }
-    purgeFiles() {
-        let reliability = 0;
-        for (const file of this.files) {
-            reliability += file.getSize() / 100;
-        }
-        Research.addReliability(reliability);
-        Messenger.write("Purged " + this.files.length + " file" + (this.files.length === 1 ? "" : "s") + " and gained " + reliability.toFixed(2) + " reliability");
-        Stats.add("disks", "threats-purged", this.files.length);
-    }
     displayFile(file, delay = 0) {
         const parent = $("<div>")
             .addClass("file")
@@ -787,6 +771,31 @@ class Disk {
             .text(file.getSize() + "kb")
             .appendTo(parent);
         this.displayedFiles++;
+    }
+    static scanFiles(disk) {
+        const files = disk.getFiles();
+        const length = files.length;
+        let threats = 0;
+        for (let index = 0; index < length; index++) {
+            const file = files[index];
+            if (file.getIsThreat()) {
+                threats++;
+                DiskManager.addFileToQuarantine(file);
+            }
+        }
+        Messenger.write("Scanned " + length + " files and found " + threats + " " + (threats === 1 ? "vulnerability" : "vulnerabilities"));
+        Stats.add("disks", "files-scanned", length);
+    }
+    static purgeFiles(disk) {
+        const files = disk.getFiles();
+        const length = files.length;
+        let reliability = 0;
+        for (const file of files) {
+            reliability += file.getSize() / 100;
+        }
+        Research.addReliability(reliability);
+        Messenger.write("Purged " + length + " file" + (length === 1 ? "" : "s") + " and gained " + reliability.toFixed(2) + " reliability");
+        Stats.add("disks", "threats-purged", length);
     }
 }
 Disk.maxDisplayedFiles = 11;
