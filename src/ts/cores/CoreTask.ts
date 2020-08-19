@@ -6,7 +6,7 @@ class CoreTask {
     /** The time this task was started */
     private startTime: number = 0;
     /** If this task should run until cancelled */
-    private infinite: boolean = false;
+    private isInfinite: boolean = false;
     /** If this task is currently running */
     private isRunning: boolean = false;
 
@@ -33,7 +33,7 @@ class CoreTask {
         // Update the progress of the core
         const progress: number = (this.core.getPower() / (this.getCost() * 2)) * (Date.now() - this.startTime);
         // Draw the progress
-        this.core.getCanvas().drawCore(this.infinite ? 100 : progress);
+        this.core.getCanvas().drawCore(this.isInfinite ? 100 : progress);
 
         // Check if the task is complete
         if (progress >= 100) {
@@ -42,7 +42,7 @@ class CoreTask {
             }
 
             // Reroll progress or cleanup
-            if (this.infinite) {
+            if (this.isInfinite) {
                 this.startTime = Date.now();
             } else {
                 this.cleanup();
@@ -93,15 +93,15 @@ class CoreTask {
     /**
      * @returns If this task should run until cancelled
      */
-    public isInfinite(): boolean {
-        return this.infinite;
+    public getIsInfinite(): boolean {
+        return this.isInfinite;
     }
 
     /**
      * @param infinite If this task should run until cancelled
      */
-    public setIsInfinite(infinite: boolean): CoreTask {
-        this.infinite = infinite;
+    public setIsInfinite(isInfinite: boolean): CoreTask {
+        this.isInfinite = isInfinite;
         return this;
     }
 
@@ -134,7 +134,7 @@ class CoreTask {
      * Runs the cancel task if it was set
      */
     public onCancel(): void {
-        if (this.isInfinite()) {
+        if (this.isInfinite) {
             this.setIsInfinite(false);
         }
 
