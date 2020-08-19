@@ -65,6 +65,28 @@ class Disk {
     }
 
     /**
+     * Displays a file on the file display
+     * @param file The file to display
+     * @param delay The amount of delay in milliseconds before the file is shown
+     */
+    private displayFile(file: DiskFile, delay: number = 0): void {
+        const parent: any = $("<div>")
+            .addClass("file")
+            .hide()
+            .delay(delay)
+            .fadeIn()
+            .appendTo($("#disk-view"));
+        $("<span>")
+            .text(file.getName())
+            .appendTo(parent);
+        $("<span>")
+            .text(file.getSize() + "kb")
+            .appendTo(parent);
+        
+        this.displayedFiles++;
+    }
+
+    /**
      * Tries to add a file to this disk
      * @param file The file to add
      * @returns If the file was added
@@ -97,66 +119,6 @@ class Disk {
         }
 
         return false;
-    }
-
-    /**
-     * @returns If this disk is currently displayed
-     */
-    public isDisplayed(): boolean {
-        return this.displayed;
-    }
-
-    /**
-     * @param displayed If the disk should be displayed or not
-     */
-    public setDisplayed(displayed: boolean): void {
-        this.displayed = displayed;
-
-        // Highlight the disk if it is displayed
-        const element: any = this.parent.children(".disk-name");
-        if (displayed) {
-            element.addClass("active");
-        } else {
-            element.removeClass("active");
-
-            // Reset the number of displayed files
-            this.displayedFiles = 0;
-        }
-    }
-
-    /**
-     * @param size The new size of the disk
-     */
-    public setSize(size: number): void {
-        this.maxStorage = size;
-        this.updateUsage();
-    }
-
-    /**
-     * @returns If this disk is a quarantine disk
-     */
-    public isQuarantineStorage(): boolean {
-        return this.isQuarantine;
-    }
-
-    /**
-     * @returns The current usage of the disk in kilobytes
-     */
-    private getUsage(): number {
-        let usage: number = 0;
-
-        for (const file of this.files) {
-            usage += file.getSize();
-        }
-
-        return usage;
-    }
-
-    /**
-     * @returns The list of all files on this disk
-     */
-    public getFiles(): DiskFile[] {
-        return this.files;
     }
 
     /**
@@ -256,28 +218,6 @@ class Disk {
     }
 
     /**
-     * Displays a file on the file display
-     * @param file The file to display
-     * @param delay The amount of delay in milliseconds before the file is shown
-     */
-    private displayFile(file: DiskFile, delay: number = 0): void {
-        const parent: any = $("<div>")
-            .addClass("file")
-            .hide()
-            .delay(delay)
-            .fadeIn()
-            .appendTo($("#disk-view"));
-        $("<span>")
-            .text(file.getName())
-            .appendTo(parent);
-        $("<span>")
-            .text(file.getSize() + "kb")
-            .appendTo(parent);
-        
-        this.displayedFiles++;
-    }
-
-    /**
      * Scans the files on this disk for threats
      * 
      * Threats found are moved to quarantine
@@ -316,5 +256,65 @@ class Disk {
 
         Messenger.write("Purged " + length + " file" + (length === 1 ? "" : "s") + " and gained " + reliability.toFixed(2) + " reliability");
         Stats.add("disks", "threats-purged", length);
+    }
+
+    /**
+     * @returns If this disk is currently displayed
+     */
+    public isDisplayed(): boolean {
+        return this.displayed;
+    }
+
+    /**
+     * @param displayed If the disk should be displayed or not
+     */
+    public setDisplayed(displayed: boolean): void {
+        this.displayed = displayed;
+
+        // Highlight the disk if it is displayed
+        const element: any = this.parent.children(".disk-name");
+        if (displayed) {
+            element.addClass("active");
+        } else {
+            element.removeClass("active");
+
+            // Reset the number of displayed files
+            this.displayedFiles = 0;
+        }
+    }
+
+    /**
+     * @param size The new size of the disk
+     */
+    public setSize(size: number): void {
+        this.maxStorage = size;
+        this.updateUsage();
+    }
+
+    /**
+     * @returns If this disk is a quarantine disk
+     */
+    public isQuarantineStorage(): boolean {
+        return this.isQuarantine;
+    }
+
+    /**
+     * @returns The current usage of the disk in kilobytes
+     */
+    private getUsage(): number {
+        let usage: number = 0;
+
+        for (const file of this.files) {
+            usage += file.getSize();
+        }
+
+        return usage;
+    }
+
+    /**
+     * @returns The list of all files on this disk
+     */
+    public getFiles(): DiskFile[] {
+        return this.files;
     }
 }

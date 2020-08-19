@@ -85,14 +85,6 @@ class Core {
     }
 
     /**
-     * Runs a task on this core
-     * @param task The task to start
-     */
-    public setTask(task: CoreTask): void {
-        this.task = task;
-    }
-
-    /**
      * Cancels the current task
      */
     public cancelTask(): void {
@@ -133,9 +125,35 @@ class Core {
             .prop("disabled", this.isBusy());
     }
 
+    /**
+     * Increments and updates overclock variables of this core
+     */
     public upgrade(): void {
         this.upgrades++;
         this.canOverclock = this.upgrades < this.maxUpgrades && !this.isBusy();
+    }
+
+    /**
+     * Doubles a core's power
+     */
+    public static overclock(core: Core): void {
+        CoreTask.create("Overclocking core", core.power * 1000)
+            .setOnComplete((): void => {
+                core.updatePower(core.power * 2);
+                core.upgrade();
+
+                Stats.increment("cores", "times-overclocked");
+            }).run(core);
+    }
+
+    /**
+     * Starts an infinite core task that will add files to disks until cancelled
+     */
+    public static searchForFiles(core: Core): void {
+        CoreTask.create("Searching for files", core.power * 5)
+            .setIsInfinite(true)
+            .setOnComplete((): void => DiskManager.addFileToDisk())
+            .run(core);
     }
 
     /**
@@ -167,6 +185,13 @@ class Core {
     }
 
     /**
+     * @param task The task this core will run
+     */
+    public setTask(task: CoreTask): void {
+        this.task = task;
+    }
+
+    /**
      * @param canOverclock If this core can overclock
      */
     public setCanOverclock(canOverclock: boolean): void {
@@ -183,28 +208,5 @@ class Core {
         this.maxUpgrades = max;
 
         this.setCanOverclock(this.maxUpgrades > this.upgrades);
-    }
-
-    /**
-     * Doubles a core's power
-     */
-    public static overclock(core: Core): void {
-        CoreTask.create("Overclocking core", core.power * 1000)
-            .setOnComplete((): void => {
-                core.updatePower(core.power * 2);
-                core.upgrade();
-
-                Stats.increment("cores", "times-overclocked");
-            }).run(core);
-    }
-
-    /**
-     * Starts an infinite core task that will add files to disks until cancelled
-     */
-    public static searchForFiles(core: Core): void {
-        CoreTask.create("Searching for files", core.power * 5)
-            .setIsInfinite(true)
-            .setOnComplete((): void => DiskManager.addFileToDisk())
-            .run(core);
     }
 }
