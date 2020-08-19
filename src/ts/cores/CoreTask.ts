@@ -5,8 +5,6 @@ class CoreTask {
     private handle: number | null = null;
     /** The time this task was started */
     private startTime: number = 0;
-    /** Current task progress */
-    private progress: number = 0;
     /** If this task should run until cancelled */
     private infinite: boolean = false;
     /** If this task is currently running */
@@ -33,19 +31,18 @@ class CoreTask {
      */
     public updateCore(): void {
         // Update the progress of the core
-        this.progress = (this.core.getPower() / (this.getCost() * 2)) * (Date.now() - this.startTime);
+        const progress: number = (this.core.getPower() / (this.getCost() * 2)) * (Date.now() - this.startTime);
         // Draw the progress
-        this.core.getCanvas().drawCore(this.infinite ? 100 : this.progress);
+        this.core.getCanvas().drawCore(this.infinite ? 100 : progress);
 
         // Check if the task is complete
-        if (this.progress >= 100) {
+        if (progress >= 100) {
             if (this.complete !== null) {
                 this.complete();
             }
 
             // Reroll progress or cleanup
             if (this.infinite) {
-                this.progress = 0;
                 this.startTime = Date.now();
             } else {
                 this.cleanup();

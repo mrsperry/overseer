@@ -140,7 +140,6 @@ class CoreTask {
         this.core = null;
         this.handle = null;
         this.startTime = 0;
-        this.progress = 0;
         this.infinite = false;
         this.isRunning = false;
         this.complete = null;
@@ -150,14 +149,13 @@ class CoreTask {
         return new CoreTask(display, cost, type);
     }
     updateCore() {
-        this.progress = (this.core.getPower() / (this.getCost() * 2)) * (Date.now() - this.startTime);
-        this.core.getCanvas().drawCore(this.infinite ? 100 : this.progress);
-        if (this.progress >= 100) {
+        const progress = (this.core.getPower() / (this.getCost() * 2)) * (Date.now() - this.startTime);
+        this.core.getCanvas().drawCore(this.infinite ? 100 : progress);
+        if (progress >= 100) {
             if (this.complete !== null) {
                 this.complete();
             }
             if (this.infinite) {
-                this.progress = 0;
                 this.startTime = Date.now();
             }
             else {
