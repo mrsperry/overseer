@@ -175,9 +175,12 @@ class Disk {
     private wipeDisk(operation: boolean): void {
         const parent: any = $("#disk-view");
         const header: any = parent.children(".header");
-        const callback: Function = (): void => operation ? Disk.purgeFiles(this) : Disk.scanFiles(this);
 
-        const task: CoreTask = CoreTask.create((operation ? "Purge" : "Scan") + ": " + this.name, this.getUsage())
+        const callback: Function = (): void => operation ? Disk.purgeFiles(this) : Disk.scanFiles(this);
+        const display: string = (operation ? "Purge" : "Scan") + ": " + this.name;
+        const type: CoreTaskType = operation ? CoreTaskType.Purge : CoreTaskType.Scan;
+
+        const task: CoreTask = CoreTask.create(display, this.getUsage(), type)
             .setOnComplete((): void => {
                 callback();
 

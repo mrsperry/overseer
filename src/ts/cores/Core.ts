@@ -137,7 +137,7 @@ class Core {
      * Doubles a core's power
      */
     public static overclock(core: Core): void {
-        CoreTask.create("Overclocking core", core.power * 1000)
+        CoreTask.create("Overclocking core", core.power * 1000, CoreTaskType.Overclock)
             .setOnComplete((): void => {
                 core.updatePower(core.power * 2);
                 core.upgrade();
@@ -150,7 +150,7 @@ class Core {
      * Starts an infinite core task that will add files to disks until cancelled
      */
     public static searchForFiles(core: Core): void {
-        CoreTask.create("Searching for files", core.power * 5)
+        CoreTask.create("Searching for files", core.power * 5, CoreTaskType.Search)
             .setIsInfinite(true)
             .setOnComplete((): void => DiskManager.addFileToDisk())
             .run(core);

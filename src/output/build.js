@@ -133,9 +133,10 @@ class CoreCanvas {
 CoreCanvas.canvasSize = 50;
 CoreCanvas.canvasRadius = CoreCanvas.canvasSize / 2;
 class CoreTask {
-    constructor(display, cost) {
+    constructor(display, cost, type) {
         this.display = display;
         this.cost = cost;
+        this.type = type;
         this.core = null;
         this.handle = null;
         this.startTime = 0;
@@ -145,8 +146,8 @@ class CoreTask {
         this.complete = null;
         this.cancel = null;
     }
-    static create(display, cost) {
-        return new CoreTask(display, cost);
+    static create(display, cost, type) {
+        return new CoreTask(display, cost, type);
     }
     updateCore() {
         this.progress = (this.core.getPower() / (this.getCost() * 2)) * (Date.now() - this.startTime);
@@ -278,9 +279,6 @@ class Core {
         this.info.children(".core-power")
             .text(" @ " + power + "Mhz");
     }
-    setTask(task) {
-        this.task = task;
-    }
     cancelTask() {
         this.task?.onCancel();
         this.setCoreTaskDisplay();
@@ -309,6 +307,20 @@ class Core {
         this.upgrades++;
         this.canOverclock = this.upgrades < this.maxUpgrades && !this.isBusy();
     }
+    static overclock(core) {
+        CoreTask.create("Overclocking core", core.power * 1000, CoreTaskType.Overclock)
+            .setOnComplete(() => {
+            core.updatePower(core.power * 2);
+            core.upgrade();
+            Stats.increment("cores", "times-overclocked");
+        }).run(core);
+    }
+    static searchForFiles(core) {
+        CoreTask.create("Searching for files", core.power * 5, CoreTaskType.Search)
+            .setIsInfinite(true)
+            .setOnComplete(() => DiskManager.addFileToDisk())
+            .run(core);
+    }
     getID() {
         return this.id;
     }
@@ -321,6 +333,9 @@ class Core {
     isBusy() {
         return this.task?.isBusy() || false;
     }
+    setTask(task) {
+        this.task = task;
+    }
     setCanOverclock(canOverclock) {
         this.canOverclock = canOverclock;
         this.updateButtons();
@@ -328,20 +343,6 @@ class Core {
     setMaxUpgrades(max) {
         this.maxUpgrades = max;
         this.setCanOverclock(this.maxUpgrades > this.upgrades);
-    }
-    static overclock(core) {
-        CoreTask.create("Overclocking core", core.power * 1000)
-            .setOnComplete(() => {
-            core.updatePower(core.power * 2);
-            core.upgrade();
-            Stats.increment("cores", "times-overclocked");
-        }).run(core);
-    }
-    static searchForFiles(core) {
-        CoreTask.create("Searching for files", core.power * 5)
-            .setIsInfinite(true)
-            .setOnComplete(() => DiskManager.addFileToDisk())
-            .run(core);
     }
 }
 class CoreManager {
@@ -612,6 +613,13 @@ class Main {
     }
 }
 (() => Main.initialize())();
+var CoreTaskType;
+(function (CoreTaskType) {
+    CoreTaskType[CoreTaskType["Search"] = 0] = "Search";
+    CoreTaskType[CoreTaskType["Scan"] = 1] = "Scan";
+    CoreTaskType[CoreTaskType["Purge"] = 2] = "Purge";
+    CoreTaskType[CoreTaskType["Overclock"] = 3] = "Overclock";
+})(CoreTaskType || (CoreTaskType = {}));
 class Disk {
     constructor(id, name, maxStorage, isQuarantine) {
         this.name = name;
@@ -647,6 +655,21 @@ class Disk {
         this.updateFileDisplay(this.displayedFiles * Disk.displayDelay);
         this.setDisplayed(true);
     }
+    displayFile(file, delay = 0) {
+        const parent = $("<div>")
+            .addClass("file")
+            .hide()
+            .delay(delay)
+            .fadeIn()
+            .appendTo($("#disk-view"));
+        $("<span>")
+            .text(file.getName())
+            .appendTo(parent);
+        $("<span>")
+            .text(file.getSize() + "kb")
+            .appendTo(parent);
+        this.displayedFiles++;
+    }
     addFile(arg1) {
         const file = typeof (arg1) === "number" ? new DiskFile(arg1) : arg1;
         if (this.maxStorage - this.getUsage() >= file.getSize()) {
@@ -661,37 +684,6 @@ class Disk {
             return true;
         }
         return false;
-    }
-    isDisplayed() {
-        return this.displayed;
-    }
-    setDisplayed(displayed) {
-        this.displayed = displayed;
-        const element = this.parent.children(".disk-name");
-        if (displayed) {
-            element.addClass("active");
-        }
-        else {
-            element.removeClass("active");
-            this.displayedFiles = 0;
-        }
-    }
-    setSize(size) {
-        this.maxStorage = size;
-        this.updateUsage();
-    }
-    isQuarantineStorage() {
-        return this.isQuarantine;
-    }
-    getUsage() {
-        let usage = 0;
-        for (const file of this.files) {
-            usage += file.getSize();
-        }
-        return usage;
-    }
-    getFiles() {
-        return this.files;
     }
     updateUsage() {
         this.parent.children(".disk-usage")
@@ -728,7 +720,9 @@ class Disk {
         const parent = $("#disk-view");
         const header = parent.children(".header");
         const callback = () => operation ? Disk.purgeFiles(this) : Disk.scanFiles(this);
-        const task = CoreTask.create((operation ? "Purge" : "Scan") + ": " + this.name, this.getUsage())
+        const display = (operation ? "Purge" : "Scan") + ": " + this.name;
+        const type = operation ? CoreTaskType.Purge : CoreTaskType.Scan;
+        const task = CoreTask.create(display, this.getUsage(), type)
             .setOnComplete(() => {
             callback();
             this.files = [];
@@ -757,21 +751,6 @@ class Disk {
                 .off("click");
         }
     }
-    displayFile(file, delay = 0) {
-        const parent = $("<div>")
-            .addClass("file")
-            .hide()
-            .delay(delay)
-            .fadeIn()
-            .appendTo($("#disk-view"));
-        $("<span>")
-            .text(file.getName())
-            .appendTo(parent);
-        $("<span>")
-            .text(file.getSize() + "kb")
-            .appendTo(parent);
-        this.displayedFiles++;
-    }
     static scanFiles(disk) {
         const files = disk.getFiles();
         const length = files.length;
@@ -796,6 +775,37 @@ class Disk {
         Research.addReliability(reliability);
         Messenger.write("Purged " + length + " file" + (length === 1 ? "" : "s") + " and gained " + reliability.toFixed(2) + " reliability");
         Stats.add("disks", "threats-purged", length);
+    }
+    isDisplayed() {
+        return this.displayed;
+    }
+    setDisplayed(displayed) {
+        this.displayed = displayed;
+        const element = this.parent.children(".disk-name");
+        if (displayed) {
+            element.addClass("active");
+        }
+        else {
+            element.removeClass("active");
+            this.displayedFiles = 0;
+        }
+    }
+    setSize(size) {
+        this.maxStorage = size;
+        this.updateUsage();
+    }
+    isQuarantineStorage() {
+        return this.isQuarantine;
+    }
+    getUsage() {
+        let usage = 0;
+        for (const file of this.files) {
+            usage += file.getSize();
+        }
+        return usage;
+    }
+    getFiles() {
+        return this.files;
     }
 }
 Disk.maxDisplayedFiles = 11;

@@ -22,11 +22,11 @@ class CoreTask {
      * @param display The display name of this task
      * @param cost The cost of this task
      */
-    public static create(display: string, cost: number): CoreTask {
-        return new CoreTask(display, cost);
+    public static create(display: string, cost: number, type: CoreTaskType): CoreTask {
+        return new CoreTask(display, cost, type);
     }
 
-    private constructor(private display: string, private cost: number) { }
+    private constructor(private display: string, private cost: number, private type: CoreTaskType) { }
 
     /**
      * Updates the task's progress on its current task
