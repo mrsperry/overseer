@@ -59,4 +59,12 @@ class CoreManager {
             core.setMaxUpgrades(CoreManager.maxCoreUpgrades);
         }
     }
+    
+    /**
+     * @param id The ID of the core
+     * @returns The core with the given ID or the first core
+     */
+    public static getCore(id: number): Core {
+        return CoreManager.coreList[id] || CoreManager.coreList[0];
+    }
 }

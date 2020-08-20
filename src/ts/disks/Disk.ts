@@ -23,7 +23,7 @@ class Disk {
      * @param maxStorage Maximum number of kilobytes the disk can hold
      * @param isQuarantine If the disk is a quarantine disk
      */
-    public constructor(id: number, private name: string, private maxStorage: number, private isQuarantine: boolean) {
+    public constructor(private id: number, private name: string, private maxStorage: number, private isQuarantine: boolean) {
         // Create the disk display
         this.parent = $("<div>")
             .attr("id", "disk-" + id)
@@ -147,7 +147,7 @@ class Disk {
         } else {
             header.addClass(this.isWiping ? "disabled" : "clickable")
                 .text((this.isQuarantine ? "Purge" : "Scan") + " files")
-                .click((): void => this.wipeDisk(this.isQuarantine));
+                .click((): CoreTask => this.wipeDisk(this.isQuarantine));
         }
 
         // Check if an extra files indicator is needed
@@ -171,12 +171,13 @@ class Disk {
     /**
      * Performs an operation on the disk then clears it
      * @param operation The operation to perform: true for purging, false for scanning
+     * @returns The created core task
      */
-    private wipeDisk(operation: boolean): void {
+    public wipeDisk(operation: boolean): CoreTask {
         const parent: any = $("#disk-view");
         const header: any = parent.children(".header");
 
-        const callback: Function = (): void => operation ? Disk.purgeFiles(this) : Disk.scanFiles(this);
+        const callback: Function = (): void => operation ? this.purgeFiles() : this.scanFiles();
         const display: string = (operation ? "Purge" : "Scan") + ": " + this.name;
         const type: CoreTaskType = operation ? CoreTaskType.Purge : CoreTaskType.Scan;
 
@@ -207,8 +208,9 @@ class Disk {
 
                 header.addClass("clickable")
                     .removeClass("disabled")
-                    .click((): void => this.wipeDisk(operation));
-            });
+                    .click((): CoreTask => this.wipeDisk(operation));
+            })
+            .setDisk(this);
         
         // Update header if the task can be run
         if (task.run()) {
@@ -218,6 +220,8 @@ class Disk {
                 .addClass("disabled")
                 .off("click");
         }
+
+        return task;
     }
 
     /**
@@ -225,8 +229,8 @@ class Disk {
      * 
      * Threats found are moved to quarantine
      */
-    public static scanFiles(disk: Disk): void {
-        const files: DiskFile[] = disk.getFiles();
+    private scanFiles(): void {
+        const files: DiskFile[] = this.getFiles();
         const length: number = files.length;
 
         let threats: number = 0;
@@ -247,8 +251,8 @@ class Disk {
     /**
      * Purges files from a quarantine disk for reliability
      */
-    public static purgeFiles(disk: Disk): void {
-        const files: DiskFile[] = disk.getFiles();
+    private purgeFiles(): void {
+        const files: DiskFile[] = this.getFiles();
         const length: number = files.length;
 
         let reliability: number = 0;
@@ -319,5 +323,9 @@ class Disk {
      */
     public getFiles(): DiskFile[] {
         return this.files;
+    }
+
+    public getID(): number {
+        return this.id;
     }
 }

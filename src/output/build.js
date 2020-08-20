@@ -138,9 +138,10 @@ class CoreTask {
         this.cost = cost;
         this.type = type;
         this.core = null;
+        this.disk = null;
         this.handle = null;
         this.startTime = 0;
-        this.infinite = false;
+        this.isInfinite = false;
         this.isRunning = false;
         this.complete = null;
         this.cancel = null;
@@ -148,14 +149,34 @@ class CoreTask {
     static create(display, cost, type) {
         return new CoreTask(display, cost, type);
     }
+    static deserialize(state) {
+        const core = CoreManager.getCore(state.core);
+        const disk = DiskManager.getDisk(state.disk);
+        let task;
+        switch (state.type) {
+            case 0:
+                task = core.overclock();
+                break;
+            case 1:
+                task = core.searchForFiles();
+                break;
+            case 2:
+                task = disk.wipeDisk(false);
+                break;
+            default:
+                task = disk.wipeDisk(true);
+                break;
+        }
+        task.startTime = Date.now() - (state.saveTime - state.startTime);
+    }
     updateCore() {
         const progress = (this.core.getPower() / (this.getCost() * 2)) * (Date.now() - this.startTime);
-        this.core.getCanvas().drawCore(this.infinite ? 100 : progress);
+        this.core.getCanvas().drawCore(this.isInfinite ? 100 : progress);
         if (progress >= 100) {
             if (this.complete !== null) {
                 this.complete();
             }
-            if (this.infinite) {
+            if (this.isInfinite) {
                 this.startTime = Date.now();
             }
             else {
@@ -182,15 +203,19 @@ class CoreTask {
     getCost() {
         return this.cost;
     }
-    isInfinite() {
-        return this.infinite;
+    getIsInfinite() {
+        return this.isInfinite;
     }
-    setIsInfinite(infinite) {
-        this.infinite = infinite;
+    setIsInfinite(isInfinite) {
+        this.isInfinite = isInfinite;
         return this;
     }
     setCore(core) {
         this.core = core;
+        return this;
+    }
+    setDisk(disk) {
+        this.disk = disk;
         return this;
     }
     setOnComplete(onComplete) {
@@ -202,7 +227,7 @@ class CoreTask {
         return this;
     }
     onCancel() {
-        if (this.isInfinite()) {
+        if (this.isInfinite) {
             this.setIsInfinite(false);
         }
         if (this.cancel !== null) {
@@ -221,6 +246,15 @@ class CoreTask {
             return true;
         }
         return false;
+    }
+    serialize() {
+        return {
+            "core": this.core.getID(),
+            "disk": this.disk.getID(),
+            "type": this.type,
+            "startTime": this.startTime,
+            "saveTime": Date.now()
+        };
     }
 }
 class Core {
@@ -256,7 +290,7 @@ class Core {
         $("<button>")
             .addClass("core-button overclock-button")
             .text("[+]")
-            .click(() => Core.overclock(this))
+            .click(() => this.overclock())
             .appendTo(this.info);
         $("<button>")
             .addClass("core-button cancel-button")
@@ -266,7 +300,7 @@ class Core {
         $("<button>")
             .addClass("core-button search-button")
             .text("[search]")
-            .click(() => Core.searchForFiles(this))
+            .click(() => this.searchForFiles())
             .appendTo(this.info);
         this.setCoreTaskDisplay();
         this.updatePower(power);
@@ -305,19 +339,21 @@ class Core {
         this.upgrades++;
         this.canOverclock = this.upgrades < this.maxUpgrades && !this.isBusy();
     }
-    static overclock(core) {
-        CoreTask.create("Overclocking core", core.power * 1000, CoreTaskType.Overclock)
-            .setOnComplete(() => {
-            core.updatePower(core.power * 2);
-            core.upgrade();
+    overclock() {
+        const task = CoreTask.create("Overclocking core", this.power * 1000, CoreTaskType.Overclock);
+        task.setOnComplete(() => {
+            this.updatePower(this.power * 2);
+            this.upgrade();
             Stats.increment("cores", "times-overclocked");
-        }).run(core);
+        }).run(this);
+        return task;
     }
-    static searchForFiles(core) {
-        CoreTask.create("Searching for files", core.power * 5, CoreTaskType.Search)
-            .setIsInfinite(true)
+    searchForFiles() {
+        const task = CoreTask.create("Searching for files", this.power * 5, CoreTaskType.Search);
+        task.setIsInfinite(true)
             .setOnComplete(() => DiskManager.addFileToDisk())
-            .run(core);
+            .run(this);
+        return task;
     }
     getID() {
         return this.id;
@@ -375,6 +411,9 @@ class CoreManager {
         for (const core of CoreManager.coreList) {
             core.setMaxUpgrades(CoreManager.maxCoreUpgrades);
         }
+    }
+    static getCore(id) {
+        return CoreManager.coreList[id] || CoreManager.coreList[0];
     }
 }
 class Utils {
@@ -503,6 +542,9 @@ class DiskManager {
     static getFileExtensions() {
         return DiskManager.fileExtensions;
     }
+    static getDisk(id) {
+        return DiskManager.disks[id] || DiskManager.disks[0];
+    }
     static generateDiskNames(data, count) {
         const systems = Utils.createUniqueList(data.systems, count);
         const users = Utils.createUniqueList(data.users, count);
@@ -613,13 +655,14 @@ class Main {
 (() => Main.initialize())();
 var CoreTaskType;
 (function (CoreTaskType) {
-    CoreTaskType[CoreTaskType["Search"] = 0] = "Search";
-    CoreTaskType[CoreTaskType["Scan"] = 1] = "Scan";
-    CoreTaskType[CoreTaskType["Purge"] = 2] = "Purge";
-    CoreTaskType[CoreTaskType["Overclock"] = 3] = "Overclock";
+    CoreTaskType[CoreTaskType["Overclock"] = 0] = "Overclock";
+    CoreTaskType[CoreTaskType["Search"] = 1] = "Search";
+    CoreTaskType[CoreTaskType["Scan"] = 2] = "Scan";
+    CoreTaskType[CoreTaskType["Purge"] = 3] = "Purge";
 })(CoreTaskType || (CoreTaskType = {}));
 class Disk {
     constructor(id, name, maxStorage, isQuarantine) {
+        this.id = id;
         this.name = name;
         this.maxStorage = maxStorage;
         this.isQuarantine = isQuarantine;
@@ -717,7 +760,7 @@ class Disk {
     wipeDisk(operation) {
         const parent = $("#disk-view");
         const header = parent.children(".header");
-        const callback = () => operation ? Disk.purgeFiles(this) : Disk.scanFiles(this);
+        const callback = () => operation ? this.purgeFiles() : this.scanFiles();
         const display = (operation ? "Purge" : "Scan") + ": " + this.name;
         const type = operation ? CoreTaskType.Purge : CoreTaskType.Scan;
         const task = CoreTask.create(display, this.getUsage(), type)
@@ -741,16 +784,18 @@ class Disk {
             header.addClass("clickable")
                 .removeClass("disabled")
                 .click(() => this.wipeDisk(operation));
-        });
+        })
+            .setDisk(this);
         if (task.run()) {
             this.isWiping = true;
             header.removeClass("clickable")
                 .addClass("disabled")
                 .off("click");
         }
+        return task;
     }
-    static scanFiles(disk) {
-        const files = disk.getFiles();
+    scanFiles() {
+        const files = this.getFiles();
         const length = files.length;
         let threats = 0;
         for (let index = 0; index < length; index++) {
@@ -763,8 +808,8 @@ class Disk {
         Messenger.write("Scanned " + length + " files and found " + threats + " " + (threats === 1 ? "vulnerability" : "vulnerabilities"));
         Stats.add("disks", "files-scanned", length);
     }
-    static purgeFiles(disk) {
-        const files = disk.getFiles();
+    purgeFiles() {
+        const files = this.getFiles();
         const length = files.length;
         let reliability = 0;
         for (const file of files) {
@@ -804,6 +849,9 @@ class Disk {
     }
     getFiles() {
         return this.files;
+    }
+    getID() {
+        return this.id;
     }
 }
 Disk.maxDisplayedFiles = 11;

@@ -52,7 +52,7 @@ class Core {
         $("<button>")
             .addClass("core-button overclock-button")
             .text("[+]")
-            .click((): void => Core.overclock(this))
+            .click((): CoreTask => this.overclock())
             .appendTo(this.info);
         $("<button>")
             .addClass("core-button cancel-button")
@@ -62,7 +62,7 @@ class Core {
         $("<button>")
             .addClass("core-button search-button")
             .text("[search]")
-            .click((): void => Core.searchForFiles(this))
+            .click((): CoreTask => this.searchForFiles())
             .appendTo(this.info)
 
         // Set the idle display
@@ -135,25 +135,33 @@ class Core {
 
     /**
      * Doubles a core's power
+     * @returns The created core task
      */
-    public static overclock(core: Core): void {
-        CoreTask.create("Overclocking core", core.power * 1000, CoreTaskType.Overclock)
-            .setOnComplete((): void => {
-                core.updatePower(core.power * 2);
-                core.upgrade();
+    public overclock(): CoreTask {
+        const task: CoreTask = CoreTask.create("Overclocking core", this.power * 1000, CoreTaskType.Overclock);
 
-                Stats.increment("cores", "times-overclocked");
-            }).run(core);
+        task.setOnComplete((): void => {
+            this.updatePower(this.power * 2);
+            this.upgrade();
+
+            Stats.increment("cores", "times-overclocked");
+        }).run(this);
+
+        return task;
     }
 
     /**
      * Starts an infinite core task that will add files to disks until cancelled
+     * @returns The created core task
      */
-    public static searchForFiles(core: Core): void {
-        CoreTask.create("Searching for files", core.power * 5, CoreTaskType.Search)
-            .setIsInfinite(true)
+    public searchForFiles(): CoreTask {
+        const task: CoreTask = CoreTask.create("Searching for files", this.power * 5, CoreTaskType.Search);
+
+        task.setIsInfinite(true)
             .setOnComplete((): void => DiskManager.addFileToDisk())
-            .run(core);
+            .run(this);
+
+        return task;
     }
 
     /**

@@ -1,6 +1,9 @@
-class CoreTask {
+class CoreTask implements ISerializable {
     /** The core this task is running on */
     private core: any = null;
+    /** The disk this task modifies */
+    private disk: any = null;
+
     /** Window handler for this core's interval */
     private handle: number | null = null;
     /** The time this task was started */
@@ -22,6 +25,34 @@ class CoreTask {
      */
     public static create(display: string, cost: number, type: CoreTaskType): CoreTask {
         return new CoreTask(display, cost, type);
+    }
+
+    /**
+     * Creates a new core task from a serialized state
+     * @param state The serialized state to use to create the task
+     */
+    public static deserialize(state: any): void {
+        const core: Core = CoreManager.getCore(state.core);
+        const disk: Disk = DiskManager.getDisk(state.disk);
+
+        let task: CoreTask;
+        switch (state.type) {
+            case 0:
+                task = core.overclock();
+                break;
+            case 1:
+                task = core.searchForFiles();
+                break;
+            case 2:
+                task = disk.wipeDisk(false);
+                break;
+            default:
+                task = disk.wipeDisk(true);
+                break;
+        }
+
+        // Set the start time relative to the current time (no progress change)
+        task.startTime = Date.now() - (state.saveTime - state.startTime);
     }
 
     private constructor(private display: string, private cost: number, private type: CoreTaskType) { }
@@ -115,6 +146,15 @@ class CoreTask {
     }
 
     /**
+     * @param disk The disk this task modifies
+     */
+    public setDisk(disk: Disk): CoreTask {
+        this.disk = disk;
+
+        return this;
+    }
+
+    /**
      * @param onComplete The function to run if the task is completed
      */
     public setOnComplete(onComplete: Function): CoreTask {
@@ -166,5 +206,18 @@ class CoreTask {
         }
 
         return false;
+    }
+
+    /**
+     * @returns An object representing this core's state
+     */
+    public serialize(): any {
+        return {
+            "core": this.core.getID(),
+            "disk": this.disk.getID(),
+            "type": this.type,
+            "startTime": this.startTime,
+            "saveTime": Date.now()
+        };
     }
 }

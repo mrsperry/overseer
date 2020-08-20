@@ -148,6 +148,14 @@ class DiskManager {
     }
 
     /**
+     * @param id The ID of the disk
+     * @returns The disk with the given ID or the first disk
+     */
+    public static getDisk(id: number): Disk {
+        return DiskManager.disks[id] || DiskManager.disks[0];
+    }
+
+    /**
      * Creates unique disk names
      * @param data Data containing system, user and directory names
      * @param count The number of unique names to make
