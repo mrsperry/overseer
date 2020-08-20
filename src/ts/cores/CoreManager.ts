@@ -18,11 +18,18 @@ class CoreManager {
     /**
      * Creates a new core
      * @param power The power of the core
+     * @param count If this core should be added as a statistic
+     * @returns The created core
      */
-    public static addCore(power: number): void {
-        CoreManager.coreList.push(new Core(CoreManager.coreList.length, power));
+    public static addCore(power: number, count: boolean = true): Core {
+        const core: Core = new Core(CoreManager.coreList.length, power);
+        CoreManager.coreList.push(core);
 
-        Stats.increment("cores", "number-of-cores");
+        if (count) {
+            Stats.increment("cores", "number-of-cores");
+        }
+
+        return core;
     }
 
     /**

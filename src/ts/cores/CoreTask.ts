@@ -44,10 +44,10 @@ class CoreTask implements ISerializable {
                 task = core.searchForFiles();
                 break;
             case 2:
-                task = disk.wipeDisk(false);
+                task = disk.wipeDisk(false, core);
                 break;
             default:
-                task = disk.wipeDisk(true);
+                task = disk.wipeDisk(true, core);
                 break;
         }
 

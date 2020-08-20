@@ -171,9 +171,10 @@ class Disk {
     /**
      * Performs an operation on the disk then clears it
      * @param operation The operation to perform: true for purging, false for scanning
+     * @param core The core this task should run on
      * @returns The created core task
      */
-    public wipeDisk(operation: boolean): CoreTask {
+    public wipeDisk(operation: boolean, core?: Core): CoreTask {
         const parent: any = $("#disk-view");
         const header: any = parent.children(".header");
 
@@ -213,7 +214,7 @@ class Disk {
             .setDisk(this);
         
         // Update header if the task can be run
-        if (task.run()) {
+        if (task.run(core)) {
             this.isWiping = true;
 
             header.removeClass("clickable")

@@ -1,7 +1,7 @@
 /// <reference path="CoreCanvas.ts"/>
 /// <reference path="CoreTask.ts"/>
 
-class Core {
+class Core implements ISerializable {
     /** The core HTML section */
     private info: JQuery<HTMLElement>;
     /** The canvas used by this core */
@@ -71,6 +71,27 @@ class Core {
         this.updatePower(power);
         // Disable both core buttons
         this.updateButtons();
+    }
+
+    /**
+     * Creates a new core from a serialized state
+     * @param state The serialized state to use to create the core
+     */
+    public static deserialize(state: any): void {
+        let core: Core;
+        if (state.id !== 0) {
+            core = CoreManager.addCore(state.power, false);
+        } else {
+            core = CoreManager.getCore(0);
+        }
+
+        core.canOverclock = state.canOverclock;
+        core.upgrades = state.upgrades;
+        core.maxUpgrades = state.maxUpgrades;
+
+        if (state.task !== null) {
+            CoreTask.deserialize(state.task);
+        }
     }
 
     /**
@@ -216,5 +237,19 @@ class Core {
         this.maxUpgrades = max;
 
         this.setCanOverclock(this.maxUpgrades > this.upgrades);
+    }
+
+    /**
+     * @returns A serialized state of this core
+     */
+    public serialize(): any {
+        return {
+            "id": this.id,
+            "power": this.power,
+            "canOverclock": this.canOverclock,
+            "upgrades": this.upgrades,
+            "maxUpgrades": this.maxUpgrades,
+            "task": this.task?.isBusy() ? this.task.serialize() : null
+        };
     }
 }

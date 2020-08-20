@@ -161,10 +161,10 @@ class CoreTask {
                 task = core.searchForFiles();
                 break;
             case 2:
-                task = disk.wipeDisk(false);
+                task = disk.wipeDisk(false, core);
                 break;
             default:
-                task = disk.wipeDisk(true);
+                task = disk.wipeDisk(true, core);
                 break;
         }
         task.startTime = Date.now() - (state.saveTime - state.startTime);
@@ -306,6 +306,21 @@ class Core {
         this.updatePower(power);
         this.updateButtons();
     }
+    static deserialize(state) {
+        let core;
+        if (state.id !== 0) {
+            core = CoreManager.addCore(state.power, false);
+        }
+        else {
+            core = CoreManager.getCore(0);
+        }
+        core.canOverclock = state.canOverclock;
+        core.upgrades = state.upgrades;
+        core.maxUpgrades = state.maxUpgrades;
+        if (state.task !== null) {
+            CoreTask.deserialize(state.task);
+        }
+    }
     updatePower(power) {
         this.power = power;
         this.info.children(".core-power")
@@ -378,6 +393,16 @@ class Core {
         this.maxUpgrades = max;
         this.setCanOverclock(this.maxUpgrades > this.upgrades);
     }
+    serialize() {
+        return {
+            "id": this.id,
+            "power": this.power,
+            "canOverclock": this.canOverclock,
+            "upgrades": this.upgrades,
+            "maxUpgrades": this.maxUpgrades,
+            "task": this.task?.isBusy() ? this.task.serialize() : null
+        };
+    }
 }
 class CoreManager {
     static initialize() {
@@ -385,9 +410,13 @@ class CoreManager {
         CoreManager.maxCoreUpgrades = State.getValue("cores.max-upgrades") || 0;
         this.addCore(1);
     }
-    static addCore(power) {
-        CoreManager.coreList.push(new Core(CoreManager.coreList.length, power));
-        Stats.increment("cores", "number-of-cores");
+    static addCore(power, count = true) {
+        const core = new Core(CoreManager.coreList.length, power);
+        CoreManager.coreList.push(core);
+        if (count) {
+            Stats.increment("cores", "number-of-cores");
+        }
+        return core;
     }
     static startCoreTask(task, core) {
         if (core === undefined) {
@@ -757,7 +786,7 @@ class Disk {
             extra.text("...and " + (this.files.length - Disk.maxDisplayedFiles) + " more");
         }
     }
-    wipeDisk(operation) {
+    wipeDisk(operation, core) {
         const parent = $("#disk-view");
         const header = parent.children(".header");
         const callback = () => operation ? this.purgeFiles() : this.scanFiles();
@@ -786,7 +815,7 @@ class Disk {
                 .click(() => this.wipeDisk(operation));
         })
             .setDisk(this);
-        if (task.run()) {
+        if (task.run(core)) {
             this.isWiping = true;
             header.removeClass("clickable")
                 .addClass("disabled")
