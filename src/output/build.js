@@ -509,11 +509,13 @@ class DiskManager {
         DiskManager.displayFiles(DiskManager.addDisk(false));
         DiskManager.addDisk(true);
     }
-    static addDisk(isQuarantine) {
+    static addDisk(isQuarantine, count = false) {
         const name = isQuarantine ? DiskManager.getQuarantineName() : DiskManager.getDiskName();
         const disk = new Disk(DiskManager.disks.length, name, DiskManager.diskSize, isQuarantine);
         DiskManager.disks.push(disk);
-        Stats.increment("disks", "number-of-" + (isQuarantine ? "quarantines" : "disks"));
+        if (count) {
+            Stats.increment("disks", "number-of-" + (isQuarantine ? "quarantines" : "disks"));
+        }
         return disk;
     }
     static addFileToDisk() {
@@ -715,6 +717,24 @@ class Disk {
             .appendTo(this.parent);
         this.updateUsage();
     }
+    static deserialize(state) {
+        let disk;
+        if (state.id !== 0) {
+            disk = DiskManager.addDisk(state.isQuarantine, false);
+        }
+        else {
+            disk = DiskManager.getDisk(0);
+        }
+        disk.name = name;
+        disk.files = state.files.map((file) => DiskFile.deserialize(file));
+        disk.isWiping = state.isWiping;
+        disk.setDisplayed(state.displayed);
+        disk.setSize(state.maxStorage);
+        if (state.isDisplayed) {
+            disk.displayFiles();
+        }
+        return disk;
+    }
     displayFiles() {
         for (let index = 0; index < this.files.length; index++) {
             if (this.displayedFiles === Disk.maxDisplayedFiles) {
@@ -882,6 +902,17 @@ class Disk {
     getID() {
         return this.id;
     }
+    serialize() {
+        return {
+            "id": this.id,
+            "name": this.name,
+            "files": this.files.map((file) => file.serialize()),
+            "maxStorage": this.maxStorage,
+            "isQuarantine": this.isQuarantine,
+            "isDisplayed": this.displayed,
+            "isWiping": this.isWiping
+        };
+    }
 }
 Disk.maxDisplayedFiles = 11;
 Disk.displayDelay = 50;
@@ -894,6 +925,13 @@ class DiskFile {
         this.size = Utils.random(1, 20 + ((threatLevel - 1) * 100));
         this.isThreat = Utils.random(0, 1 + (threatLevel * 10)) == 0;
     }
+    static deserialize(state) {
+        const file = new DiskFile(0);
+        file.name = state.name;
+        file.size = state.size;
+        file.isThreat = state.isThreat;
+        return file;
+    }
     getName() {
         return this.name;
     }
@@ -905,6 +943,13 @@ class DiskFile {
     }
     getThreatLevel() {
         return this.threatLevel;
+    }
+    serialize() {
+        return {
+            "name": this.name,
+            "size": this.size,
+            "isThreat": this.isThreat
+        };
     }
 }
 DiskFile.minNameLength = 7;

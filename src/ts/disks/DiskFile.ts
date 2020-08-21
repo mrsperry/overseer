@@ -1,4 +1,4 @@
-class DiskFile {
+class DiskFile implements ISerializable {
     /** Min file name length */
     private static minNameLength: number = 7;
     /** Max file name length */
@@ -11,6 +11,10 @@ class DiskFile {
     /** If this file is a threat */
     private isThreat: boolean;
 
+    /**
+     * Creates a new disk file
+     * @param threatLevel The threat level of the file
+     */
     public constructor(private threatLevel: number) {
         const name: string = Utils.getAlphanumericString(Utils.random(DiskFile.minNameLength, DiskFile.maxNameLength));
         const extension: string = Utils.random(DiskManager.getFileExtensions());
@@ -19,6 +23,19 @@ class DiskFile {
         this.size = Utils.random(1, 20 + ((threatLevel - 1) * 100));
 
         this.isThreat = Utils.random(0, 1 + (threatLevel * 10)) == 0;
+    }
+
+    /**
+     * Creates a new disk file from a serialized state
+     * @param state The serialized state
+     * @returns The created file
+     */
+    public static deserialize(state: any): DiskFile {
+        const file: DiskFile = new DiskFile(0);
+        file.name = state.name;
+        file.size = state.size;
+        file.isThreat = state.isThreat;
+        return file;
     }
 
     /**
@@ -47,5 +64,16 @@ class DiskFile {
      */
     public getThreatLevel(): number {
         return this.threatLevel;
+    }
+
+    /**
+     * @returns The serialized state of this disk file
+     */
+    public serialize(): any {
+        return {
+            "name": this.name,
+            "size": this.size,
+            "isThreat": this.isThreat
+        };
     }
 }

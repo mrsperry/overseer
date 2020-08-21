@@ -1,4 +1,4 @@
-class Disk {
+class Disk implements ISerializable {
     /** Max number of files to be displayed */
     private static maxDisplayedFiles: number = 11;
     /** Number of milliseconds to delay before fading in when displaying files */
@@ -42,6 +42,32 @@ class Disk {
 
         // Set the usage percentage
         this.updateUsage();
+    }
+
+    /**
+     * Creates a new disk from a serialized state
+     * @param state The serialized state
+     * @returns The created disk
+     */
+    public static deserialize(state: any): Disk {
+        let disk: Disk;
+        if (state.id !== 0) {
+            disk = DiskManager.addDisk(state.isQuarantine, false);
+        } else {
+            disk = DiskManager.getDisk(0);
+        }
+        
+        disk.name = name;
+        disk.files = state.files.map((file: any): DiskFile => DiskFile.deserialize(file));
+        disk.isWiping = state.isWiping;
+        disk.setDisplayed(state.displayed);
+        disk.setSize(state.maxStorage);
+
+        if (state.isDisplayed) {
+            disk.displayFiles();
+        }
+
+        return disk;
     }
 
     /**
@@ -328,5 +354,20 @@ class Disk {
 
     public getID(): number {
         return this.id;
+    }
+
+    /**
+     * @returns The serialized state of this disk
+     */
+    public serialize(): any {
+        return {
+            "id": this.id,
+            "name": this.name,
+            "files": this.files.map((file: DiskFile): void => file.serialize()),
+            "maxStorage": this.maxStorage,
+            "isQuarantine": this.isQuarantine,
+            "isDisplayed": this.displayed,
+            "isWiping": this.isWiping
+        };
     }
 }

@@ -40,9 +40,10 @@ class DiskManager {
     /**
      * Adds a new disk
      * @param isQuarantine If the disk is a quarantine disk
+     * @param count If this disk should count as a statistic
      * @returns The added disk
      */
-    public static addDisk(isQuarantine: boolean): Disk {
+    public static addDisk(isQuarantine: boolean, count: boolean = false): Disk {
         // Get the name of the disk
         const name: string = isQuarantine ? DiskManager.getQuarantineName() : DiskManager.getDiskName();
 
@@ -51,7 +52,9 @@ class DiskManager {
     
         DiskManager.disks.push(disk);
 
-        Stats.increment("disks", "number-of-" + (isQuarantine ? "quarantines" : "disks"));
+        if (count) {
+            Stats.increment("disks", "number-of-" + (isQuarantine ? "quarantines" : "disks"));
+        }
 
         return disk;
     }
