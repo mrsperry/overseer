@@ -39,8 +39,6 @@ class OrderedNumbers extends Hack {
         this.maxNumbers = data["max-numbers"];
         this.numberPerRow = data["numbers-per-row"];
         this.order = [];
-
-        this.addContent();
     }
 
     /**

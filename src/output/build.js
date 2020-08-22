@@ -957,11 +957,12 @@ DiskFile.maxNameLength = 16;
 class Hack {
     constructor(time) {
         this.time = time;
-        this.handle = window.setInterval(() => this.countdown(), 1000);
+        this.handle = 0;
         this.locked = false;
+        this.addPretextContent();
         Stats.increment("hacks", "timed-hacked");
     }
-    addContent() {
+    addPretextContent() {
         this.parent = $("<div>")
             .addClass("hack-container")
             .hide()
@@ -973,6 +974,33 @@ class Hack {
         this.content = $("<div>")
             .addClass("hack-content")
             .appendTo(this.parent);
+        $("<h1>")
+            .addClass("centered bold pretext-header")
+            .text("Quarantine Breach Detected")
+            .appendTo(this.content);
+        $("<p>")
+            .addClass("centered pretext")
+            .text("Real time quarantine monitoring has picked up an unknown number of files executing cracking functions!")
+            .appendTo(this.content);
+        $("<p>")
+            .addClass("centered pretext")
+            .html("If left unchecked these files may damage the integrity of the quarantine drives and <span class='clickable-no-click active-error'>allow other threats to escape</span>.")
+            .appendTo(this.content);
+        $("<p>")
+            .addClass("centered pretext")
+            .html("There is a <span class='clickable-no-click active-error'>limited time span</span> where available containment functions will be effective...")
+            .appendTo(this.content);
+        $("<a>")
+            .addClass("clickable")
+            .text("Run counter-measures")
+            .click(() => this.content.fadeOut(400, () => {
+            this.content.empty().fadeIn();
+            this.addContent();
+            this.handle = window.setInterval(() => this.countdown(), 1000);
+        }))
+            .appendTo(this.content);
+    }
+    addContent() {
         const header = $("<h1>")
             .addClass("centered")
             .text("Time until quarantine breakout: ")
@@ -1014,7 +1042,6 @@ class Cryptogram extends Hack {
         super(data.time);
         this.password = Utils.createUniqueList(Cryptogram.letters.split(""), data.characters).join("");
         this.progress = "";
-        this.addContent();
     }
     addContent() {
         super.addContent();
@@ -1117,7 +1144,6 @@ class HiddenPasswords extends Hack {
         this.lines = data.lines;
         this.lineLength = HiddenPasswords.lineLength;
         this.passwordContainer = [];
-        this.addContent();
     }
     addContent() {
         super.addContent();
@@ -1243,7 +1269,6 @@ class NumberMultiples extends Hack {
         this.multipliers = [];
         this.multiples = [];
         this.numbers = [];
-        this.addContent();
     }
     addContent() {
         super.addContent();
@@ -1364,7 +1389,6 @@ class OrderedNumbers extends Hack {
         this.maxNumbers = data["max-numbers"];
         this.numberPerRow = data["numbers-per-row"];
         this.order = [];
-        this.addContent();
     }
     addContent() {
         super.addContent();

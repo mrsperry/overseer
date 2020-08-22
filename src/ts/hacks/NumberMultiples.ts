@@ -54,8 +54,6 @@ class NumberMultiples extends Hack {
         this.multipliers = [];
         this.multiples = [];
         this.numbers = [];
-
-        this.addContent();
     }
 
     /**

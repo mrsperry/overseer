@@ -70,8 +70,6 @@ class HiddenPasswords extends Hack {
         this.lines = data.lines;
         this.lineLength = HiddenPasswords.lineLength;
         this.passwordContainer = [];
-
-        this.addContent();
     }
 
     /**

@@ -1,6 +1,6 @@
 abstract class Hack {
     /** Window interval handler for the countdown */
-    private handle: number;
+    private handle: number = 0;
     /** The parent of the hack interface */
     private parent: any;
 
@@ -14,16 +14,17 @@ abstract class Hack {
      * @param time The number of seconds to complete the hack before the player fails
      */
     protected constructor(private time: number) {
-        this.handle = window.setInterval((): void => this.countdown(), 1000);
         this.locked = false;
+
+        this.addPretextContent();
 
         Stats.increment("hacks", "timed-hacked");
     }
 
     /**
-     * Adds the initial hack interface content with the countdown timer
+     * Creates the hack content parents and gives a short description of what to do next
      */
-    protected addContent(): void {
+    private addPretextContent(): void {
         this.parent = $("<div>")
             .addClass("hack-container")
             .hide()
@@ -36,6 +37,37 @@ abstract class Hack {
             .addClass("hack-content")
             .appendTo(this.parent);
 
+        $("<h1>")
+            .addClass("centered bold pretext-header")
+            .text("Quarantine Breach Detected")
+            .appendTo(this.content);
+        $("<p>")
+            .addClass("centered pretext")
+            .text("Real time quarantine monitoring has picked up an unknown number of files executing cracking functions!")
+            .appendTo(this.content);
+        $("<p>")
+            .addClass("centered pretext")
+            .html("If left unchecked these files may damage the integrity of the quarantine drives and <span class='clickable-no-click active-error'>allow other threats to escape</span>.")
+            .appendTo(this.content);
+        $("<p>")
+            .addClass("centered pretext")
+            .html("There is a <span class='clickable-no-click active-error'>limited time span</span> where available containment functions will be effective...")
+            .appendTo(this.content);
+        $("<a>")
+            .addClass("clickable")
+            .text("Run counter-measures")
+            .click((): void => this.content.fadeOut(400, (): void => {
+                this.content.empty().fadeIn();
+                this.addContent();
+                this.handle = window.setInterval((): void => this.countdown(), 1000);
+            }))
+            .appendTo(this.content);
+    }
+
+    /**
+     * Adds the initial hack interface content with the countdown timer
+     */
+    protected addContent(): void {
         const header: any = $("<h1>")
             .addClass("centered")
             .text("Time until quarantine breakout: ")

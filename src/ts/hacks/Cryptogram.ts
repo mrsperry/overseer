@@ -35,8 +35,6 @@ class Cryptogram extends Hack {
         // Get a random unique alphanumeric password
         this.password = Utils.createUniqueList(Cryptogram.letters.split(""), data.characters).join("");
         this.progress = "";
-
-        this.addContent();
     }
 
     /**

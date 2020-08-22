@@ -40,6 +40,10 @@
             width: 100%;
             height: 1.2rem;
             margin-bottom: 1rem;
+
+            &.pretext-header {
+                border-bottom: 1px solid variables.$main-border;
+            }
         }
 
         table {
@@ -56,6 +60,15 @@
                     background-color: variables.$main-bg-hover;
                 }
             }
+        }
+
+        a {
+            margin-top: 1rem;
+        }
+
+        .pretext {
+            max-width: 35rem;
+            margin-bottom: 1rem;
         }
         
         .header {
@@ -76,6 +89,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            row-gap: 0rem;
 
             .text-line {
                 cursor: default;
