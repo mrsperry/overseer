@@ -9,10 +9,6 @@ class Core implements ISerializable {
     /** The current core task */
     private task: CoreTask | null = null;
 
-    /** If this core can overclock */
-    private canOverclock: boolean = false;
-    /** The maximum upgrades this core can receive */
-    private maxUpgrades: number = 0;
     /** The number of times this core has overclocked */
     private upgrades: number = 0;
 
@@ -85,9 +81,7 @@ class Core implements ISerializable {
             core = CoreManager.getCore(0);
         }
 
-        core.canOverclock = state.canOverclock;
         core.upgrades = state.upgrades;
-        core.maxUpgrades = state.maxUpgrades;
 
         if (state.task !== null) {
             CoreTask.deserialize(state.task);
@@ -140,18 +134,10 @@ class Core implements ISerializable {
             .prop("disabled", !this.isBusy());
 
         this.info.children(".overclock-button")
-            .prop("disabled", !this.canOverclock || this.isBusy());
+            .prop("disabled", this.upgrades >= CoreManager.getMaxCoreUpgrades() || this.isBusy());
 
         this.info.children(".search-button")
             .prop("disabled", this.isBusy());
-    }
-
-    /**
-     * Increments and updates overclock variables of this core
-     */
-    public upgrade(): void {
-        this.upgrades++;
-        this.canOverclock = this.upgrades < this.maxUpgrades && !this.isBusy();
     }
 
     /**
@@ -163,7 +149,7 @@ class Core implements ISerializable {
 
         task.setOnComplete((): void => {
             this.updatePower(this.power * 2);
-            this.upgrade();
+            this.upgrades++;
 
             Stats.increment("cores", "times-overclocked");
         }).run(this);
@@ -221,34 +207,13 @@ class Core implements ISerializable {
     }
 
     /**
-     * @param canOverclock If this core can overclock
-     */
-    public setCanOverclock(canOverclock: boolean): void {
-        this.canOverclock = canOverclock;
-
-        this.updateButtons();
-    }
-
-    /**
-     * Sets the maximum number of upgrades for this core and updates core buttons
-     * @param max The new maximum number of upgrades
-     */
-    public setMaxUpgrades(max: number): void {
-        this.maxUpgrades = max;
-
-        this.setCanOverclock(this.maxUpgrades > this.upgrades);
-    }
-
-    /**
      * @returns A serialized state of this core
      */
     public serialize(): any {
         return {
             "id": this.id,
             "power": this.power,
-            "canOverclock": this.canOverclock,
             "upgrades": this.upgrades,
-            "maxUpgrades": this.maxUpgrades,
             "task": this.task?.isBusy() ? this.task.serialize() : null
         };
     }

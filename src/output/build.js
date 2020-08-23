@@ -262,8 +262,6 @@ class Core {
         this.id = id;
         this.power = power;
         this.task = null;
-        this.canOverclock = false;
-        this.maxUpgrades = 0;
         this.upgrades = 0;
         const parent = $("<div>")
             .attr("id", "core-" + id)
@@ -314,9 +312,7 @@ class Core {
         else {
             core = CoreManager.getCore(0);
         }
-        core.canOverclock = state.canOverclock;
         core.upgrades = state.upgrades;
-        core.maxUpgrades = state.maxUpgrades;
         if (state.task !== null) {
             CoreTask.deserialize(state.task);
         }
@@ -346,19 +342,15 @@ class Core {
         this.info.children(".cancel-button")
             .prop("disabled", !this.isBusy());
         this.info.children(".overclock-button")
-            .prop("disabled", !this.canOverclock || this.isBusy());
+            .prop("disabled", this.upgrades >= CoreManager.getMaxCoreUpgrades() || this.isBusy());
         this.info.children(".search-button")
             .prop("disabled", this.isBusy());
-    }
-    upgrade() {
-        this.upgrades++;
-        this.canOverclock = this.upgrades < this.maxUpgrades && !this.isBusy();
     }
     overclock() {
         const task = CoreTask.create("Overclocking core", this.power * 1000, CoreTaskType.Overclock);
         task.setOnComplete(() => {
             this.updatePower(this.power * 2);
-            this.upgrade();
+            this.upgrades++;
             Stats.increment("cores", "times-overclocked");
         }).run(this);
         return task;
@@ -385,21 +377,11 @@ class Core {
     setTask(task) {
         this.task = task;
     }
-    setCanOverclock(canOverclock) {
-        this.canOverclock = canOverclock;
-        this.updateButtons();
-    }
-    setMaxUpgrades(max) {
-        this.maxUpgrades = max;
-        this.setCanOverclock(this.maxUpgrades > this.upgrades);
-    }
     serialize() {
         return {
             "id": this.id,
             "power": this.power,
-            "canOverclock": this.canOverclock,
             "upgrades": this.upgrades,
-            "maxUpgrades": this.maxUpgrades,
             "task": this.task?.isBusy() ? this.task.serialize() : null
         };
     }
@@ -438,8 +420,11 @@ class CoreManager {
     static upgradeCoreSpeeds() {
         CoreManager.maxCoreUpgrades++;
         for (const core of CoreManager.coreList) {
-            core.setMaxUpgrades(CoreManager.maxCoreUpgrades);
+            core.updateButtons();
         }
+    }
+    static getMaxCoreUpgrades() {
+        return CoreManager.maxCoreUpgrades;
     }
     static getCore(id) {
         return CoreManager.coreList[id] || CoreManager.coreList[0];

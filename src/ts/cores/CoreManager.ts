@@ -3,6 +3,7 @@
 class CoreManager {
     /** The list of available cores */
     private static coreList: Core[];
+    /** The current number of times a core can overclock */
     private static maxCoreUpgrades: number;
 
     /**
@@ -63,8 +64,15 @@ class CoreManager {
         CoreManager.maxCoreUpgrades++;
 
         for (const core of CoreManager.coreList) {
-            core.setMaxUpgrades(CoreManager.maxCoreUpgrades);
+            core.updateButtons();
         }
+    }
+
+    /**
+     * @returns The max number of times a core can be overclocked
+     */
+    public static getMaxCoreUpgrades(): number {
+        return CoreManager.maxCoreUpgrades;
     }
     
     /**
