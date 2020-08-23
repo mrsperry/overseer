@@ -159,6 +159,19 @@ class DiskManager {
     }
 
     /**
+     * @returns If any quarantine disk is available to handle a task
+     */
+    public static isQuarantineAvailable(): boolean {
+        for (const disk of DiskManager.disks) {
+            if (disk.isQuarantineStorage() && !disk.isBusy()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Creates unique disk names
      * @param data Data containing system, user and directory names
      * @param count The number of unique names to make

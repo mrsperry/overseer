@@ -240,6 +240,12 @@ class Disk implements ISerializable {
             })
             .setDisk(this);
         
+        // Make sure a quarantine drive is available when scanning
+        if (type === CoreTaskType.Scan && !DiskManager.isQuarantineAvailable()) {
+            Messenger.write("All quarantine drives are currently busy")
+            return task;
+        }
+
         // Update header if the task can be run
         if (task.run(core)) {
             this.isWiping = true;

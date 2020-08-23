@@ -576,6 +576,14 @@ class DiskManager {
     static getDisk(id) {
         return DiskManager.disks[id] || DiskManager.disks[0];
     }
+    static isQuarantineAvailable() {
+        for (const disk of DiskManager.disks) {
+            if (disk.isQuarantineStorage() && !disk.isBusy()) {
+                return true;
+            }
+        }
+        return false;
+    }
     static generateDiskNames(data, count) {
         const systems = Utils.createUniqueList(data.systems, count);
         const users = Utils.createUniqueList(data.users, count);
@@ -835,6 +843,10 @@ class Disk {
             }
         })
             .setDisk(this);
+        if (type === CoreTaskType.Scan && !DiskManager.isQuarantineAvailable()) {
+            Messenger.write("All quarantine drives are currently busy");
+            return task;
+        }
         if (task.run(core)) {
             this.isWiping = true;
             this.updateFileDisplay();
