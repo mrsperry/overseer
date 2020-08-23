@@ -520,7 +520,7 @@ class DiskManager {
     }
     static addFileToDisk() {
         for (const disk of DiskManager.disks) {
-            if (disk.isQuarantineStorage()) {
+            if (disk.isQuarantineStorage() || disk.isBusy()) {
                 continue;
             }
             if (disk.addFile(this.threatLevel)) {
@@ -782,16 +782,17 @@ class Disk {
     updateFileDisplay(delay = 0) {
         const parent = $("#disk-view");
         const header = parent.children(".header")
-            .removeClass("disabled")
+            .removeClass("disabled clickable")
             .off("click");
         if (this.files.length == 0) {
-            header.text("No files to display")
-                .removeClass("clickable");
+            header.text("No files to display");
         }
         else {
             header.addClass(this.isWiping ? "disabled" : "clickable")
-                .text((this.isQuarantine ? "Purge" : "Scan") + " files")
-                .click(() => this.wipeDisk(this.isQuarantine));
+                .text((this.isQuarantine ? "Purge" : "Scan") + " files");
+            if (!this.isWiping) {
+                header.click(() => this.wipeDisk(this.isQuarantine));
+            }
         }
         if (this.files.length > Disk.maxDisplayedFiles) {
             let extra = parent.children(".extra-files");
@@ -808,7 +809,6 @@ class Disk {
     }
     wipeDisk(operation, core) {
         const parent = $("#disk-view");
-        const header = parent.children(".header");
         const callback = () => operation ? this.purgeFiles() : this.scanFiles();
         const display = (operation ? "Purge" : "Scan") + ": " + this.name;
         const type = operation ? CoreTaskType.Purge : CoreTaskType.Scan;
@@ -830,16 +830,14 @@ class Disk {
         })
             .setOnCancel(() => {
             this.isWiping = false;
-            header.addClass("clickable")
-                .removeClass("disabled")
-                .click(() => this.wipeDisk(operation));
+            if (this.displayed) {
+                this.updateFileDisplay();
+            }
         })
             .setDisk(this);
         if (task.run(core)) {
             this.isWiping = true;
-            header.removeClass("clickable")
-                .addClass("disabled")
-                .off("click");
+            this.updateFileDisplay();
         }
         return task;
     }
@@ -901,6 +899,9 @@ class Disk {
     }
     getID() {
         return this.id;
+    }
+    isBusy() {
+        return this.isWiping;
     }
     serialize() {
         return {

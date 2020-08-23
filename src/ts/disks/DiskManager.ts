@@ -64,7 +64,7 @@ class DiskManager {
      */
     public static addFileToDisk(): void {
         for (const disk of DiskManager.disks) {
-            if (disk.isQuarantineStorage()) {
+            if (disk.isQuarantineStorage() || disk.isBusy()) {
                 continue;
             }
 

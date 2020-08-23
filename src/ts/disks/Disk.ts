@@ -164,16 +164,18 @@ class Disk implements ISerializable {
     private updateFileDisplay(delay: number = 0): void {
         const parent: any = $("#disk-view");
         const header: any = parent.children(".header")
-            .removeClass("disabled")
+            .removeClass("disabled clickable")
             .off("click");
 
         if (this.files.length == 0) {
-            header.text("No files to display")
-                .removeClass("clickable");
+            header.text("No files to display");
         } else {
             header.addClass(this.isWiping ? "disabled" : "clickable")
-                .text((this.isQuarantine ? "Purge" : "Scan") + " files")
-                .click((): CoreTask => this.wipeDisk(this.isQuarantine));
+                .text((this.isQuarantine ? "Purge" : "Scan") + " files");
+
+            if (!this.isWiping) {
+                header.click((): CoreTask => this.wipeDisk(this.isQuarantine));
+            }
         }
 
         // Check if an extra files indicator is needed
@@ -202,7 +204,6 @@ class Disk implements ISerializable {
      */
     public wipeDisk(operation: boolean, core?: Core): CoreTask {
         const parent: any = $("#disk-view");
-        const header: any = parent.children(".header");
 
         const callback: Function = (): void => operation ? this.purgeFiles() : this.scanFiles();
         const display: string = (operation ? "Purge" : "Scan") + ": " + this.name;
@@ -233,19 +234,16 @@ class Disk implements ISerializable {
             .setOnCancel((): void => {
                 this.isWiping = false;
 
-                header.addClass("clickable")
-                    .removeClass("disabled")
-                    .click((): CoreTask => this.wipeDisk(operation));
+                if (this.displayed) {
+                    this.updateFileDisplay();
+                }
             })
             .setDisk(this);
         
         // Update header if the task can be run
         if (task.run(core)) {
             this.isWiping = true;
-
-            header.removeClass("clickable")
-                .addClass("disabled")
-                .off("click");
+            this.updateFileDisplay();
         }
 
         return task;
@@ -352,8 +350,18 @@ class Disk implements ISerializable {
         return this.files;
     }
 
+    /**
+     * @returns The ID of this disk
+     */
     public getID(): number {
         return this.id;
+    }
+
+    /**
+     * @returns If the disk is currently being wiped
+     */
+    public isBusy(): boolean  {
+        return this.isWiping;
     }
 
     /**
