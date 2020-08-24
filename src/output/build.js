@@ -542,6 +542,24 @@ class DiskManager {
             disk.setSize(DiskManager.diskSize);
         }
     }
+    static quarantineBreakout() {
+        let lostFiles = 0;
+        const quarantines = [];
+        for (let index = 0; index < DiskManager.disks.length; index++) {
+            const disk = DiskManager.disks[index];
+            if (disk.isQuarantineStorage()) {
+                quarantines.push(disk);
+            }
+        }
+        const filesToLose = Utils.random(1, (DiskManager.threatLevel * 10) + 1);
+        for (let index = 0; index < filesToLose; index++) {
+            const disk = quarantines[Utils.random(0, quarantines.length)];
+            if (disk.removeRandomFile()) {
+                lostFiles++;
+            }
+        }
+        return lostFiles;
+    }
     static addThreatLevel() {
         DiskManager.threatLevel++;
     }
@@ -790,6 +808,18 @@ class Disk {
             extra.text("...and " + (this.files.length - Disk.maxDisplayedFiles) + " more");
         }
     }
+    removeRandomFile() {
+        if (this.files.length === 0) {
+            return false;
+        }
+        this.files.splice(Utils.random(0, this.files.length), 1);
+        if (this.displayed) {
+            this.setDisplayed(false);
+            DiskManager.displayFiles(this);
+            this.updateUsage();
+        }
+        return true;
+    }
     wipeDisk(operation, core) {
         const parent = $("#disk-view");
         const callback = () => operation ? this.purgeFiles() : this.scanFiles();
@@ -1008,10 +1038,12 @@ class Hack {
     }
     success() {
         this.removeInterface(true);
+        Messenger.write("Quarantine lockdown successful; all files accounted for");
         Stats.increment("hacks", "completed-hacks");
     }
     fail() {
         this.removeInterface(false);
+        Messenger.write("Quarantine lockdown failed; failed to locate " + DiskManager.quarantineBreakout() + " files");
         Stats.increment("hacks", "failed-hacks");
     }
     removeInterface(success) {

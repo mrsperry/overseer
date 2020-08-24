@@ -197,6 +197,27 @@ class Disk implements ISerializable {
     }
 
     /**
+     * Removes a random file
+     * @returns If there was a file to remove
+     */
+    public removeRandomFile(): boolean {
+        if (this.files.length === 0) {
+            return false;
+        }
+
+        this.files.splice(Utils.random(0, this.files.length), 1);
+
+        // Update all displays
+        if (this.displayed) {
+            this.setDisplayed(false);
+            DiskManager.displayFiles(this);
+            this.updateUsage();
+        }
+
+        return true;
+    }
+
+    /**
      * Performs an operation on the disk then clears it
      * @param operation The operation to perform: true for purging, false for scanning
      * @param core The core this task should run on

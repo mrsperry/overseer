@@ -97,6 +97,7 @@ abstract class Hack {
     protected success(): void {
         this.removeInterface(true);
 
+        Messenger.write("Quarantine lockdown successful; all files accounted for")
         Stats.increment("hacks", "completed-hacks");
     }
 
@@ -106,6 +107,7 @@ abstract class Hack {
     protected fail(): void {
         this.removeInterface(false);
 
+        Messenger.write("Quarantine lockdown failed; " + DiskManager.quarantineBreakout() + " files not found")
         Stats.increment("hacks", "failed-hacks");
     }
 
