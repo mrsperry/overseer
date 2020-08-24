@@ -533,18 +533,8 @@ class DiskManager {
         for (const disk of DiskManager.disks) {
             disk.setDisplayed(false);
         }
-        const view = $("#disk-view");
-        const display = () => {
-            view.show().children(".file").remove();
-            view.children(".header").hide().fadeIn();
-            disk.displayFiles();
-        };
-        if (view.is("visible")) {
-            view.fadeOut(400, display);
-        }
-        else {
-            display();
-        }
+        $("#disk-view").children(".file").remove();
+        disk.displayFiles();
     }
     static upgradeDiskStorage() {
         DiskManager.diskSize *= 2;

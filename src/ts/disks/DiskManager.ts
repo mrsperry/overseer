@@ -108,21 +108,10 @@ class DiskManager {
             disk.setDisplayed(false);
         }
 
-        const view: any = $("#disk-view");
-        // Function to display the disk
-        const display: Function = (): void => {
-            view.show().children(".file").remove();
-            view.children(".header").hide().fadeIn();
-
-            disk.displayFiles();
-        };
-
-        // Fade out the currently displayed disk if one is displayed
-        if (view.is("visible")) {
-            view.fadeOut(400, display);
-        } else {
-            display();
-        }
+        // Remove previous display
+        $("#disk-view").children(".file").remove();
+        // Display the files
+        disk.displayFiles();
     }
 
     /**
