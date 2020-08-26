@@ -14,6 +14,7 @@ class Main {
         CoreManager.initialize();
         DiskManager.initialize();
         await Research.initialize();
+        HackTimer.initialize();
     }
 }
 

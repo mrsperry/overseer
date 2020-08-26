@@ -154,10 +154,31 @@ class DiskManager {
     }
 
     /**
+     * @returns If there are files in any quarantine disk
+     */
+    public static hasQuarantineFiles(): boolean {
+        for (const disk of DiskManager.disks) {
+            if (disk.isQuarantineStorage()) {
+                if (disk.getFiles().length > 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
      * Increments the threat level
      */
     public static addThreatLevel(): void {
         DiskManager.threatLevel++;
+    }
+
+    /**
+     * @returns The current threat level
+     */
+    public static getThreatLevel(): number {
+        return DiskManager.threatLevel;
     }
 
     /**

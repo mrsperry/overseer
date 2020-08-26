@@ -18,6 +18,7 @@ abstract class Hack {
 
         this.addPretextContent();
 
+        HackTimer.stop();
         Stats.increment("hacks", "timed-hacked");
     }
 
@@ -127,5 +128,8 @@ abstract class Hack {
 
         // Color the border of the hack depending on the success state
         this.content.addClass(success ? "success" : "fail");
+
+        // Restart the hack timer
+        HackTimer.start();
     }
 }

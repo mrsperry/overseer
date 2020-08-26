@@ -560,8 +560,21 @@ class DiskManager {
         }
         return lostFiles;
     }
+    static hasQuarantineFiles() {
+        for (const disk of DiskManager.disks) {
+            if (disk.isQuarantineStorage()) {
+                if (disk.getFiles().length > 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
     static addThreatLevel() {
         DiskManager.threatLevel++;
+    }
+    static getThreatLevel() {
+        return DiskManager.threatLevel;
     }
     static getFileExtensions() {
         return DiskManager.fileExtensions;
@@ -682,6 +695,7 @@ class Main {
         CoreManager.initialize();
         DiskManager.initialize();
         await Research.initialize();
+        HackTimer.initialize();
     }
 }
 (() => Main.initialize())();
@@ -978,6 +992,7 @@ class Hack {
         this.handle = 0;
         this.locked = false;
         this.addPretextContent();
+        HackTimer.stop();
         Stats.increment("hacks", "timed-hacked");
     }
     addPretextContent() {
@@ -1043,7 +1058,7 @@ class Hack {
     }
     fail() {
         this.removeInterface(false);
-        Messenger.write("Quarantine lockdown failed; failed to locate " + DiskManager.quarantineBreakout() + " files");
+        Messenger.write("Quarantine lockdown failed; " + DiskManager.quarantineBreakout() + " files not found");
         Stats.increment("hacks", "failed-hacks");
     }
     removeInterface(success) {
@@ -1054,6 +1069,7 @@ class Hack {
             this.parent.remove();
         });
         this.content.addClass(success ? "success" : "fail");
+        HackTimer.start();
     }
 }
 class Cryptogram extends Hack {
@@ -1155,6 +1171,44 @@ Cryptogram.levels = [
         "characters": 10
     }
 ];
+class HackTimer {
+    static initialize() {
+        HackTimer.start();
+        window.setInterval(HackTimer.checkStatus, 60000);
+    }
+    static start() {
+        HackTimer.startTime = Date.now();
+        HackTimer.interval = Utils.random(HackTimer.minInterval, HackTimer.maxInterval + 1);
+        HackTimer.isRunning = true;
+    }
+    static stop() {
+        HackTimer.isRunning = false;
+    }
+    static checkStatus() {
+        if (!HackTimer.isRunning || !DiskManager.hasQuarantineFiles()) {
+            return;
+        }
+        if (Date.now() - HackTimer.startTime >= HackTimer.interval * 60000) {
+            const threatLevel = DiskManager.getThreatLevel();
+            switch (Utils.random(0, 4)) {
+                case 0:
+                    new Cryptogram(threatLevel);
+                    break;
+                case 1:
+                    new HiddenPasswords(threatLevel);
+                    break;
+                case 2:
+                    new NumberMultiples(threatLevel);
+                    break;
+                default:
+                    new OrderedNumbers(threatLevel);
+                    break;
+            }
+        }
+    }
+}
+HackTimer.minInterval = 3;
+HackTimer.maxInterval = 15;
 class HiddenPasswords extends Hack {
     constructor(level) {
         const data = HiddenPasswords.data.levels[level - 1];
