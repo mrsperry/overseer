@@ -27,7 +27,7 @@ class DiskManager {
         DiskManager.generateDiskNames(diskNameData, 3);
 
         // Set the initial size of disks
-        DiskManager.diskSize = 500;
+        DiskManager.diskSize = 100;
         // Set initial quarantine level
         DiskManager.threatLevel = 1;
 

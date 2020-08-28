@@ -356,7 +356,7 @@ class Core {
         return task;
     }
     searchForFiles() {
-        const task = CoreTask.create("Searching for files", 20, CoreTaskType.Search);
+        const task = CoreTask.create("Searching for files", Core.fileSearchCost, CoreTaskType.Search);
         task.setIsInfinite(true)
             .setOnComplete(() => DiskManager.addFileToDisk())
             .run(this);
@@ -386,6 +386,7 @@ class Core {
         };
     }
 }
+Core.fileSearchCost = 20;
 class CoreManager {
     static initialize() {
         CoreManager.coreList = State.getValue("cores.count") || [];
@@ -489,7 +490,7 @@ class DiskManager {
         DiskManager.fileExtensions = diskNameData.extensions;
         DiskManager.diskNames = [];
         DiskManager.generateDiskNames(diskNameData, 3);
-        DiskManager.diskSize = 500;
+        DiskManager.diskSize = 100;
         DiskManager.threatLevel = 1;
         DiskManager.displayFiles(DiskManager.addDisk(false));
         DiskManager.addDisk(true);
