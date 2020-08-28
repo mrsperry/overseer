@@ -2,6 +2,9 @@
 /// <reference path="CoreTask.ts"/>
 
 class Core implements ISerializable {
+    /** The cost of searching for a single file */
+    private static fileSearchCost: number = 20;
+
     /** The core HTML section */
     private info: JQuery<HTMLElement>;
     /** The canvas used by this core */
@@ -162,7 +165,7 @@ class Core implements ISerializable {
      * @returns The created core task
      */
     public searchForFiles(): CoreTask {
-        const task: CoreTask = CoreTask.create("Searching for files", this.power * 5, CoreTaskType.Search);
+        const task: CoreTask = CoreTask.create("Searching for files", Core.fileSearchCost, CoreTaskType.Search);
 
         task.setIsInfinite(true)
             .setOnComplete((): void => DiskManager.addFileToDisk())

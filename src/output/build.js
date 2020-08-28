@@ -356,7 +356,7 @@ class Core {
         return task;
     }
     searchForFiles() {
-        const task = CoreTask.create("Searching for files", this.power * 5, CoreTaskType.Search);
+        const task = CoreTask.create("Searching for files", 20, CoreTaskType.Search);
         task.setIsInfinite(true)
             .setOnComplete(() => DiskManager.addFileToDisk())
             .run(this);
