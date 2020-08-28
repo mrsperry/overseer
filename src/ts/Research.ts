@@ -50,7 +50,7 @@ class Research {
             // Get the research option
             const item: any = Research.data[index - 1];
             // Check if this option should be disabled (reliability <= cost)
-            const disabled: boolean = Research.reliability <= 1 + (index * Research.costExponent);
+            const disabled: boolean = Research.reliability < 1 + (index * Research.costExponent);
 
             // If the option is already displayed update its disable state
             const child: any = $("#research-" + index);
@@ -60,7 +60,7 @@ class Research {
             }
 
             // Check if this option has been purchased or if there is not enough reliability to display (reliability <= display cost)
-            if (Research.purchased.includes(index) || Research.reliability <= 1 + (index * Research.displayExponent)) {
+            if (Research.purchased.includes(index) || Research.reliability < 1 + (index * Research.displayExponent)) {
                 continue;
             }
 
@@ -91,7 +91,7 @@ class Research {
                 .text(item.title)
                 .appendTo(parent);
             $("<span>")
-                .text("+" + Utils.formatID(item.type) + " (" + (index * Research.costExponent) + ")")
+                .text("+" + Utils.formatID(item.type) + " (" + (1 + (index * Research.costExponent)) + ")")
                 .appendTo(parent);
         }
     }
