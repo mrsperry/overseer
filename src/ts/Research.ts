@@ -46,9 +46,9 @@ class Research {
      * Displays available research options
      */
     private static displayResearch(): void {
-        for (let index: number = 0; index < Research.data.length; index++) {
+        for (let index: number = 1; index < Research.data.length; index++) {
             // Get the research option
-            const item: any = Research.data[index];
+            const item: any = Research.data[index - 1];
             // Check if this option should be disabled (reliability <= cost)
             const disabled: boolean = Research.reliability <= 1 + (index * Research.costExponent);
 
@@ -91,7 +91,7 @@ class Research {
                 .text(item.title)
                 .appendTo(parent);
             $("<span>")
-                .text("+" + Utils.formatID(item.type))
+                .text("+" + Utils.formatID(item.type) + " (" + (index * Research.costExponent) + ")")
                 .appendTo(parent);
         }
     }

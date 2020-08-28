@@ -622,8 +622,8 @@ class Research {
         Stats.useHighest("research", "highest-reliability-gained", amount);
     }
     static displayResearch() {
-        for (let index = 0; index < Research.data.length; index++) {
-            const item = Research.data[index];
+        for (let index = 1; index < Research.data.length; index++) {
+            const item = Research.data[index - 1];
             const disabled = Research.reliability <= 1 + (index * Research.costExponent);
             const child = $("#research-" + index);
             if (child.length !== 0) {
@@ -655,7 +655,7 @@ class Research {
                 .text(item.title)
                 .appendTo(parent);
             $("<span>")
-                .text("+" + Utils.formatID(item.type))
+                .text("+" + Utils.formatID(item.type) + " (" + (index * Research.costExponent) + ")")
                 .appendTo(parent);
         }
     }
@@ -685,8 +685,8 @@ class Research {
 Research.maxDisplayed = 5;
 Research.displayDelay = 50;
 Research.reliability = 0;
-Research.costExponent = 2.5;
-Research.displayExponent = 1.5;
+Research.costExponent = 3.25;
+Research.displayExponent = 2.75;
 class Main {
     static async initialize() {
         State.load();
