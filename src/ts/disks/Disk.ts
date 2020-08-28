@@ -1,6 +1,6 @@
 class Disk implements ISerializable {
     /** Max number of files to be displayed */
-    private static maxDisplayedFiles: number = 11;
+    private static maxDisplayedFiles: number = 10;
     /** Number of milliseconds to delay before fading in when displaying files */
     private static displayDelay: number = 50;
 
@@ -166,12 +166,17 @@ class Disk implements ISerializable {
         const header: any = parent.children(".header")
             .removeClass("disabled clickable")
             .off("click");
+        const subheader: any = parent.children(".subheader")
+            .fadeIn();
+        const size: any = subheader.children(".disk-size");
 
         if (this.files.length == 0) {
             header.text("No files to display");
+            subheader.hide();
         } else {
             header.addClass(this.isWiping ? "disabled" : "clickable")
                 .text((this.isQuarantine ? "Purge" : "Scan") + " files");
+            size.text(this.getUsage() + "kb/" + this.maxStorage + "kb");
 
             if (!this.isWiping) {
                 header.click((): CoreTask => this.wipeDisk(this.isQuarantine));
@@ -224,8 +229,6 @@ class Disk implements ISerializable {
      * @returns The created core task
      */
     public wipeDisk(operation: boolean, core?: Core): CoreTask {
-        const parent: any = $("#disk-view");
-
         const callback: Function = (): void => operation ? this.purgeFiles() : this.scanFiles();
         const display: string = (operation ? "Purge" : "Scan") + ": " + this.name;
         const type: CoreTaskType = operation ? CoreTaskType.Purge : CoreTaskType.Scan;
@@ -239,7 +242,7 @@ class Disk implements ISerializable {
                 
                 // Remove files from the display
                 if (this.displayed) {
-                    for (const child of parent.children(".file")) {
+                    for (const child of $("#disk-view").children(".file")) {
                         $(child).fadeOut(400, (): void => {
                             $(child).remove();
                         });

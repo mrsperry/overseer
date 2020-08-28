@@ -800,12 +800,17 @@ class Disk {
         const header = parent.children(".header")
             .removeClass("disabled clickable")
             .off("click");
+        const subheader = parent.children(".subheader")
+            .fadeIn();
+        const size = subheader.children(".disk-size");
         if (this.files.length == 0) {
             header.text("No files to display");
+            subheader.hide();
         }
         else {
             header.addClass(this.isWiping ? "disabled" : "clickable")
                 .text((this.isQuarantine ? "Purge" : "Scan") + " files");
+            size.text(this.getUsage() + "kb/" + this.maxStorage + "kb");
             if (!this.isWiping) {
                 header.click(() => this.wipeDisk(this.isQuarantine));
             }
@@ -836,7 +841,6 @@ class Disk {
         return true;
     }
     wipeDisk(operation, core) {
-        const parent = $("#disk-view");
         const callback = () => operation ? this.purgeFiles() : this.scanFiles();
         const display = (operation ? "Purge" : "Scan") + ": " + this.name;
         const type = operation ? CoreTaskType.Purge : CoreTaskType.Scan;
@@ -846,7 +850,7 @@ class Disk {
             this.files = [];
             this.displayedFiles = 0;
             if (this.displayed) {
-                for (const child of parent.children(".file")) {
+                for (const child of $("#disk-view").children(".file")) {
                     $(child).fadeOut(400, () => {
                         $(child).remove();
                     });
@@ -947,7 +951,7 @@ class Disk {
         };
     }
 }
-Disk.maxDisplayedFiles = 11;
+Disk.maxDisplayedFiles = 10;
 Disk.displayDelay = 50;
 class DiskFile {
     constructor(threatLevel) {
