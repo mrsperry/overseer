@@ -12,9 +12,9 @@ class Research {
     /** The current reliability of the player */
     private static reliability: number = 0;
     /** Exponent used when calculating the cost of research options */
-    private static costExponent: number = 2.5;
+    private static costExponent: number = 3.25;
     /** Exponent used when calculating if research options should be displayed */
-    private static displayExponent: number = 1.5;
+    private static displayExponent: number = 2.75;
 
     /**
      * Sets the initial reliability rating and marks research options as purchased
