@@ -101,4 +101,13 @@ class Utils {
         words[0] = Utils.capitalize(words[0]);
         return words.join(" ");
     }
+
+    /**
+     * Adds commas to a number where appropriate
+     * @param number The number to format
+     * @returns A string containing the properly formatted number
+     */
+    public static stringify(number: number): string {
+        return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
 }

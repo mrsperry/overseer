@@ -118,7 +118,7 @@ class DiskManager {
      * Doubles the current disk size and updates all disks to the new size
      */
     public static upgradeDiskStorage(): void {
-        DiskManager.diskSize *= 2;
+        DiskManager.diskSize *= 4;
 
         for (const disk of DiskManager.disks) {
             disk.setSize(DiskManager.diskSize);

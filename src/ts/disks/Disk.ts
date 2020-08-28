@@ -176,7 +176,7 @@ class Disk implements ISerializable {
         } else {
             header.addClass(this.isWiping ? "disabled" : "clickable")
                 .text((this.isQuarantine ? "Purge" : "Scan") + " files");
-            size.text(this.getUsage() + "kb/" + this.maxStorage + "kb");
+            size.text(Utils.stringify(this.getUsage()) + "kb/" + Utils.stringify(this.maxStorage) + "kb");
 
             if (!this.isWiping) {
                 header.click((): CoreTask => this.wipeDisk(this.isQuarantine));

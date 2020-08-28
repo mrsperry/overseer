@@ -482,6 +482,9 @@ class Utils {
         words[0] = Utils.capitalize(words[0]);
         return words.join(" ");
     }
+    static stringify(number) {
+        return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
 }
 class DiskManager {
     static async initialize() {
@@ -538,7 +541,7 @@ class DiskManager {
         disk.displayFiles();
     }
     static upgradeDiskStorage() {
-        DiskManager.diskSize *= 2;
+        DiskManager.diskSize *= 4;
         for (const disk of DiskManager.disks) {
             disk.setSize(DiskManager.diskSize);
         }
@@ -810,7 +813,7 @@ class Disk {
         else {
             header.addClass(this.isWiping ? "disabled" : "clickable")
                 .text((this.isQuarantine ? "Purge" : "Scan") + " files");
-            size.text(this.getUsage() + "kb/" + this.maxStorage + "kb");
+            size.text(Utils.stringify(this.getUsage()) + "kb/" + Utils.stringify(this.maxStorage) + "kb");
             if (!this.isWiping) {
                 header.click(() => this.wipeDisk(this.isQuarantine));
             }
