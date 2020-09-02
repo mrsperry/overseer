@@ -878,6 +878,9 @@ class Disk {
             this.isWiping = true;
             this.updateFileDisplay();
         }
+        else {
+            Messenger.write("No cores are currently available");
+        }
         return task;
     }
     scanFiles() {
