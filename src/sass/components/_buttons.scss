@@ -19,4 +19,77 @@ button {
     > * {
         cursor: pointer;
     }
+
+    &.bordered {
+        position: relative;
+        transition: background-color 250ms ease-in-out,
+                    border-color 250ms ease-in-out;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-color: variables.$main-bg;
+        text-align: center;
+        padding: 0.5rem 0rem;
+        border: 1px solid variables.$offset-bg;
+
+        + button {
+            margin-top: 0.5rem;
+        }
+
+        &:hover, &:active {
+            background-color: variables.$main-bg-hover;
+            border-color: variables.$offset-bg-hover;
+
+            &:before, &:after, :first-child:before, :first-child:after {
+                width: 10px;
+                height: 10px;
+                border-color: variables.$main-border-hover;
+            }
+        }
+
+        &:disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        &:before, &:after, :first-child:before, :first-child:after {
+            content: "";
+            position: absolute;
+            transition: width 250ms ease-in-out,
+                        height 250ms ease-in-out,
+                        border-color 250ms ease-in-out;
+            width: 5px;
+            height: 5px;
+            border: 1px solid variables.$main-border;
+        }
+
+        &:before {
+            top: -1px;
+            left: -1px;
+            border-width: 1px 0px 0px 1px;
+        }
+
+        &:after {
+            top: -1px;
+            right: -1px;
+            border-width: 1px 1px 0px 0px;
+        }
+
+        :first-child {
+            font-weight: bold;
+
+            &:before {
+                bottom: -1px;
+                left: -1px;
+                border-width: 0px 0px 1px 1px;
+            }
+
+            &:after {
+                bottom: -1px;
+                right: -1px;
+                border-width: 0px 1px 1px 0px;
+            }
+        }
+    }
 }

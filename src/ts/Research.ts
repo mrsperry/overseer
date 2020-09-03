@@ -72,6 +72,7 @@ class Research {
             // Create the element
             const parent: any = $("<button>")
                 .attr("id", "research-" + index)
+                .addClass("bordered")
                 .prop("disabled", disabled)
                 .click((): void => {
                     Research.purchaseResearch(index, item.type);

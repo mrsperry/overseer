@@ -6,16 +6,22 @@
 /// <reference path="Research.ts"/>
 
 class Main {
-    public static async initialize(): Promise<any> {
-        State.load();
-        await Stats.initialize();
-        Messenger.initialize();
+    public static initialize(): void {
+        const menu: any = $("#main-menu")
+            .fadeOut(400, async (): Promise<any> => {
+                menu.remove();
+                $("#main-content")
+                    .fadeIn()
+                    .css("display", "grid");
 
-        CoreManager.initialize();
-        DiskManager.initialize();
-        await Research.initialize();
-        HackTimer.initialize();
+                State.load();
+                await Stats.initialize();
+                Messenger.initialize();
+        
+                CoreManager.initialize();
+                DiskManager.initialize();
+                await Research.initialize();
+                HackTimer.initialize();
+            });
     }
 }
-
-((): Promise<any> => Main.initialize())();

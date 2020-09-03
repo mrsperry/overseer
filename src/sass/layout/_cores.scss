@@ -24,8 +24,8 @@
             transition: color 250ms ease-in-out,
                         opacity 250ms ease-in-out;
 
-            &:not(:last-child) {
-                margin-right: 0.5rem;
+            + button {
+                margin-left: 0.5rem;
             }
 
             &:hover, &:active {

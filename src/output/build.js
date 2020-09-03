@@ -642,6 +642,7 @@ class Research {
             }
             const parent = $("<button>")
                 .attr("id", "research-" + index)
+                .addClass("bordered")
                 .prop("disabled", disabled)
                 .click(() => {
                 Research.purchaseResearch(index, item.type);
@@ -692,17 +693,23 @@ Research.reliability = 0;
 Research.costExponent = 3.25;
 Research.displayExponent = 2.75;
 class Main {
-    static async initialize() {
-        State.load();
-        await Stats.initialize();
-        Messenger.initialize();
-        CoreManager.initialize();
-        DiskManager.initialize();
-        await Research.initialize();
-        HackTimer.initialize();
+    static initialize() {
+        const menu = $("#main-menu")
+            .fadeOut(400, async () => {
+            menu.remove();
+            $("#main-content")
+                .fadeIn()
+                .css("display", "grid");
+            State.load();
+            await Stats.initialize();
+            Messenger.initialize();
+            CoreManager.initialize();
+            DiskManager.initialize();
+            await Research.initialize();
+            HackTimer.initialize();
+        });
     }
 }
-(() => Main.initialize())();
 var CoreTaskType;
 (function (CoreTaskType) {
     CoreTaskType[CoreTaskType["Overclock"] = 0] = "Overclock";
