@@ -20,7 +20,7 @@
         }
 
         .core-button {
-            color: variables.$clickable-text;
+            color: var(--clickable-text);
             transition: color 250ms ease-in-out,
                         opacity 250ms ease-in-out;
 
@@ -29,7 +29,7 @@
             }
 
             &:hover, &:active {
-                color: variables.$clickable-text-hover;
+                color: var(--clickable-text-hover);
             }
 
             &:disabled {

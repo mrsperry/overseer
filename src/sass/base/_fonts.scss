@@ -7,8 +7,8 @@
 }
 
 .clickable, .clickable-no-click {
-    color: variables.$clickable-text;
     transition: color 250ms ease-in-out;
+    color: var(--clickable-text);
 }
 
 .clickable {
@@ -21,8 +21,8 @@
         position: absolute;
         transition: left 400ms ease-in-out;
         background-image: linear-gradient(90deg, 
-                    variables.$clickable-text-hover 50%,
-                    variables.$clickable-text);
+                    var(--clickable-text-hover) 50%,
+                    var(--clickable-text));
         bottom: 0rem;
         left: -200%;
         width: 200%;
@@ -30,7 +30,7 @@
     }
 
     &.active, &.active-error, &:hover, &:active {
-        color: variables.$clickable-text-hover;
+        color: var(--clickable-text-hover);
 
         &:before {
             left: 0%;
@@ -53,6 +53,10 @@
 }
 
 .clickable-no-click {
+    &.active {
+        color: var(--clickable-text-hover);
+    }
+
     &.active-error {
         color: variables.$clickable-text-error;
     }
