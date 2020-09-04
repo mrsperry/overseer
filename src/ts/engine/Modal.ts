@@ -9,6 +9,8 @@ class Modal {
      * @param className The optional class name
      */
     public constructor(className: string | undefined = undefined) {
+        State.togglePause();
+
         const container: any = $("<div>")
             .addClass("modal-container")
             .hide()
@@ -34,6 +36,8 @@ class Modal {
      * @param delay The amount of milliseconds to wait before fading out; defaults to zero
      */
     public remove(delay: number = 0): void {
+        State.togglePause();
+
         const container: any = $(".modal-container")
             .delay(delay)
             .fadeOut(400, (): void => container.remove());

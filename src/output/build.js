@@ -33,6 +33,16 @@ class State {
             parent[path] = value;
         }
     }
+    static togglePause() {
+        if (State.getValue("paused")) {
+            State.setValue("paused", false);
+            State.setValue("unpause-time", Date.now());
+        }
+        else {
+            State.setValue("paused", true);
+            State.setValue("pause-time", Date.now());
+        }
+    }
 }
 class Stats {
     static async initialize() {
@@ -143,6 +153,7 @@ class CoreTask {
         this.startTime = 0;
         this.isInfinite = false;
         this.isRunning = false;
+        this.isPaused = false;
         this.complete = null;
         this.cancel = null;
     }
@@ -170,6 +181,14 @@ class CoreTask {
         task.startTime = Date.now() - (state.saveTime - state.startTime);
     }
     updateCore() {
+        if (State.getValue("paused")) {
+            this.isPaused = true;
+            return;
+        }
+        else if (this.isPaused) {
+            this.isPaused = false;
+            this.startTime -= State.getValue("pause-time") - State.getValue("unpause-time");
+        }
         const progress = (this.core.getPower() / (this.getCost() * 2)) * (Date.now() - this.startTime);
         this.core.getCanvas().drawCore(this.isInfinite ? 100 : progress);
         if (progress >= 100) {
@@ -193,6 +212,27 @@ class CoreTask {
         this.core.getCanvas().drawCore(0);
         this.core.setCoreTaskDisplay();
         this.core.updateButtons();
+    }
+    onCancel() {
+        if (this.isInfinite) {
+            this.setIsInfinite(false);
+        }
+        if (this.cancel !== null) {
+            this.cancel();
+        }
+        this.cleanup();
+        Stats.increment("cores", "tasks-cancelled");
+    }
+    run(core) {
+        if (CoreManager.startCoreTask(this, core)) {
+            this.isRunning = true;
+            this.handle = window.setInterval(() => this.updateCore(), 1);
+            this.startTime = Date.now();
+            this.core.setCoreTaskDisplay(this.display);
+            this.core.updateButtons();
+            return true;
+        }
+        return false;
     }
     isBusy() {
         return this.isRunning;
@@ -225,27 +265,6 @@ class CoreTask {
     setOnCancel(onCancel) {
         this.cancel = onCancel;
         return this;
-    }
-    onCancel() {
-        if (this.isInfinite) {
-            this.setIsInfinite(false);
-        }
-        if (this.cancel !== null) {
-            this.cancel();
-        }
-        this.cleanup();
-        Stats.increment("cores", "tasks-cancelled");
-    }
-    run(core) {
-        if (CoreManager.startCoreTask(this, core)) {
-            this.isRunning = true;
-            this.handle = window.setInterval(() => this.updateCore(), 1);
-            this.startTime = Date.now();
-            this.core.setCoreTaskDisplay(this.display);
-            this.core.updateButtons();
-            return true;
-        }
-        return false;
     }
     serialize() {
         return {
@@ -1009,6 +1028,7 @@ DiskFile.minNameLength = 7;
 DiskFile.maxNameLength = 16;
 class Modal {
     constructor(className = undefined) {
+        State.togglePause();
         const container = $("<div>")
             .addClass("modal-container")
             .hide()
@@ -1025,6 +1045,7 @@ class Modal {
         return this.content;
     }
     remove(delay = 0) {
+        State.togglePause();
         const container = $(".modal-container")
             .delay(delay)
             .fadeOut(400, () => container.remove());

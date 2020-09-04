@@ -70,4 +70,17 @@ class State {
             parent[path] = value;
         }
     }
+
+    /**
+     * Toggles the pause state of the game
+     */
+    public static togglePause(): void {
+        if (State.getValue("paused")) {
+            State.setValue("paused", false);
+            State.setValue("unpause-time", Date.now());
+        } else {
+            State.setValue("paused", true);
+            State.setValue("pause-time", Date.now());
+        }
+    }
 }

@@ -12,6 +12,8 @@ class CoreTask implements ISerializable {
     private isInfinite: boolean = false;
     /** If this task is currently running */
     private isRunning: boolean = false;
+    /** If this task is currently paused */
+    private isPaused: boolean = false;
 
     /** The function to run if the task is completed */
     private complete: Function | null = null;
@@ -61,6 +63,17 @@ class CoreTask implements ISerializable {
      * Updates the task's progress on its current task
      */
     public updateCore(): void {
+        // Check if the task should pause
+        if (State.getValue("paused")) {
+            this.isPaused = true;
+            return;
+        } else if (this.isPaused) {
+            this.isPaused = false;
+
+            // Fix the start time based on the amount of time paused
+            this.startTime -= State.getValue("pause-time") - State.getValue("unpause-time");
+        }
+
         // Update the progress of the core
         const progress: number = (this.core.getPower() / (this.getCost() * 2)) * (Date.now() - this.startTime);
         // Draw the progress
@@ -98,6 +111,44 @@ class CoreTask implements ISerializable {
         // Update the parent core's display
         this.core.setCoreTaskDisplay();
         this.core.updateButtons();
+    }
+
+    /**
+     * Runs the cancel task if it was set
+     */
+    public onCancel(): void {
+        if (this.isInfinite) {
+            this.setIsInfinite(false);
+        }
+
+        if (this.cancel !== null) {
+            this.cancel();
+        }
+
+        this.cleanup();
+
+        Stats.increment("cores", "tasks-cancelled");
+    }
+
+    /**
+     * Attempts to start this core task
+     * @param core The core to run the task on
+     */
+    public run(core?: Core): boolean {
+        if (CoreManager.startCoreTask(this, core)) {
+            // Mark the core as running and start updating
+            this.isRunning = true;
+            this.handle = window.setInterval((): void => this.updateCore(), 1);
+            this.startTime = Date.now();
+
+            // Update parent core's displays
+            this.core.setCoreTaskDisplay(this.display);
+            this.core.updateButtons();
+
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -168,44 +219,6 @@ class CoreTask implements ISerializable {
     public setOnCancel(onCancel: Function): CoreTask {
         this.cancel = onCancel;
         return this;
-    }
-
-    /**
-     * Runs the cancel task if it was set
-     */
-    public onCancel(): void {
-        if (this.isInfinite) {
-            this.setIsInfinite(false);
-        }
-
-        if (this.cancel !== null) {
-            this.cancel();
-        }
-
-        this.cleanup();
-
-        Stats.increment("cores", "tasks-cancelled");
-    }
-
-    /**
-     * Attempts to start this core task
-     * @param core The core to run the task on
-     */
-    public run(core?: Core): boolean {
-        if (CoreManager.startCoreTask(this, core)) {
-            // Mark the core as running and start updating
-            this.isRunning = true;
-            this.handle = window.setInterval((): void => this.updateCore(), 1);
-            this.startTime = Date.now();
-
-            // Update parent core's displays
-            this.core.setCoreTaskDisplay(this.display);
-            this.core.updateButtons();
-
-            return true;
-        }
-
-        return false;
     }
 
     /**
