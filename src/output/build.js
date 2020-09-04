@@ -700,6 +700,9 @@ class Main {
             $("#main-content")
                 .fadeIn()
                 .css("display", "grid");
+            $("footer")
+                .fadeIn()
+                .css("display", "flex");
             State.load();
             await Stats.initialize();
             Messenger.initialize();
