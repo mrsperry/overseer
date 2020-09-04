@@ -1044,8 +1044,8 @@ class Settings {
         $("<input>")
             .attr("id", "main-color")
             .attr("type", "color")
-            .attr("value", "#5CD670")
-            .on("input", (event) => Settings.updateColor(event.target.value, false))
+            .attr("value", Settings.mainColor)
+            .on("input change", (event) => Settings.updateColor(event.target.value, false))
             .appendTo(mainColor);
         $("<p>")
             .addClass("clickable-no-click")
@@ -1061,8 +1061,8 @@ class Settings {
         $("<input>")
             .attr("id", "accent-color")
             .attr("type", "color")
-            .attr("value", "#ADEAB7")
-            .on("input", (event) => Settings.updateColor(event.target.value, true))
+            .attr("value", Settings.accentColor)
+            .on("input change", (event) => Settings.updateColor(event.target.value, true))
             .appendTo(accentColor);
         $("<p>")
             .addClass("clickable-no-click active")
@@ -1078,8 +1078,16 @@ class Settings {
     }
     static updateColor(value, hover) {
         $("body").get(0).style.setProperty("--clickable-text" + (hover ? "-hover" : ""), value);
+        if (hover) {
+            Settings.accentColor = value;
+        }
+        else {
+            Settings.mainColor = value;
+        }
     }
 }
+Settings.mainColor = "#5CD670";
+Settings.accentColor = "#ADEAB7";
 class Hack {
     constructor(time) {
         this.time = time;

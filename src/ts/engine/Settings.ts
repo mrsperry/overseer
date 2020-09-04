@@ -1,6 +1,9 @@
 class Settings {
     private static modal: Modal;
 
+    private static mainColor: string = "#5CD670";
+    private static accentColor: string = "#ADEAB7";
+
     public static show(): void {
         Settings.modal = new Modal("settings");
 
@@ -19,8 +22,8 @@ class Settings {
         $("<input>")
             .attr("id", "main-color")
             .attr("type", "color")
-            .attr("value", "#5CD670")
-            .on("input", (event: any): void => Settings.updateColor(event.target.value, false))
+            .attr("value", Settings.mainColor)
+            .on("input change", (event: any): void => Settings.updateColor(event.target.value, false))
             .appendTo(mainColor);
         $("<p>")
             .addClass("clickable-no-click")
@@ -37,8 +40,8 @@ class Settings {
         $("<input>")
             .attr("id", "accent-color")
             .attr("type", "color")
-            .attr("value", "#ADEAB7")
-            .on("input", (event: any): void => Settings.updateColor(event.target.value, true))
+            .attr("value", Settings.accentColor)
+            .on("input change", (event: any): void => Settings.updateColor(event.target.value, true))
             .appendTo(accentColor);
         $("<p>")
             .addClass("clickable-no-click active")
@@ -54,7 +57,13 @@ class Settings {
             .appendTo(close);
     }
 
-    private static updateColor(value: any, hover: boolean): void {
+    private static updateColor(value: string, hover: boolean): void {
         $("body").get(0).style.setProperty("--clickable-text" + (hover ? "-hover" : ""), value);
+
+        if (hover) {
+            Settings.accentColor = value;
+        } else {
+            Settings.mainColor = value;
+        }
     }
 }
