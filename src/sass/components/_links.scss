@@ -1,9 +1,11 @@
-@use "../utils/variables";
-
-button {
+a, a:visited {
     cursor: pointer;
-    outline: none;
-    background-color: inherit;
+    text-decoration: none;
+    box-sizing: border-box;
+
+    > * {
+        cursor: pointer;
+    }
 
     &:hover, &:active {
         :first-child {
@@ -14,9 +16,5 @@ button {
     :first-child {
         color: var(--clickable-text);
         transition: color 250ms ease-in-out;
-    }
-
-    > * {
-        cursor: pointer;
     }
 }
