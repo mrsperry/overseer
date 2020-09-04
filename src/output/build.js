@@ -626,7 +626,7 @@ class Research {
         Stats.useHighest("research", "highest-reliability-gained", amount);
     }
     static displayResearch() {
-        for (let index = 1; index < Research.data.length; index++) {
+        for (let index = 1; index <= Research.data.length; index++) {
             const item = Research.data[index - 1];
             const disabled = Research.reliability < 1 + (index * Research.costExponent);
             const child = $("#research-" + index);

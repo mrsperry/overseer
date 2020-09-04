@@ -46,7 +46,7 @@ class Research {
      * Displays available research options
      */
     private static displayResearch(): void {
-        for (let index: number = 1; index < Research.data.length; index++) {
+        for (let index: number = 1; index <= Research.data.length; index++) {
             // Get the research option
             const item: any = Research.data[index - 1];
             // Check if this option should be disabled (reliability <= cost)
