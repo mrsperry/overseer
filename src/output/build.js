@@ -1041,7 +1041,7 @@ class Settings {
             .attr("for", "main-color")
             .text("Main color: ")
             .appendTo(mainColor);
-        $("<input>")
+        Settings.mainPicker = $("<input>")
             .attr("id", "main-color")
             .attr("type", "color")
             .attr("value", Settings.mainColor)
@@ -1058,7 +1058,7 @@ class Settings {
             .attr("for", "accent-color")
             .text("Accent color: ")
             .appendTo(accentColor);
-        $("<input>")
+        Settings.accentPicker = $("<input>")
             .attr("id", "accent-color")
             .attr("type", "color")
             .attr("value", Settings.accentColor)
@@ -1068,6 +1068,11 @@ class Settings {
             .addClass("clickable-no-click active")
             .text("Example text")
             .appendTo(accentColor);
+        $("<a>")
+            .addClass("clickable")
+            .text("Reset settings")
+            .click(() => Settings.resetValues())
+            .appendTo(content);
         const close = $("<button>")
             .addClass("bordered")
             .click(() => Settings.modal.remove())
@@ -1080,12 +1085,22 @@ class Settings {
         $("body").get(0).style.setProperty("--clickable-text" + (hover ? "-hover" : ""), value);
         if (hover) {
             Settings.accentColor = value;
+            Settings.accentPicker.get(0).value = value;
         }
         else {
             Settings.mainColor = value;
+            Settings.mainPicker.get(0).value = value;
         }
     }
+    static resetValues() {
+        Settings.updateColor(Settings.reset.mainColor, false);
+        Settings.updateColor(Settings.reset.accentColor, true);
+    }
 }
+Settings.reset = {
+    "mainColor": "#5CD670",
+    "accentColor": "#ADEAB7"
+};
 Settings.mainColor = "#5CD670";
 Settings.accentColor = "#ADEAB7";
 class Hack {
