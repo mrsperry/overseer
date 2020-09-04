@@ -1004,27 +1004,41 @@ class DiskFile {
 }
 DiskFile.minNameLength = 7;
 DiskFile.maxNameLength = 16;
+class Modal {
+    constructor(className = undefined) {
+        const container = $("<div>")
+            .addClass("modal-container")
+            .hide()
+            .fadeIn()
+            .appendTo("body");
+        $("<div>")
+            .addClass("modal-bg")
+            .appendTo(container);
+        this.content = $("<div>")
+            .addClass("modal-content " + (className === undefined ? "" : className) + "-content")
+            .appendTo(container);
+    }
+    getContent() {
+        return this.content;
+    }
+    remove(delay = 0) {
+        const container = $(".modal-container")
+            .delay(delay)
+            .fadeOut(400, () => container.remove());
+    }
+}
 class Hack {
     constructor(time) {
         this.time = time;
         this.handle = 0;
         this.locked = false;
+        this.modal = new Modal("hack");
+        this.content = this.modal.getContent();
         this.addPretextContent();
         HackTimer.stop();
         Stats.increment("hacks", "timed-hacked");
     }
     addPretextContent() {
-        this.parent = $("<div>")
-            .addClass("hack-container")
-            .hide()
-            .fadeIn()
-            .appendTo("body");
-        $("<div>")
-            .addClass("hack-bg")
-            .appendTo(this.parent);
-        this.content = $("<div>")
-            .addClass("hack-content")
-            .appendTo(this.parent);
         $("<h1>")
             .addClass("centered bold pretext-header")
             .text("Quarantine Breach Detected")
@@ -1082,10 +1096,7 @@ class Hack {
     removeInterface(success) {
         window.clearInterval(this.handle);
         this.locked = true;
-        this.parent.delay(1500)
-            .fadeOut(400, () => {
-            this.parent.remove();
-        });
+        this.modal.remove(1500);
         this.content.addClass(success ? "success" : "fail");
         HackTimer.start();
     }

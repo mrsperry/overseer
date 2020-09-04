@@ -1,116 +1,90 @@
 @use "../utils/variables";
 
-.hack-container {
-    position: absolute;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    top: 0rem;
-    left: 0rem;
-    width: 100vw;
-    height: 100vh;
+.hack-content {
+    transition: border-color 250ms ease-in-out;
 
-    .hack-bg {
-        position: absolute;
-        background-color: rgba(0, 0, 0, 0.65);
-        width: 100%;
-        height: 100%;
+    &.success {
+        border-color: variables.$clickable-text;
     }
 
-    .hack-content {
+    &.fail {
+        border-color: variables.$clickable-text-error;
+    }
+
+    h1 {
+        width: 100%;
+        height: 1.2rem;
+        margin-bottom: 1rem;
+
+        &.pretext-header {
+            border-bottom: 1px solid variables.$main-border;
+        }
+    }
+
+    table {
+        border-collapse: collapse;
+
+        td {
+            text-align: center;
+            box-sizing: border-box;
+            transition: background-color 250ms ease-in-out;
+            padding: 2rem;
+            border: 1px solid variables.$main-border;
+
+            &:hover, &:active, &.active, &.active-error {
+                background-color: variables.$main-bg-hover;
+            }
+        }
+    }
+
+    a {
+        margin-top: 1rem;
+    }
+
+    .pretext {
+        max-width: 35rem;
+        margin-bottom: 1rem;
+    }
+    
+    .header {
+        margin-bottom: 1rem;
+
+        ul {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+
+            li + li {
+                margin-left: 1rem;
+            }
+        }
+    }
+
+    .hidden-passwords {
         display: flex;
         flex-direction: column;
-        justify-content: center;
         align-items: center;
-        background-color: variables.$main-bg;
-        transition: border-color 250ms ease-in-out;
-        border: 1px solid variables.$main-border;
-        z-index: 1;
-        padding: 2rem;
+        row-gap: 0rem;
 
-        &.success {
-            border-color: variables.$clickable-text;
+        .text-line {
+            cursor: default;
+        }
+    }
+    
+    .cryptogram {
+        display: flex;
+        justify-content: space-around;
+        width: 100%;
+
+        ol + ol {
+            margin-left: 2rem;
         }
 
-        &.fail {
-            border-color: variables.$clickable-text-error;
-        }
+        li {
+            cursor: pointer;
 
-        h1 {
-            width: 100%;
-            height: 1.2rem;
-            margin-bottom: 1rem;
-
-            &.pretext-header {
-                border-bottom: 1px solid variables.$main-border;
-            }
-        }
-
-        table {
-            border-collapse: collapse;
-
-            td {
-                text-align: center;
-                box-sizing: border-box;
-                transition: background-color 250ms ease-in-out;
-                padding: 2rem;
-                border: 1px solid variables.$main-border;
-
-                &:hover, &:active, &.active, &.active-error {
-                    background-color: variables.$main-bg-hover;
-                }
-            }
-        }
-
-        a {
-            margin-top: 1rem;
-        }
-
-        .pretext {
-            max-width: 35rem;
-            margin-bottom: 1rem;
-        }
-        
-        .header {
-            margin-bottom: 1rem;
-
-            ul {
-                display: flex;
-                justify-content: center;
-                flex-wrap: wrap;
-
-                li:not(:last-of-type) {
-                    margin-right: 1rem;
-                }
-            }
-        }
-
-        .hidden-passwords {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            row-gap: 0rem;
-
-            .text-line {
-                cursor: default;
-            }
-        }
-        
-        .cryptogram {
-            display: flex;
-            justify-content: space-around;
-            width: 100%;
-
-            ol:not(:last-child) {
-                margin-right: 2rem;
-            }
-
-            li {
-                cursor: pointer;
-
-                &:not(:last-child) {
-                    margin-bottom: 0.5rem;
-                }
+            + li {
+                margin-top: 0.5rem;
             }
         }
     }

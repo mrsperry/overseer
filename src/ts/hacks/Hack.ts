@@ -1,8 +1,8 @@
 abstract class Hack {
     /** Window interval handler for the countdown */
     private handle: number = 0;
-    /** The parent of the hack interface */
-    private parent: any;
+    /** The parent modal of the hack */
+    private modal: Modal;
 
     /** Content section of the hack interface */
     protected content: any;
@@ -16,6 +16,10 @@ abstract class Hack {
     protected constructor(private time: number) {
         this.locked = false;
 
+        // Create the hack modal
+        this.modal = new Modal("hack");
+        this.content = this.modal.getContent();
+
         this.addPretextContent();
 
         HackTimer.stop();
@@ -26,18 +30,6 @@ abstract class Hack {
      * Creates the hack content parents and gives a short description of what to do next
      */
     private addPretextContent(): void {
-        this.parent = $("<div>")
-            .addClass("hack-container")
-            .hide()
-            .fadeIn()
-            .appendTo("body");
-        $("<div>")
-            .addClass("hack-bg")
-            .appendTo(this.parent);
-        this.content = $("<div>")
-            .addClass("hack-content")
-            .appendTo(this.parent);
-
         $("<h1>")
             .addClass("centered bold pretext-header")
             .text("Quarantine Breach Detected")
@@ -121,10 +113,8 @@ abstract class Hack {
         // Don't accept any mouse input
         this.locked = true;
 
-        this.parent.delay(1500)
-            .fadeOut(400, (): void => {
-                this.parent.remove();
-            });
+        // Remove the modal
+        this.modal.remove(1500);
 
         // Color the border of the hack depending on the success state
         this.content.addClass(success ? "success" : "fail");
