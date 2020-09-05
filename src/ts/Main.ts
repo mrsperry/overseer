@@ -6,7 +6,12 @@
 /// <reference path="Research.ts"/>
 
 class Main {
-    public static initialize(): void {
+    public static async initialize(): Promise<any> {
+        State.load();
+        await Stats.initialize();
+    }
+
+    public static startGame(): void {
         const menu: any = $("#main-menu")
             .fadeOut(400, async (): Promise<any> => {
                 menu.remove();
@@ -17,8 +22,6 @@ class Main {
                     .fadeIn()
                     .css("display", "flex");
 
-                State.load();
-                await Stats.initialize();
                 Messenger.initialize();
         
                 CoreManager.initialize();
@@ -28,3 +31,5 @@ class Main {
             });
     }
 }
+
+((): Promise<any> => Main.initialize())();

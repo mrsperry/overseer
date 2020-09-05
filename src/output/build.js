@@ -712,7 +712,11 @@ Research.reliability = 0;
 Research.costExponent = 3.25;
 Research.displayExponent = 2.75;
 class Main {
-    static initialize() {
+    static async initialize() {
+        State.load();
+        await Stats.initialize();
+    }
+    static startGame() {
         const menu = $("#main-menu")
             .fadeOut(400, async () => {
             menu.remove();
@@ -722,8 +726,6 @@ class Main {
             $("footer")
                 .fadeIn()
                 .css("display", "flex");
-            State.load();
-            await Stats.initialize();
             Messenger.initialize();
             CoreManager.initialize();
             DiskManager.initialize();
@@ -732,6 +734,7 @@ class Main {
         });
     }
 }
+(() => Main.initialize())();
 var CoreTaskType;
 (function (CoreTaskType) {
     CoreTaskType[CoreTaskType["Overclock"] = 0] = "Overclock";
