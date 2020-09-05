@@ -44,33 +44,6 @@ class State {
         }
     }
 }
-class Stats {
-    static async initialize() {
-        Stats.data = State.getValue("stats") || await $.getJSON("src/data/stats.json");
-    }
-    static increment(namespace, id) {
-        Stats.data[namespace][id]++;
-    }
-    static add(namespace, id, amount) {
-        Stats.data[namespace][id] += amount;
-    }
-    static useHighest(namespace, id, value) {
-        const current = Stats.data[namespace][id];
-        if (current === undefined || current < value) {
-            Stats.data[namespace][id] = value;
-        }
-    }
-    static generateReport() {
-        let result = "";
-        for (const namespace in Stats.data) {
-            result += "\n" + Utils.capitalize(namespace) + ":\n";
-            for (const stat in Stats.data[namespace]) {
-                result += Utils.formatID(stat) + ": " + Stats.data[namespace][stat] + "\n";
-            }
-        }
-        return result;
-    }
-}
 class Messenger {
     static initialize() {
         Messenger.messages = State.getValue("messages") || [];
@@ -630,6 +603,33 @@ class DiskManager {
         return "/quarantine/level-" + DiskManager.threatLevel;
     }
 }
+class Stats {
+    static async initialize() {
+        Stats.data = State.getValue("stats") || await $.getJSON("src/data/stats.json");
+    }
+    static increment(namespace, id) {
+        Stats.data[namespace][id]++;
+    }
+    static add(namespace, id, amount) {
+        Stats.data[namespace][id] += amount;
+    }
+    static useHighest(namespace, id, value) {
+        const current = Stats.data[namespace][id];
+        if (current === undefined || current < value) {
+            Stats.data[namespace][id] = value;
+        }
+    }
+    static generateReport() {
+        let result = "";
+        for (const namespace in Stats.data) {
+            result += "\n" + Utils.capitalize(namespace) + ":\n";
+            for (const stat in Stats.data[namespace]) {
+                result += Utils.formatID(stat) + ": " + Stats.data[namespace][stat] + "\n";
+            }
+        }
+        return result;
+    }
+}
 class Research {
     static async initialize() {
         Research.data = await $.getJSON("src/data/research.json");
@@ -1054,82 +1054,6 @@ class Modal {
             .fadeOut(400, () => container.remove());
     }
 }
-class Settings {
-    static show() {
-        Settings.modal = new Modal("settings");
-        const content = Settings.modal.getContent();
-        $("<h1>")
-            .text("Settings")
-            .appendTo(content);
-        const mainColor = $("<div>")
-            .addClass("color-picker")
-            .appendTo(content);
-        $("<label>")
-            .attr("for", "main-color")
-            .text("Main color: ")
-            .appendTo(mainColor);
-        Settings.mainPicker = $("<input>")
-            .attr("id", "main-color")
-            .attr("type", "color")
-            .attr("value", Settings.mainColor)
-            .on("input change", (event) => Settings.updateColor(event.target.value, false))
-            .appendTo(mainColor);
-        $("<p>")
-            .addClass("clickable-no-click")
-            .text("Example text")
-            .appendTo(mainColor);
-        const accentColor = $("<div>")
-            .addClass("color-picker")
-            .appendTo(content);
-        $("<label>")
-            .attr("for", "accent-color")
-            .text("Accent color: ")
-            .appendTo(accentColor);
-        Settings.accentPicker = $("<input>")
-            .attr("id", "accent-color")
-            .attr("type", "color")
-            .attr("value", Settings.accentColor)
-            .on("input change", (event) => Settings.updateColor(event.target.value, true))
-            .appendTo(accentColor);
-        $("<p>")
-            .addClass("clickable-no-click active")
-            .text("Example text")
-            .appendTo(accentColor);
-        $("<a>")
-            .addClass("clickable")
-            .text("Reset settings")
-            .click(() => Settings.resetValues())
-            .appendTo(content);
-        const close = $("<button>")
-            .addClass("bordered")
-            .click(() => Settings.modal.remove())
-            .appendTo(content);
-        $("<span>")
-            .text("Close")
-            .appendTo(close);
-    }
-    static updateColor(value, hover) {
-        $("body").get(0).style.setProperty("--clickable-text" + (hover ? "-hover" : ""), value);
-        if (hover) {
-            Settings.accentColor = value;
-            Settings.accentPicker.get(0).value = value;
-        }
-        else {
-            Settings.mainColor = value;
-            Settings.mainPicker.get(0).value = value;
-        }
-    }
-    static resetValues() {
-        Settings.updateColor(Settings.reset.mainColor, false);
-        Settings.updateColor(Settings.reset.accentColor, true);
-    }
-}
-Settings.reset = {
-    "mainColor": "#5CD670",
-    "accentColor": "#ADEAB7"
-};
-Settings.mainColor = "#5CD670";
-Settings.accentColor = "#ADEAB7";
 class Hack {
     constructor(time) {
         this.time = time;
@@ -1660,3 +1584,79 @@ OrderedNumbers.levels = [
         "numbers-per-row": 5
     },
 ];
+class Settings {
+    static show() {
+        Settings.modal = new Modal("settings");
+        const content = Settings.modal.getContent();
+        $("<h1>")
+            .text("Settings")
+            .appendTo(content);
+        const mainColor = $("<div>")
+            .addClass("color-picker")
+            .appendTo(content);
+        $("<label>")
+            .attr("for", "main-color")
+            .text("Main color: ")
+            .appendTo(mainColor);
+        Settings.mainPicker = $("<input>")
+            .attr("id", "main-color")
+            .attr("type", "color")
+            .attr("value", Settings.mainColor)
+            .on("input change", (event) => Settings.updateColor(event.target.value, false))
+            .appendTo(mainColor);
+        $("<p>")
+            .addClass("clickable-no-click")
+            .text("Example text")
+            .appendTo(mainColor);
+        const accentColor = $("<div>")
+            .addClass("color-picker")
+            .appendTo(content);
+        $("<label>")
+            .attr("for", "accent-color")
+            .text("Accent color: ")
+            .appendTo(accentColor);
+        Settings.accentPicker = $("<input>")
+            .attr("id", "accent-color")
+            .attr("type", "color")
+            .attr("value", Settings.accentColor)
+            .on("input change", (event) => Settings.updateColor(event.target.value, true))
+            .appendTo(accentColor);
+        $("<p>")
+            .addClass("clickable-no-click active")
+            .text("Example text")
+            .appendTo(accentColor);
+        $("<a>")
+            .addClass("clickable")
+            .text("Reset settings")
+            .click(() => Settings.resetValues())
+            .appendTo(content);
+        const close = $("<button>")
+            .addClass("bordered")
+            .click(() => Settings.modal.remove())
+            .appendTo(content);
+        $("<span>")
+            .text("Close")
+            .appendTo(close);
+    }
+    static updateColor(value, hover) {
+        $("body").get(0).style.setProperty("--clickable-text" + (hover ? "-hover" : ""), value);
+        if (hover) {
+            Settings.accentColor = value;
+            Settings.accentPicker.get(0).value = value;
+        }
+        else {
+            Settings.mainColor = value;
+            Settings.mainPicker.get(0).value = value;
+        }
+    }
+    static resetValues() {
+        Settings.updateColor(Settings.reset.mainColor, false);
+        Settings.updateColor(Settings.reset.accentColor, true);
+    }
+}
+Settings.reset = {
+    "mainColor": "#5CD670",
+    "accentColor": "#ADEAB7"
+};
+Settings.mainColor = "#5CD670";
+Settings.accentColor = "#ADEAB7";
