@@ -39,7 +39,7 @@ class Research {
         Research.displayResearch();
 
         Stats.useHighest("research", "highest-reliability", this.reliability);
-        Stats.useHighest("research", "highest-reliability-gained", amount);
+        Stats.useHighest("research", "highest-reliability-gain", amount);
     }
 
     /**

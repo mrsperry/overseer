@@ -658,7 +658,7 @@ class Research {
             .text("Reliability: " + Research.reliability.toFixed(2));
         Research.displayResearch();
         Stats.useHighest("research", "highest-reliability", this.reliability);
-        Stats.useHighest("research", "highest-reliability-gained", amount);
+        Stats.useHighest("research", "highest-reliability-gain", amount);
     }
     static displayResearch() {
         for (let index = 1; index <= Research.data.length; index++) {
