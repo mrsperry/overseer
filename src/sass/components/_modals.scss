@@ -27,4 +27,19 @@
     background-color: variables.$main-bg;
     padding: 2rem;
     border: 1px solid variables.$main-border;
+
+    h1 {
+        font-size: 1.2rem;
+        text-align: center;
+        font-weight: bold;
+        width: 100%;
+        border-bottom: 1px solid variables.$main-border;
+        margin-bottom: 1.25rem;
+    }
+
+    button {
+        align-self: center;
+        padding: 0.5rem 1rem;
+        margin-top: 1.25rem;
+    }
 }

@@ -43,19 +43,36 @@ class Stats {
     }
 
     /**
-     * Gets a string report of all stats
+     * Creates a modal with all statistics listed
      */
-    public static generateReport(): string {
-        let result: string = "";
+    public static generateReport(): void {
+        const modal: Modal = new Modal("stats");
+        const content: any = modal.getContent();
 
+        $("<h1>")
+            .text("Statistics")
+            .appendTo(content);
+
+        const lists: any =  $("<ul>").appendTo(content);
         for (const namespace in Stats.data) {
-            result += "\n" + Utils.capitalize(namespace) + ":\n";
-            
+            const list: any = $("<ul>").appendTo(lists);
+            $("<h2>")
+                .text(Utils.capitalize(namespace))
+                .appendTo(list);
+
             for (const stat in Stats.data[namespace]) {
-                result += Utils.formatID(stat) + ": " + Stats.data[namespace][stat] + "\n";
+                $("<li>")
+                    .text(Utils.formatID(stat) + ": " + Stats.data[namespace][stat])
+                    .appendTo(list);
             }
         }
 
-        return result;
+        const close: any = $("<button>")
+            .addClass("bordered")
+            .click((): void => modal.remove())
+            .appendTo(content);
+        $("<span>")
+            .text("Close")
+            .appendTo(close);
     }
 }

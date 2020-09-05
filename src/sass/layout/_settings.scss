@@ -4,15 +4,6 @@
     align-items: flex-start;
     padding: 1.5rem 2rem;
 
-    h1 {
-        font-size: 1.2rem;
-        text-align: center;
-        font-weight: bold;
-        width: 100%;
-        border-bottom: 1px solid variables.$main-border;
-        margin-bottom: 1.25rem;
-    }
-
     .color-picker {
         display: flex;
         align-items: center;
@@ -24,12 +15,6 @@
         border: none;
         background-color: #00000000;
         margin: 0rem 0.5rem;
-    }
-
-    button {
-        align-self: center;
-        padding: 0.5rem 1rem;
-        margin-top: 1.25rem;
     }
 
     a {
