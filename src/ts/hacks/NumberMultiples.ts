@@ -180,7 +180,7 @@ class NumberMultiples extends Hack {
             if (this.multiples.length === 0) {
                 super.success();
 
-                Stats.increment("hacks", "number-multiples-completed");
+                Stats.increment("hacks", "number-multiples-solved");
             }
 
             return true;

@@ -62,7 +62,7 @@ class Stats {
 
             for (const stat in Stats.data[namespace]) {
                 $("<li>")
-                    .text(Utils.formatID(stat) + ": " + Stats.data[namespace][stat])
+                    .text(Utils.formatID(stat) + ": " + Utils.stringify(Stats.data[namespace][stat]))
                     .appendTo(list);
             }
         }

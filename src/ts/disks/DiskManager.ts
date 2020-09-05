@@ -53,7 +53,7 @@ class DiskManager {
         DiskManager.disks.push(disk);
 
         if (count) {
-            Stats.increment("disks", "number-of-" + (isQuarantine ? "quarantines" : "disks"));
+            Stats.increment("disks", (isQuarantine ? "quarantines" : "disks") + "-obtained");
         }
 
         return disk;

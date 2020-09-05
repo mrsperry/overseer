@@ -389,7 +389,7 @@ class CoreManager {
         const core = new Core(CoreManager.coreList.length, power);
         CoreManager.coreList.push(core);
         if (count) {
-            Stats.increment("cores", "number-of-cores");
+            Stats.increment("cores", "cores-obtained");
         }
         return core;
     }
@@ -495,7 +495,7 @@ class DiskManager {
         const disk = new Disk(DiskManager.disks.length, name, DiskManager.diskSize, isQuarantine);
         DiskManager.disks.push(disk);
         if (count) {
-            Stats.increment("disks", "number-of-" + (isQuarantine ? "quarantines" : "disks"));
+            Stats.increment("disks", (isQuarantine ? "quarantines" : "disks") + "-obtained");
         }
         return disk;
     }
@@ -633,7 +633,7 @@ class Stats {
                 .appendTo(list);
             for (const stat in Stats.data[namespace]) {
                 $("<li>")
-                    .text(Utils.formatID(stat) + ": " + Stats.data[namespace][stat])
+                    .text(Utils.formatID(stat) + ": " + Utils.stringify(Stats.data[namespace][stat]))
                     .appendTo(list);
             }
         }
@@ -1079,7 +1079,7 @@ class Hack {
         this.content = this.modal.getContent();
         this.addPretextContent();
         HackTimer.stop();
-        Stats.increment("hacks", "timed-hacked");
+        Stats.increment("hacks", "times-hacked");
     }
     addPretextContent() {
         $("<h1>")
@@ -1129,12 +1129,12 @@ class Hack {
     success() {
         this.removeInterface(true);
         Messenger.write("Quarantine lockdown successful; all files accounted for");
-        Stats.increment("hacks", "completed-hacks");
+        Stats.increment("hacks", "hacks-solved");
     }
     fail() {
         this.removeInterface(false);
         Messenger.write("Quarantine lockdown failed; " + DiskManager.quarantineBreakout() + " files not found");
-        Stats.increment("hacks", "failed-hacks");
+        Stats.increment("hacks", "hacks-failed");
     }
     removeInterface(success) {
         window.clearInterval(this.handle);
@@ -1219,7 +1219,7 @@ class Cryptogram extends Hack {
         }
         if (this.progress === this.password) {
             this.success();
-            Stats.increment("hacks", "cryptograms-completed");
+            Stats.increment("hacks", "cryptograms-solved");
         }
         $("#cipher-" + (this.progress.length - 1))
             .addClass("clickable-no-click");
@@ -1348,7 +1348,7 @@ class HiddenPasswords extends Hack {
         $("#hidden-password-" + index).addClass("clickable-no-click");
         if (++this.markedPasswords === this.passwords.length) {
             this.success();
-            Stats.increment("hacks", "hidden-passwords-completed");
+            Stats.increment("hacks", "hidden-passwords-solved");
         }
     }
     fail() {
@@ -1500,7 +1500,7 @@ class NumberMultiples extends Hack {
             this.multiples.splice(this.multiples.indexOf(number), 1);
             if (this.multiples.length === 0) {
                 super.success();
-                Stats.increment("hacks", "number-multiples-completed");
+                Stats.increment("hacks", "number-multiples-solved");
             }
             return true;
         }
@@ -1572,7 +1572,7 @@ class OrderedNumbers extends Hack {
             this.order.push(index);
             if (this.order.length === this.maxNumbers) {
                 super.success();
-                Stats.increment("hacks", "ordered-numbers-completed");
+                Stats.increment("hacks", "ordered-numbers-solved");
             }
             return true;
         }

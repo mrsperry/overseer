@@ -166,7 +166,7 @@ class HiddenPasswords extends Hack {
         if (++this.markedPasswords === this.passwords.length) {
             this.success();
 
-            Stats.increment("hacks", "hidden-passwords-completed");
+            Stats.increment("hacks", "hidden-passwords-solved");
         }
     }
 

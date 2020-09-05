@@ -27,7 +27,7 @@ class CoreManager {
         CoreManager.coreList.push(core);
 
         if (count) {
-            Stats.increment("cores", "number-of-cores");
+            Stats.increment("cores", "cores-obtained");
         }
 
         return core;

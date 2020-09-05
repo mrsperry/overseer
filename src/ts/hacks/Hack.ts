@@ -23,7 +23,7 @@ abstract class Hack {
         this.addPretextContent();
 
         HackTimer.stop();
-        Stats.increment("hacks", "timed-hacked");
+        Stats.increment("hacks", "times-hacked");
     }
 
     /**
@@ -91,7 +91,7 @@ abstract class Hack {
         this.removeInterface(true);
 
         Messenger.write("Quarantine lockdown successful; all files accounted for")
-        Stats.increment("hacks", "completed-hacks");
+        Stats.increment("hacks", "hacks-solved");
     }
 
     /**
@@ -101,7 +101,7 @@ abstract class Hack {
         this.removeInterface(false);
 
         Messenger.write("Quarantine lockdown failed; " + DiskManager.quarantineBreakout() + " files not found")
-        Stats.increment("hacks", "failed-hacks");
+        Stats.increment("hacks", "hacks-failed");
     }
 
     /**

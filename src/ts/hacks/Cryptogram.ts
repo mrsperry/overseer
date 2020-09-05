@@ -144,7 +144,7 @@ class Cryptogram extends Hack {
         if (this.progress === this.password) {
             this.success();
 
-            Stats.increment("hacks", "cryptograms-completed");
+            Stats.increment("hacks", "cryptograms-solved");
         }
 
         // Mark the header element as found

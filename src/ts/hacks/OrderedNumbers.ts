@@ -106,7 +106,7 @@ class OrderedNumbers extends Hack {
             if (this.order.length === this.maxNumbers) {
                 super.success();
 
-                Stats.increment("hacks", "ordered-numbers-completed");
+                Stats.increment("hacks", "ordered-numbers-solved");
             }
 
             return true;
