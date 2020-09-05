@@ -487,8 +487,8 @@ class DiskManager {
         DiskManager.generateDiskNames(diskNameData, 3);
         DiskManager.diskSize = 100;
         DiskManager.threatLevel = 1;
-        DiskManager.displayFiles(DiskManager.addDisk(false));
-        DiskManager.addDisk(true);
+        DiskManager.displayFiles(DiskManager.addDisk(false, true));
+        DiskManager.addDisk(true, true);
     }
     static addDisk(isQuarantine, count = false) {
         const name = isQuarantine ? DiskManager.getQuarantineName() : DiskManager.getDiskName();
