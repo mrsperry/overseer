@@ -13,6 +13,8 @@ class State {
      * Saves the current state to local storage
      */
     public static save(): void {
+        Messenger.save();
+
         localStorage.setItem("save", JSON.stringify(State.data, null, 4));
     }
 

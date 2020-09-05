@@ -28,6 +28,8 @@ class Main {
                 DiskManager.initialize();
                 await Research.initialize();
                 HackTimer.initialize();
+
+                $(window).on("beforeunload", (): void => State.save());
             });
     }
 }

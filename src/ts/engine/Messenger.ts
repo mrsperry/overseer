@@ -1,6 +1,6 @@
 class Messenger {
     /** All displayed messages */
-    private static messages: string[];
+    private static messages: any[] = [];
     /** Max number of messages displayed at once */
     private static maxMessages: number = 15;
 
@@ -8,10 +8,10 @@ class Messenger {
      * Retrieves messages from the current state and writes them
      */
     public static initialize(): void {
-        Messenger.messages = State.getValue("messages") || [];
-
-        for (const message of Messenger.messages) {
-            Messenger.write(message);
+        for (const message of State.getValue("messages.history") || []) {
+            for (let index: number = 0; index < message.amount; index++) {
+                Messenger.write(message.message);
+            }
         }
     }
 
@@ -20,32 +20,30 @@ class Messenger {
      * @param text The text to write
      */
     public static write(text: string): void {
+        const previousMessage: any = Messenger.messages[Messenger.messages.length - 1];
         // Check if there is a duplicate message at the front of the queue
-        if (text === Messenger.messages[Messenger.messages.length - 1]) {
-            const previous: any = $("#messages").children("p")[0];
+        if (previousMessage !== undefined && text === previousMessage.message) {
+            const previousElement: any = $("#messages").children("p")[0];
 
             // Check if there is already a counter
-            if ($(previous).children("span").length === 0) {
+            if ($(previousElement).children("span").length === 0) {
                 $("<span>")
-                    .text(" x2")
                     .hide()
                     .fadeIn()
-                    .appendTo(previous);
-            } else {
-                const child = $(previous).children("span")[0];
-                const text: string = $(child).text();
-
-                // Edit the number of the counter (" x2" -> " x3")
-                $(child).text(" x" + (Number.parseInt(text.substring(2, text.length)) + 1));
+                    .appendTo(previousElement);
             }
-
+            
+            $(previousElement).children("span").text(" x" + ++previousMessage.amount);
             return;
         }
 
-        Messenger.messages.push(text);
+        Messenger.messages.push({
+            "message": text,
+            "amount": 1
+        });
 
         $("<p>")
-            .text(text)
+            .html(text)
             .hide()
             .fadeIn()
             .prependTo("#messages");
@@ -60,6 +58,13 @@ class Messenger {
         }
 
         this.applyOpacity();
+    }
+
+    /**
+     * Saves the message history to the state
+     */
+    public static save(): void {
+        State.setValue("messages.history", Messenger.messages);
     }
 
     /**
