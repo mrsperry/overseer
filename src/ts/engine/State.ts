@@ -19,6 +19,15 @@ class State {
     }
 
     /**
+     * Resets the the saved game state and reloads the page
+     */
+    public static reset(): void {
+        $(window).off("beforeunload");
+        localStorage.setItem("save", "{}");
+        window.location.reload();
+    }
+
+    /**
      * Gets a state value or null it could not be found
      * @param path The path of the value
      */

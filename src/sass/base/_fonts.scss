@@ -50,6 +50,20 @@
     &.active, &.active-error {
         cursor: auto;
     }
+
+    &.warning {
+        color: variables.$clickable-text-error;
+
+        &:hover, &:active {
+            color: variables.$clickable-text-error-hover;
+        }
+
+        &:before {
+            background-image: linear-gradient(90deg,
+                    variables.$clickable-text-error-hover 50%,
+                    variables.$clickable-text-error);
+        }
+    }
 }
 
 .clickable-no-click {

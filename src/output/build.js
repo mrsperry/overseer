@@ -7,6 +7,11 @@ class State {
         Messenger.save();
         localStorage.setItem("save", JSON.stringify(State.data, null, 4));
     }
+    static reset() {
+        $(window).off("beforeunload");
+        localStorage.setItem("save", "{}");
+        window.location.reload();
+    }
     static getValue(path) {
         const keys = path.split(".");
         let parent = State.data;
@@ -1651,6 +1656,11 @@ class Settings {
             .addClass("clickable")
             .text("Reset settings")
             .click(() => Settings.resetValues())
+            .appendTo(content);
+        $("<a>")
+            .addClass("clickable warning")
+            .text("Restart game")
+            .click(() => State.reset())
             .appendTo(content);
         const close = $("<button>")
             .addClass("bordered")

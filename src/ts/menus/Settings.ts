@@ -60,6 +60,11 @@ class Settings {
             .text("Reset settings")
             .click((): void => Settings.resetValues())
             .appendTo(content);
+        $("<a>")
+            .addClass("clickable warning")
+            .text("Restart game")
+            .click((): void => State.reset())
+            .appendTo(content);
 
         const close: any = $("<button>")
             .addClass("bordered")
