@@ -631,8 +631,7 @@ class Settings {
         const mainColor = $("<div>")
             .addClass("color-picker")
             .appendTo(content);
-        $("<label>")
-            .attr("for", "main-color")
+        $("<span>")
             .text("Main color: ")
             .appendTo(mainColor);
         Settings.mainPicker = $("<input>")
@@ -648,8 +647,7 @@ class Settings {
         const accentColor = $("<div>")
             .addClass("color-picker")
             .appendTo(content);
-        $("<label>")
-            .attr("for", "accent-color")
+        $("<span>")
             .text("Accent color: ")
             .appendTo(accentColor);
         Settings.accentPicker = $("<input>")
