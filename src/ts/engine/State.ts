@@ -14,7 +14,9 @@ class State {
      */
     public static save(): void {
         Messenger.save();
+        Settings.save();
 
+        localStorage.removeItem("save");
         localStorage.setItem("save", JSON.stringify(State.data, null, 4));
     }
 

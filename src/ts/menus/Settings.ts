@@ -6,10 +6,20 @@ class Settings {
         "accentColor": "#ADEAB7"
     };
 
-    private static mainColor: string = "#5CD670";
+    private static mainColor: string;
     private static mainPicker: any;
-    private static accentColor: string = "#ADEAB7";
+    private static accentColor: string;
     private static accentPicker: any;
+
+    /**
+     * Initializes all settings
+     */
+    public static initialize(): void {
+        Settings.mainColor = State.getValue("settings.main-color") || Settings.reset.mainColor;
+        Settings.setColorVariable("clickable-text", Settings.mainColor);
+        Settings.accentColor = State.getValue("settings.accent-color") || Settings.reset.accentColor;
+        Settings.setColorVariable("clickable-text-hover", Settings.accentColor);
+    }
 
     public static show(): void {
         Settings.modal = new Modal("settings");
@@ -75,8 +85,16 @@ class Settings {
             .appendTo(close);
     }
 
+    /**
+     * Saves all settings to the state
+     */
+    public static save(): void {
+        State.setValue("settings.main-color", Settings.mainColor);
+        State.setValue("settings.accent-color", Settings.accentColor);
+    }
+
     private static updateColor(value: string, hover: boolean): void {
-        $("body").get(0).style.setProperty("--clickable-text" + (hover ? "-hover" : ""), value);
+        Settings.setColorVariable("clickable-text" + (hover ? "-hover" : ""), value);
 
         if (hover) {
             Settings.accentColor = value;
@@ -85,6 +103,15 @@ class Settings {
             Settings.mainColor = value;
             Settings.mainPicker.get(0).value = value;
         }
+    }
+
+    /**
+     * Sets a CSS variable
+     * @param name The name of the variables
+     * @param value The value to set
+     */
+    private static setColorVariable(name: string, value: string): void {
+        $("body").get(0).style.setProperty("--" + name, value);
     }
 
     private static resetValues(): void {

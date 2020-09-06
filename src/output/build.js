@@ -5,6 +5,8 @@ class State {
     }
     static save() {
         Messenger.save();
+        Settings.save();
+        localStorage.removeItem("save");
         localStorage.setItem("save", JSON.stringify(State.data, null, 4));
     }
     static reset() {
@@ -613,6 +615,98 @@ class DiskManager {
         return "/quarantine/level-" + DiskManager.threatLevel;
     }
 }
+class Settings {
+    static initialize() {
+        Settings.mainColor = State.getValue("settings.main-color") || Settings.reset.mainColor;
+        Settings.setColorVariable("clickable-text", Settings.mainColor);
+        Settings.accentColor = State.getValue("settings.accent-color") || Settings.reset.accentColor;
+        Settings.setColorVariable("clickable-text-hover", Settings.accentColor);
+    }
+    static show() {
+        Settings.modal = new Modal("settings");
+        const content = Settings.modal.getContent();
+        $("<h1>")
+            .text("Settings")
+            .appendTo(content);
+        const mainColor = $("<div>")
+            .addClass("color-picker")
+            .appendTo(content);
+        $("<label>")
+            .attr("for", "main-color")
+            .text("Main color: ")
+            .appendTo(mainColor);
+        Settings.mainPicker = $("<input>")
+            .attr("id", "main-color")
+            .attr("type", "color")
+            .attr("value", Settings.mainColor)
+            .on("input change", (event) => Settings.updateColor(event.target.value, false))
+            .appendTo(mainColor);
+        $("<p>")
+            .addClass("clickable-no-click")
+            .text("Example text")
+            .appendTo(mainColor);
+        const accentColor = $("<div>")
+            .addClass("color-picker")
+            .appendTo(content);
+        $("<label>")
+            .attr("for", "accent-color")
+            .text("Accent color: ")
+            .appendTo(accentColor);
+        Settings.accentPicker = $("<input>")
+            .attr("id", "accent-color")
+            .attr("type", "color")
+            .attr("value", Settings.accentColor)
+            .on("input change", (event) => Settings.updateColor(event.target.value, true))
+            .appendTo(accentColor);
+        $("<p>")
+            .addClass("clickable-no-click active")
+            .text("Example text")
+            .appendTo(accentColor);
+        $("<a>")
+            .addClass("clickable")
+            .text("Reset settings")
+            .click(() => Settings.resetValues())
+            .appendTo(content);
+        $("<a>")
+            .addClass("clickable warning")
+            .text("Restart game")
+            .click(() => State.reset())
+            .appendTo(content);
+        const close = $("<button>")
+            .addClass("bordered")
+            .click(() => Settings.modal.remove())
+            .appendTo(content);
+        $("<span>")
+            .text("Close")
+            .appendTo(close);
+    }
+    static save() {
+        State.setValue("settings.main-color", Settings.mainColor);
+        State.setValue("settings.accent-color", Settings.accentColor);
+    }
+    static updateColor(value, hover) {
+        Settings.setColorVariable("clickable-text" + (hover ? "-hover" : ""), value);
+        if (hover) {
+            Settings.accentColor = value;
+            Settings.accentPicker.get(0).value = value;
+        }
+        else {
+            Settings.mainColor = value;
+            Settings.mainPicker.get(0).value = value;
+        }
+    }
+    static setColorVariable(name, value) {
+        $("body").get(0).style.setProperty("--" + name, value);
+    }
+    static resetValues() {
+        Settings.updateColor(Settings.reset.mainColor, false);
+        Settings.updateColor(Settings.reset.accentColor, true);
+    }
+}
+Settings.reset = {
+    "mainColor": "#5CD670",
+    "accentColor": "#ADEAB7"
+};
 class Stats {
     static async initialize() {
         Stats.data = State.getValue("stats") || await $.getJSON("src/data/stats.json");
@@ -740,7 +834,9 @@ Research.displayExponent = 2.75;
 class Main {
     static async initialize() {
         State.load();
+        Settings.initialize();
         await Stats.initialize();
+        $(window).on("beforeunload", () => State.save());
     }
     static startGame() {
         const menu = $("#main-menu")
@@ -757,7 +853,6 @@ class Main {
             DiskManager.initialize();
             await Research.initialize();
             HackTimer.initialize();
-            $(window).on("beforeunload", () => State.save());
         });
     }
 }
@@ -1611,84 +1706,3 @@ OrderedNumbers.levels = [
         "numbers-per-row": 5
     },
 ];
-class Settings {
-    static show() {
-        Settings.modal = new Modal("settings");
-        const content = Settings.modal.getContent();
-        $("<h1>")
-            .text("Settings")
-            .appendTo(content);
-        const mainColor = $("<div>")
-            .addClass("color-picker")
-            .appendTo(content);
-        $("<label>")
-            .attr("for", "main-color")
-            .text("Main color: ")
-            .appendTo(mainColor);
-        Settings.mainPicker = $("<input>")
-            .attr("id", "main-color")
-            .attr("type", "color")
-            .attr("value", Settings.mainColor)
-            .on("input change", (event) => Settings.updateColor(event.target.value, false))
-            .appendTo(mainColor);
-        $("<p>")
-            .addClass("clickable-no-click")
-            .text("Example text")
-            .appendTo(mainColor);
-        const accentColor = $("<div>")
-            .addClass("color-picker")
-            .appendTo(content);
-        $("<label>")
-            .attr("for", "accent-color")
-            .text("Accent color: ")
-            .appendTo(accentColor);
-        Settings.accentPicker = $("<input>")
-            .attr("id", "accent-color")
-            .attr("type", "color")
-            .attr("value", Settings.accentColor)
-            .on("input change", (event) => Settings.updateColor(event.target.value, true))
-            .appendTo(accentColor);
-        $("<p>")
-            .addClass("clickable-no-click active")
-            .text("Example text")
-            .appendTo(accentColor);
-        $("<a>")
-            .addClass("clickable")
-            .text("Reset settings")
-            .click(() => Settings.resetValues())
-            .appendTo(content);
-        $("<a>")
-            .addClass("clickable warning")
-            .text("Restart game")
-            .click(() => State.reset())
-            .appendTo(content);
-        const close = $("<button>")
-            .addClass("bordered")
-            .click(() => Settings.modal.remove())
-            .appendTo(content);
-        $("<span>")
-            .text("Close")
-            .appendTo(close);
-    }
-    static updateColor(value, hover) {
-        $("body").get(0).style.setProperty("--clickable-text" + (hover ? "-hover" : ""), value);
-        if (hover) {
-            Settings.accentColor = value;
-            Settings.accentPicker.get(0).value = value;
-        }
-        else {
-            Settings.mainColor = value;
-            Settings.mainPicker.get(0).value = value;
-        }
-    }
-    static resetValues() {
-        Settings.updateColor(Settings.reset.mainColor, false);
-        Settings.updateColor(Settings.reset.accentColor, true);
-    }
-}
-Settings.reset = {
-    "mainColor": "#5CD670",
-    "accentColor": "#ADEAB7"
-};
-Settings.mainColor = "#5CD670";
-Settings.accentColor = "#ADEAB7";
