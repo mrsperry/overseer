@@ -1124,7 +1124,7 @@ class Disk {
                 DiskManager.addFileToQuarantine(file);
             }
         }
-        Messenger.write("Scanned " + length + " files and found " + threats + " " + (threats === 1 ? "vulnerability" : "vulnerabilities"));
+        Messenger.write("Scanned <span class='clickable-no-click'>" + length + "</span> files and found <span class='clickable-no-click active-error'>" + threats + "</span> vulnerabilit" + (threats === 1 ? "y" : "ies"));
         Stats.add("disks", "files-scanned", length);
     }
     purgeFiles() {
@@ -1135,7 +1135,7 @@ class Disk {
             reliability += file.getSize() / 100;
         }
         Research.addReliability(reliability);
-        Messenger.write("Purged " + length + " file" + (length === 1 ? "" : "s") + " and gained " + reliability.toFixed(2) + " reliability");
+        Messenger.write("Purged <span class='clickable-no-click'>" + length + "</span> file" + (length === 1 ? "" : "s") + " and gained <span class='clickable-no-click'>" + reliability.toFixed(2) + "</span> reliability");
         Stats.add("disks", "threats-purged", length);
     }
     isDisplayed() {
@@ -1313,12 +1313,12 @@ class Hack {
     }
     success() {
         this.removeInterface(true);
-        Messenger.write("Quarantine lockdown successful; all files accounted for");
+        Messenger.write("Quarantine lockdown <span class='clickable-no-click'>successful</span>; all files accounted for");
         Stats.increment("hacks", "hacks-solved");
     }
     fail() {
         this.removeInterface(false);
-        Messenger.write("Quarantine lockdown failed; " + DiskManager.quarantineBreakout() + " files not found");
+        Messenger.write("Quarantine lockdown <span class='clickable-no-click active-error'>failed</span>; <span class='clickable-no-click active-error'>" + DiskManager.quarantineBreakout() + "</span> files not found");
         Stats.increment("hacks", "hacks-failed");
     }
     removeInterface(success) {

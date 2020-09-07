@@ -90,7 +90,7 @@ abstract class Hack {
     protected success(): void {
         this.removeInterface(true);
 
-        Messenger.write("Quarantine lockdown successful; all files accounted for")
+        Messenger.write("Quarantine lockdown <span class='clickable-no-click'>successful</span>; all files accounted for")
         Stats.increment("hacks", "hacks-solved");
     }
 
@@ -100,7 +100,7 @@ abstract class Hack {
     protected fail(): void {
         this.removeInterface(false);
 
-        Messenger.write("Quarantine lockdown failed; " + DiskManager.quarantineBreakout() + " files not found")
+        Messenger.write("Quarantine lockdown <span class='clickable-no-click active-error'>failed</span>; <span class='clickable-no-click active-error'>" + DiskManager.quarantineBreakout() + "</span> files not found")
         Stats.increment("hacks", "hacks-failed");
     }
 

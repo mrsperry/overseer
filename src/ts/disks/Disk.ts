@@ -299,7 +299,7 @@ class Disk implements ISerializable {
             }
         }
 
-        Messenger.write("Scanned " + length + " files and found " + threats + " " + (threats === 1 ? "vulnerability" : "vulnerabilities"));
+        Messenger.write("Scanned <span class='clickable-no-click'>" + length + "</span> files and found <span class='clickable-no-click active-error'>" + threats + "</span> vulnerabilit" + (threats === 1 ? "y" : "ies"));
         Stats.add("disks", "files-scanned", length);
     }
 
@@ -316,7 +316,7 @@ class Disk implements ISerializable {
         }
         Research.addReliability(reliability);
 
-        Messenger.write("Purged " + length + " file" + (length === 1 ? "" : "s") + " and gained " + reliability.toFixed(2) + " reliability");
+        Messenger.write("Purged <span class='clickable-no-click'>" + length + "</span> file" + (length === 1 ? "" : "s") + " and gained <span class='clickable-no-click'>" + reliability.toFixed(2) + "</span> reliability");
         Stats.add("disks", "threats-purged", length);
     }
 
