@@ -100,7 +100,7 @@ class DiskManager {
                 continue;
             }
 
-            if (disk.addFile(this.threatLevel)) {
+            if (disk.addFile(Utils.random(1, this.threatLevel + 1))) {
                 Stats.increment("disks", "files-discovered");
                 return;
             }
