@@ -20,6 +20,12 @@ class HackTimer {
 
         // Run a check every minute
         window.setInterval(HackTimer.checkStatus, 60000);
+
+        // Start a hack of the same type if one was saved
+        const type: number = State.getValue("hack-type");
+        if (type !== null && type !== -1) {
+            HackTimer.createHack(type);
+        }
     }
 
     /**
@@ -40,6 +46,38 @@ class HackTimer {
     }
 
     /**
+     * Starts a new random hack with the current threat level
+     * @param type The type of hack to create
+     */
+    public static createHack(type?: number): void {
+        const threatLevel: number = DiskManager.getThreatLevel();
+
+        // Get a random type if not specified
+        if (type === undefined) {
+            type = Utils.random(0, 4);
+        }
+
+        // Set the type of hack to the state
+        State.setValue("hack-type", type);
+        
+        // Create a new hack
+        switch (type) {
+            case 0:
+                new Cryptogram(threatLevel);
+                break;
+            case 1:
+                new HiddenPasswords(threatLevel);
+                break;
+            case 2:
+                new NumberMultiples(threatLevel);
+                break;
+            default:
+                new OrderedNumbers(threatLevel);
+                break;
+        }
+    }
+
+    /**
      * Checks if a new hack should be created
      */
     private static checkStatus(): void {
@@ -50,23 +88,7 @@ class HackTimer {
 
         // Check if the elapsed minutes are greater or equal to the interval
         if (Date.now() - HackTimer.startTime >= HackTimer.interval * 60000) {
-            const threatLevel: number = DiskManager.getThreatLevel();
-
-            // Create a new hack
-            switch (Utils.random(0, 4)) {
-                case 0:
-                    new Cryptogram(threatLevel);
-                    break;
-                case 1:
-                    new HiddenPasswords(threatLevel);
-                    break;
-                case 2:
-                    new NumberMultiples(threatLevel);
-                    break;
-                default:
-                    new OrderedNumbers(threatLevel);
-                    break;
-            }
+            HackTimer.createHack();
         }
     }
 }

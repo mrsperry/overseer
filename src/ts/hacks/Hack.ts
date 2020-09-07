@@ -110,6 +110,9 @@ abstract class Hack {
     private removeInterface(success: boolean): void {
         window.clearInterval(this.handle);
 
+        // Mark the hack as completed in the state
+        State.setValue("hack-type", -1);
+
         // Don't accept any mouse input
         this.locked = true;
 

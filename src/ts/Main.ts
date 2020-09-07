@@ -31,6 +31,10 @@ class Main {
                 Messenger.initialize();
                 await DiskManager.initialize();
                 CoreManager.initialize();
+                // Unpause the game after core tasks have been initialized
+                if (State.getValue("paused")) {
+                    State.togglePause();
+                }
                 await Research.initialize();
                 HackTimer.initialize();
             });

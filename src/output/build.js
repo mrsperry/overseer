@@ -935,6 +935,9 @@ class Main {
             Messenger.initialize();
             await DiskManager.initialize();
             CoreManager.initialize();
+            if (State.getValue("paused")) {
+                State.togglePause();
+            }
             await Research.initialize();
             HackTimer.initialize();
         });
@@ -1328,6 +1331,7 @@ class Hack {
     }
     removeInterface(success) {
         window.clearInterval(this.handle);
+        State.setValue("hack-type", -1);
         this.locked = true;
         this.modal.remove(1500);
         this.content.addClass(success ? "success" : "fail");
@@ -1437,6 +1441,10 @@ class HackTimer {
     static initialize() {
         HackTimer.start();
         window.setInterval(HackTimer.checkStatus, 60000);
+        const type = State.getValue("hack-type");
+        if (type !== null && type !== -1) {
+            HackTimer.createHack(type);
+        }
     }
     static start() {
         HackTimer.startTime = Date.now();
@@ -1446,26 +1454,33 @@ class HackTimer {
     static stop() {
         HackTimer.isRunning = false;
     }
+    static createHack(type) {
+        const threatLevel = DiskManager.getThreatLevel();
+        if (type === undefined) {
+            type = Utils.random(0, 4);
+        }
+        State.setValue("hack-type", type);
+        switch (type) {
+            case 0:
+                new Cryptogram(threatLevel);
+                break;
+            case 1:
+                new HiddenPasswords(threatLevel);
+                break;
+            case 2:
+                new NumberMultiples(threatLevel);
+                break;
+            default:
+                new OrderedNumbers(threatLevel);
+                break;
+        }
+    }
     static checkStatus() {
         if (!HackTimer.isRunning || !DiskManager.hasQuarantineFiles()) {
             return;
         }
         if (Date.now() - HackTimer.startTime >= HackTimer.interval * 60000) {
-            const threatLevel = DiskManager.getThreatLevel();
-            switch (Utils.random(0, 4)) {
-                case 0:
-                    new Cryptogram(threatLevel);
-                    break;
-                case 1:
-                    new HiddenPasswords(threatLevel);
-                    break;
-                case 2:
-                    new NumberMultiples(threatLevel);
-                    break;
-                default:
-                    new OrderedNumbers(threatLevel);
-                    break;
-            }
+            HackTimer.createHack();
         }
     }
 }
