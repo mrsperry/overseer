@@ -829,19 +829,21 @@ class Research {
     static async initialize() {
         Research.data = await $.getJSON("src/data/research.json");
         Research.purchased = State.getValue("research.purchased") || [];
-        Research.addReliability(State.getValue("research.reliability") || 0);
+        Research.addReliability(State.getValue("research.reliability") || 0, false);
     }
     static save() {
         State.setValue("research.purchased", Research.purchased);
         State.setValue("research.reliability", Research.reliability);
     }
-    static addReliability(amount) {
+    static addReliability(amount, count = true) {
         Research.reliability += amount;
         $("#research").children(".reliability")
             .text("Reliability: " + Research.reliability.toFixed(2));
         Research.displayResearch();
         Stats.useHighest("research", "highest-reliability", this.reliability);
-        Stats.useHighest("research", "highest-reliability-gain", amount);
+        if (count) {
+            Stats.useHighest("research", "highest-reliability-gain", amount);
+        }
     }
     static displayResearch() {
         for (let index = 1; index <= Research.data.length; index++) {
@@ -1205,7 +1207,7 @@ class DiskFile {
         const extension = Utils.random(DiskManager.getFileExtensions());
         this.name = name + "." + extension;
         this.size = Utils.random(1, 20 + ((threatLevel - 1) * 100));
-        this.isThreat = Utils.random(0, 1 + (threatLevel * 5)) == 0;
+        this.isThreat = Utils.random(0, 1 + (threatLevel * 7)) == 0;
     }
     static deserialize(state) {
         const file = new DiskFile(0);

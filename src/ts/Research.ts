@@ -22,7 +22,7 @@ class Research {
         Research.data = await $.getJSON("src/data/research.json");
         Research.purchased = State.getValue("research.purchased") || [];
 
-        Research.addReliability(State.getValue("research.reliability") || 0);
+        Research.addReliability(State.getValue("research.reliability") || 0, false);
     }
 
     /**
@@ -36,8 +36,9 @@ class Research {
     /**
      * Adds a given amount of reliability to the player
      * @param amount The amount of reliability to add
+     * @param count If this amount should be used in stats
      */
-    public static addReliability(amount: number): void {
+    public static addReliability(amount: number, count: boolean = true): void {
         Research.reliability += amount;
 
         $("#research").children(".reliability")
@@ -46,7 +47,9 @@ class Research {
         Research.displayResearch();
 
         Stats.useHighest("research", "highest-reliability", this.reliability);
-        Stats.useHighest("research", "highest-reliability-gain", amount);
+        if (count) {
+            Stats.useHighest("research", "highest-reliability-gain", amount);
+        }
     }
 
     /**
