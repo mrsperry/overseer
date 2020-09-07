@@ -6,6 +6,7 @@ class State {
     static save() {
         Messenger.save();
         Settings.save();
+        CoreManager.save();
         DiskManager.save();
         localStorage.removeItem("save");
         localStorage.setItem("save", JSON.stringify(State.data, null, 4));
@@ -148,7 +149,7 @@ class CoreTask {
     }
     static deserialize(state) {
         const core = CoreManager.getCore(state.core);
-        const disk = DiskManager.getDisk(state.disk);
+        let disk = DiskManager.getDisk(state.disk);
         let task;
         switch (state.type) {
             case 0:
@@ -255,7 +256,7 @@ class CoreTask {
     serialize() {
         return {
             "core": this.core.getID(),
-            "disk": this.disk.getID(),
+            "disk": this.disk?.getID() || 0,
             "type": this.type,
             "startTime": this.startTime,
             "saveTime": Date.now()
@@ -310,13 +311,7 @@ class Core {
         this.updateButtons();
     }
     static deserialize(state) {
-        let core;
-        if (state.id !== 0) {
-            core = CoreManager.addCore(state.power, false);
-        }
-        else {
-            core = CoreManager.getCore(0);
-        }
+        const core = CoreManager.addCore(state.power, false);
         core.upgrades = state.upgrades;
         if (state.task !== null) {
             CoreTask.deserialize(state.task);
@@ -394,9 +389,24 @@ class Core {
 Core.fileSearchCost = 20;
 class CoreManager {
     static initialize() {
-        CoreManager.coreList = State.getValue("cores.count") || [];
-        CoreManager.maxCoreUpgrades = State.getValue("cores.max-upgrades") || 0;
-        this.addCore(1);
+        CoreManager.maxCoreUpgrades = State.getValue("cores.max-core-upgrades") || 0;
+        CoreManager.coreList = [];
+        for (const core of State.getValue("cores.list") || []) {
+            Core.deserialize(core);
+        }
+        if (CoreManager.coreList.length === 0) {
+            CoreManager.addCore(1);
+        }
+    }
+    static save() {
+        const data = {
+            "list": [],
+            "max-core-upgrades": CoreManager.maxCoreUpgrades
+        };
+        for (const core of CoreManager.coreList) {
+            data.list.push(core.serialize());
+        }
+        State.setValue("cores", data);
     }
     static addCore(power, count = true) {
         const core = new Core(CoreManager.coreList.length, power);
@@ -869,8 +879,8 @@ class Main {
                 .fadeIn()
                 .css("display", "flex");
             Messenger.initialize();
+            await DiskManager.initialize();
             CoreManager.initialize();
-            DiskManager.initialize();
             await Research.initialize();
             HackTimer.initialize();
         });

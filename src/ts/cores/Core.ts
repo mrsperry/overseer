@@ -77,13 +77,7 @@ class Core implements ISerializable {
      * @param state The serialized state to use to create the core
      */
     public static deserialize(state: any): void {
-        let core: Core;
-        if (state.id !== 0) {
-            core = CoreManager.addCore(state.power, false);
-        } else {
-            core = CoreManager.getCore(0);
-        }
-
+        const core: Core = CoreManager.addCore(state.power, false);
         core.upgrades = state.upgrades;
 
         if (state.task !== null) {

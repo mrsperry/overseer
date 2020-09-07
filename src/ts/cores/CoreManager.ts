@@ -10,10 +10,35 @@ class CoreManager {
      * Retrieves the core states
      */
     public static initialize(): void {
-        CoreManager.coreList = State.getValue("cores.count") || [];
-        CoreManager.maxCoreUpgrades = State.getValue("cores.max-upgrades") || 0;
+        // Set the maximum number of core upgrades
+        CoreManager.maxCoreUpgrades = State.getValue("cores.max-core-upgrades") || 0;
 
-        this.addCore(1);
+        CoreManager.coreList = [];
+        // Deserialized saved cores
+        for (const core of State.getValue("cores.list") || []) {
+            Core.deserialize(core);
+        }
+
+        // Add initial core if none were saved
+        if (CoreManager.coreList.length === 0) {
+            CoreManager.addCore(1);
+        }
+    }
+
+    /**
+     * Adds all core data to the state
+     */
+    public static save(): void {
+        const data: any = {
+            "list": [],
+            "max-core-upgrades": CoreManager.maxCoreUpgrades
+        };
+
+        for (const core of CoreManager.coreList) {
+            data.list.push(core.serialize());
+        }
+
+        State.setValue("cores", data);
     }
 
     /**

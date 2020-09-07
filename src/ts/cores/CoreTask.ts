@@ -227,7 +227,7 @@ class CoreTask implements ISerializable {
     public serialize(): any {
         return {
             "core": this.core.getID(),
-            "disk": this.disk.getID(),
+            "disk": this.disk?.getID() || 0,
             "type": this.type,
             "startTime": this.startTime,
             "saveTime": Date.now()

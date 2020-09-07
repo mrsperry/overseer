@@ -28,8 +28,8 @@ class Main {
 
                 Messenger.initialize();
         
+                await DiskManager.initialize();
                 CoreManager.initialize();
-                DiskManager.initialize();
                 await Research.initialize();
                 HackTimer.initialize();
             });

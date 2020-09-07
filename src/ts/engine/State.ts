@@ -16,6 +16,7 @@ class State {
         Messenger.save();
         Settings.save();
 
+        CoreManager.save();
         DiskManager.save();
 
         localStorage.removeItem("save");
