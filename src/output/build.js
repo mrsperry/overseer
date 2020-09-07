@@ -14,7 +14,11 @@ class State {
     }
     static reset() {
         $(window).off("beforeunload");
-        localStorage.setItem("save", "{}");
+        State.save();
+        localStorage.setItem("save", JSON.stringify({
+            "settings": State.data.settings || {},
+            "stats": State.data.stats || {}
+        }, null, 4));
         window.location.reload();
     }
     static getValue(path) {

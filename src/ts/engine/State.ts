@@ -29,7 +29,14 @@ class State {
      */
     public static reset(): void {
         $(window).off("beforeunload");
-        localStorage.setItem("save", "{}");
+        State.save();
+
+        // Save settings and stats if they are present
+        localStorage.setItem("save", JSON.stringify({
+            "settings": State.data.settings || {},
+            "stats": State.data.stats || {}
+        }, null, 4));
+        
         window.location.reload();
     }
 
