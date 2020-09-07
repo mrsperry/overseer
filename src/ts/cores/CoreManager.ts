@@ -21,7 +21,7 @@ class CoreManager {
 
         // Add initial core if none were saved
         if (CoreManager.coreList.length === 0) {
-            CoreManager.addCore(1);
+            CoreManager.addCore(1, false);
         }
     }
 

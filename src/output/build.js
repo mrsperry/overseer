@@ -395,7 +395,7 @@ class CoreManager {
             Core.deserialize(core);
         }
         if (CoreManager.coreList.length === 0) {
-            CoreManager.addCore(1);
+            CoreManager.addCore(1, false);
         }
     }
     static save() {
@@ -516,8 +516,8 @@ class DiskManager {
             Disk.deserialize(disk);
         }
         if (DiskManager.disks.length === 0) {
-            DiskManager.displayFiles(DiskManager.addDisk(false, true));
-            DiskManager.addDisk(true, true);
+            DiskManager.displayFiles(DiskManager.addDisk(false, false));
+            DiskManager.addDisk(true, false);
         }
     }
     static save() {

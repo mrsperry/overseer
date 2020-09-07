@@ -42,9 +42,9 @@ class DiskManager {
 
         if (DiskManager.disks.length === 0) {
             // Add an initial disk and display its files by default
-            DiskManager.displayFiles(DiskManager.addDisk(false, true));
+            DiskManager.displayFiles(DiskManager.addDisk(false, false));
             // Add an initial quarantine disk
-            DiskManager.addDisk(true, true);
+            DiskManager.addDisk(true, false);
         }
     }
 
