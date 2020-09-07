@@ -6,6 +6,7 @@ class State {
     static save() {
         Messenger.save();
         Settings.save();
+        DiskManager.save();
         localStorage.removeItem("save");
         localStorage.setItem("save", JSON.stringify(State.data, null, 4));
     }
@@ -492,18 +493,39 @@ class Utils {
 }
 class DiskManager {
     static async initialize() {
-        DiskManager.disks = [];
         const diskNameData = await $.getJSON("src/data/disk-names.json");
         DiskManager.fileExtensions = diskNameData.extensions;
-        DiskManager.diskNames = [];
-        DiskManager.generateDiskNames(diskNameData, 3);
-        DiskManager.diskSize = 100;
-        DiskManager.threatLevel = 1;
-        DiskManager.displayFiles(DiskManager.addDisk(false, true));
-        DiskManager.addDisk(true, true);
+        DiskManager.diskNames = State.getValue("disks.disk-names") || [];
+        if (DiskManager.diskNames.length === 0) {
+            DiskManager.generateDiskNames(diskNameData, 3);
+        }
+        DiskManager.diskSize = State.getValue("disks.disk-size") || 100;
+        DiskManager.threatLevel = State.getValue("disks.threat-level") || 1;
+        DiskManager.disks = [];
+        for (const disk of State.getValue("disks.list") || []) {
+            Disk.deserialize(disk);
+        }
+        if (DiskManager.disks.length === 0) {
+            DiskManager.displayFiles(DiskManager.addDisk(false, true));
+            DiskManager.addDisk(true, true);
+        }
     }
-    static addDisk(isQuarantine, count = false) {
-        const name = isQuarantine ? DiskManager.getQuarantineName() : DiskManager.getDiskName();
+    static save() {
+        const data = {
+            "list": [],
+            "disk-names": DiskManager.diskNames,
+            "disk-size": DiskManager.diskSize,
+            "threat-level": DiskManager.threatLevel
+        };
+        for (const disk of DiskManager.disks) {
+            data.list.push(disk.serialize());
+        }
+        State.setValue("disks", data);
+    }
+    static addDisk(isQuarantine, count = false, name) {
+        if (name === undefined) {
+            name = isQuarantine ? DiskManager.getQuarantineName() : DiskManager.getDiskName();
+        }
         const disk = new Disk(DiskManager.disks.length, name, DiskManager.diskSize, isQuarantine);
         DiskManager.disks.push(disk);
         if (count) {
@@ -889,14 +911,7 @@ class Disk {
         this.updateUsage();
     }
     static deserialize(state) {
-        let disk;
-        if (state.id !== 0) {
-            disk = DiskManager.addDisk(state.isQuarantine, false);
-        }
-        else {
-            disk = DiskManager.getDisk(0);
-        }
-        disk.name = name;
+        const disk = DiskManager.addDisk(state.isQuarantine, false, state.name);
         disk.files = state.files.map((file) => DiskFile.deserialize(file));
         disk.isWiping = state.isWiping;
         disk.setDisplayed(state.displayed);

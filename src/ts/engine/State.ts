@@ -16,6 +16,8 @@ class State {
         Messenger.save();
         Settings.save();
 
+        DiskManager.save();
+
         localStorage.removeItem("save");
         localStorage.setItem("save", JSON.stringify(State.data, null, 4));
     }

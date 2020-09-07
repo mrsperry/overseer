@@ -50,14 +50,7 @@ class Disk implements ISerializable {
      * @returns The created disk
      */
     public static deserialize(state: any): Disk {
-        let disk: Disk;
-        if (state.id !== 0) {
-            disk = DiskManager.addDisk(state.isQuarantine, false);
-        } else {
-            disk = DiskManager.getDisk(0);
-        }
-        
-        disk.name = name;
+        const disk: Disk = DiskManager.addDisk(state.isQuarantine, false, state.name);
         disk.files = state.files.map((file: any): DiskFile => DiskFile.deserialize(file));
         disk.isWiping = state.isWiping;
         disk.setDisplayed(state.displayed);

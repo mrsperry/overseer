@@ -18,34 +18,66 @@ class DiskManager {
      * Initializes disk names and displays
      */
     public static async initialize(): Promise<any> {
-        DiskManager.disks = [];
-
         // Get the disk name data
         const diskNameData: any = await $.getJSON("src/data/disk-names.json");
         DiskManager.fileExtensions = diskNameData.extensions;
-        DiskManager.diskNames = [];
-        DiskManager.generateDiskNames(diskNameData, 3);
+        DiskManager.diskNames = State.getValue("disks.disk-names") || [];
+
+        // Generate new disk names if there are none available
+        if (DiskManager.diskNames.length === 0) {
+            DiskManager.generateDiskNames(diskNameData, 3);
+        }
 
         // Set the initial size of disks
-        DiskManager.diskSize = 100;
+        DiskManager.diskSize = State.getValue("disks.disk-size") || 100;
         // Set initial quarantine level
-        DiskManager.threatLevel = 1;
+        DiskManager.threatLevel = State.getValue("disks.threat-level") || 1;
 
-        // Add an initial disk and display its files by default
-        DiskManager.displayFiles(DiskManager.addDisk(false, true));
-        // Add an initial quarantine disk
-        DiskManager.addDisk(true, true);
+        DiskManager.disks = [];
+
+        // Deserialize any serialized disks
+        for (const disk of State.getValue("disks.list") || []) {
+            Disk.deserialize(disk);
+        }
+
+        if (DiskManager.disks.length === 0) {
+            // Add an initial disk and display its files by default
+            DiskManager.displayFiles(DiskManager.addDisk(false, true));
+            // Add an initial quarantine disk
+            DiskManager.addDisk(true, true);
+        }
+    }
+
+    /**
+     * Adds all disk data to the state
+     */
+    public static save(): void {
+        const data: any = {
+            "list": [],
+            "disk-names": DiskManager.diskNames,
+            "disk-size": DiskManager.diskSize,
+            "threat-level": DiskManager.threatLevel
+        };
+
+        for (const disk of DiskManager.disks) {
+            data.list.push(disk.serialize());
+        }
+
+        State.setValue("disks", data);
     }
 
     /**
      * Adds a new disk
      * @param isQuarantine If the disk is a quarantine disk
      * @param count If this disk should count as a statistic
+     * @param name The name of the disk or a generated name if none is provided
      * @returns The added disk
      */
-    public static addDisk(isQuarantine: boolean, count: boolean = false): Disk {
-        // Get the name of the disk
-        const name: string = isQuarantine ? DiskManager.getQuarantineName() : DiskManager.getDiskName();
+    public static addDisk(isQuarantine: boolean, count: boolean = false, name?: string): Disk {
+        if (name === undefined) {
+            // Get the name of the disk
+            name = isQuarantine ? DiskManager.getQuarantineName() : DiskManager.getDiskName();
+        }
 
         // Create the disk
         const disk: Disk = new Disk(DiskManager.disks.length, name, DiskManager.diskSize, isQuarantine);
