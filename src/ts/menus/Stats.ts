@@ -10,6 +10,13 @@ class Stats {
     }
 
     /**
+     * Saves all stats to the state
+     */
+    public static save(): void {
+        State.setValue("stats", Stats.data);
+    }
+
+    /**
      * Increases a stat by one
      * @param namespace The namespace of the stat
      * @param id The ID of the stat

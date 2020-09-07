@@ -15,6 +15,7 @@ class State {
     public static save(): void {
         Messenger.save();
         Settings.save();
+        Stats.save();
         Research.save();
 
         CoreManager.save();

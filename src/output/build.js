@@ -6,6 +6,7 @@ class State {
     static save() {
         Messenger.save();
         Settings.save();
+        Stats.save();
         Research.save();
         CoreManager.save();
         DiskManager.save();
@@ -740,6 +741,9 @@ Settings.reset = {
 class Stats {
     static async initialize() {
         Stats.data = State.getValue("stats") || await $.getJSON("src/data/stats.json");
+    }
+    static save() {
+        State.setValue("stats", Stats.data);
     }
     static increment(namespace, id) {
         Stats.data[namespace][id]++;
