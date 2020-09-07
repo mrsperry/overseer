@@ -53,6 +53,13 @@ class DiskFile implements ISerializable {
     }
 
     /**
+     * @param size The new size of the file
+     */
+    public setSize(size: number): void {
+        this.size = size;
+    }
+
+    /**
      * @returns If this file is a threat
      */
     public getIsThreat(): boolean {

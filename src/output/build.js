@@ -965,19 +965,23 @@ class Disk {
         this.displayedFiles++;
     }
     addFile(arg1) {
-        const file = typeof (arg1) === "number" ? new DiskFile(arg1) : arg1;
-        if (this.maxStorage - this.getUsage() >= file.getSize()) {
-            this.files.push(file);
-            if (this.isDisplayed()) {
-                if (this.displayedFiles !== Disk.maxDisplayedFiles) {
-                    this.displayFile(file);
-                }
-                this.updateFileDisplay();
-            }
-            this.updateUsage();
-            return true;
+        const usage = this.getUsage();
+        if (usage === this.maxStorage) {
+            return false;
         }
-        return false;
+        const file = typeof (arg1) === "number" ? new DiskFile(arg1) : arg1;
+        if (this.maxStorage - usage < file.getSize()) {
+            file.setSize(this.maxStorage - usage);
+        }
+        this.files.push(file);
+        if (this.isDisplayed()) {
+            if (this.displayedFiles !== Disk.maxDisplayedFiles) {
+                this.displayFile(file);
+            }
+            this.updateFileDisplay();
+        }
+        this.updateUsage();
+        return true;
     }
     updateUsage() {
         this.parent.children(".disk-usage")
@@ -1165,6 +1169,9 @@ class DiskFile {
     }
     getSize() {
         return this.size;
+    }
+    setSize(size) {
+        this.size = size;
     }
     getIsThreat() {
         return this.isThreat;

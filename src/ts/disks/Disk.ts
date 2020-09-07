@@ -118,26 +118,31 @@ class Disk implements ISerializable {
      */
     public addFile(threatLevel: number): boolean;
     public addFile(arg1: DiskFile | number): boolean {
-        const file: DiskFile = typeof(arg1) === "number" ? new DiskFile(arg1) : arg1;
-
+        const usage: number = this.getUsage();
         // Check if there is enough space on the disk for this file
-        if (this.maxStorage - this.getUsage() >= file.getSize()) {
-            this.files.push(file);
-
-            // Update the file display
-            if (this.isDisplayed()) {
-                if (this.displayedFiles !== Disk.maxDisplayedFiles) {
-                    this.displayFile(file);
-                }
-
-                this.updateFileDisplay();
-            }
-
-            this.updateUsage();
-            return true;
+        if (usage === this.maxStorage) {
+            return false;
         }
 
-        return false;
+        const file: DiskFile = typeof(arg1) === "number" ? new DiskFile(arg1) : arg1;
+        // Shrink the file to fit into the disk if it is too big
+        if (this.maxStorage - usage < file.getSize()) {
+            file.setSize(this.maxStorage - usage);
+        }
+
+        this.files.push(file);
+
+        // Update the file display
+        if (this.isDisplayed()) {
+            if (this.displayedFiles !== Disk.maxDisplayedFiles) {
+                this.displayFile(file);
+            }
+
+            this.updateFileDisplay();
+        }
+
+        this.updateUsage();
+        return true;
     }
 
     /**
