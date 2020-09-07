@@ -77,13 +77,14 @@ class Messenger {
         const previousMessage = Messenger.messages[Messenger.messages.length - 1];
         if (previousMessage !== undefined && text === previousMessage.message) {
             const previousElement = $("#messages").children("p")[0];
-            if ($(previousElement).children("span").length === 0) {
+            if ($(previousElement).children(".amount").length === 0) {
                 $("<span>")
+                    .addClass("amount")
                     .hide()
                     .fadeIn()
                     .appendTo(previousElement);
             }
-            $(previousElement).children("span").text(" x" + ++previousMessage.amount);
+            $(previousElement).children(".amount").text(" x" + ++previousMessage.amount);
             return;
         }
         Messenger.messages.push({

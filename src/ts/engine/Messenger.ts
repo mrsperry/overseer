@@ -26,14 +26,15 @@ class Messenger {
             const previousElement: any = $("#messages").children("p")[0];
 
             // Check if there is already a counter
-            if ($(previousElement).children("span").length === 0) {
+            if ($(previousElement).children(".amount").length === 0) {
                 $("<span>")
+                    .addClass("amount")
                     .hide()
                     .fadeIn()
                     .appendTo(previousElement);
             }
             
-            $(previousElement).children("span").text(" x" + ++previousMessage.amount);
+            $(previousElement).children(".amount").text(" x" + ++previousMessage.amount);
             return;
         }
 
