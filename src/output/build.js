@@ -171,6 +171,8 @@ class CoreTask {
     updateCore() {
         if (State.getValue("paused")) {
             this.isPaused = true;
+            const progress = (this.core.getPower() / (this.getCost() * 2)) * (State.getValue("pause-time") - this.startTime);
+            this.core.getCanvas().drawCore(this.isInfinite ? 100 : progress);
             return;
         }
         else if (this.isPaused) {

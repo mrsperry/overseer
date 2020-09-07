@@ -66,6 +66,11 @@ class CoreTask implements ISerializable {
         // Check if the task should pause
         if (State.getValue("paused")) {
             this.isPaused = true;
+
+            // Get the progress of the core when it was paused
+            const progress: number = (this.core.getPower() / (this.getCost() * 2)) * (State.getValue("pause-time") - this.startTime);
+            // Draw the progress
+            this.core.getCanvas().drawCore(this.isInfinite ? 100 : progress);
             return;
         } else if (this.isPaused) {
             this.isPaused = false;
