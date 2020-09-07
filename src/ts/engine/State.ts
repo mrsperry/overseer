@@ -15,11 +15,11 @@ class State {
     public static save(): void {
         Messenger.save();
         Settings.save();
+        Research.save();
 
         CoreManager.save();
         DiskManager.save();
 
-        localStorage.removeItem("save");
         localStorage.setItem("save", JSON.stringify(State.data, null, 4));
     }
 

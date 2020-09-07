@@ -3,18 +3,17 @@ class Research {
     private static maxDisplayed: number = 5;
     /** The delay to use when displaying multiple research options at the same time */
     private static displayDelay: number = 50;
+    /** Exponent used when calculating the cost of research options */
+    private static costExponent: number = 3.25;
+    /** Exponent used when calculating if research options should be displayed */
+    private static displayExponent: number = 2.75;
 
     /** An array containing all research options */
     private static data: any[];
     /** An array containing the index of every purchased research option */
     private static purchased: number[];
-
     /** The current reliability of the player */
     private static reliability: number = 0;
-    /** Exponent used when calculating the cost of research options */
-    private static costExponent: number = 3.25;
-    /** Exponent used when calculating if research options should be displayed */
-    private static displayExponent: number = 2.75;
 
     /**
      * Sets the initial reliability rating and marks research options as purchased
@@ -24,6 +23,14 @@ class Research {
         Research.purchased = State.getValue("research.purchased") || [];
 
         Research.addReliability(State.getValue("research.reliability") || 0);
+    }
+
+    /**
+     * Save all research data to the state
+     */
+    public static save(): void {
+        State.setValue("research.purchased", Research.purchased);
+        State.setValue("research.reliability", Research.reliability);
     }
 
     /**

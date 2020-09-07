@@ -6,9 +6,9 @@ class State {
     static save() {
         Messenger.save();
         Settings.save();
+        Research.save();
         CoreManager.save();
         DiskManager.save();
-        localStorage.removeItem("save");
         localStorage.setItem("save", JSON.stringify(State.data, null, 4));
     }
     static reset() {
@@ -149,7 +149,7 @@ class CoreTask {
     }
     static deserialize(state) {
         const core = CoreManager.getCore(state.core);
-        let disk = DiskManager.getDisk(state.disk);
+        const disk = DiskManager.getDisk(state.disk);
         let task;
         switch (state.type) {
             case 0:
@@ -786,6 +786,10 @@ class Research {
         Research.purchased = State.getValue("research.purchased") || [];
         Research.addReliability(State.getValue("research.reliability") || 0);
     }
+    static save() {
+        State.setValue("research.purchased", Research.purchased);
+        State.setValue("research.reliability", Research.reliability);
+    }
     static addReliability(amount) {
         Research.reliability += amount;
         $("#research").children(".reliability")
@@ -858,9 +862,9 @@ class Research {
 }
 Research.maxDisplayed = 5;
 Research.displayDelay = 50;
-Research.reliability = 0;
 Research.costExponent = 3.25;
 Research.displayExponent = 2.75;
+Research.reliability = 0;
 class Main {
     static async initialize() {
         State.load();
