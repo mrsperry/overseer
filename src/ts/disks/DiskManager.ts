@@ -270,6 +270,6 @@ class DiskManager {
      * @returns Gets the current quarantine disk name
      */
     private static getQuarantineName(): string {
-        return "/quarantine/level-" + DiskManager.threatLevel;
+        return "/quarantine/zone-" + DiskManager.threatLevel;
     }
 }

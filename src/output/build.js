@@ -681,7 +681,7 @@ class DiskManager {
         return DiskManager.diskNames.shift() || "Unavailable";
     }
     static getQuarantineName() {
-        return "/quarantine/level-" + DiskManager.threatLevel;
+        return "/quarantine/zone-" + DiskManager.threatLevel;
     }
 }
 class Settings {
