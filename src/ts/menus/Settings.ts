@@ -10,6 +10,7 @@ class Settings {
     private static mainPicker: any;
     private static accentColor: string;
     private static accentPicker: any;
+    private static originalHue: number = Utils.hexToHue(Settings.reset.mainColor);
 
     /**
      * Initializes all settings
@@ -110,6 +111,11 @@ class Settings {
      */
     private static setColorVariable(name: string, value: string): void {
         $("body").get(0).style.setProperty("--" + name, value);
+
+        // Change the hue of the main menu image if its displayed
+        if (name === "clickable-text") {
+            $("#main-menu-image").css("filter", "hue-rotate(" + (Utils.hexToHue(value) - Settings.originalHue) + "deg)");
+        }
     }
 
     private static resetValues(): void {

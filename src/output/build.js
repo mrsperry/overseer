@@ -513,6 +513,30 @@ class Utils {
     static stringify(number) {
         return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
+    static hexToHue(hex) {
+        let red = "0x" + hex[1] + hex[2];
+        let green = "0x" + hex[3] + hex[4];
+        let blue = "0x" + hex[5] + hex[6];
+        red /= 255;
+        green /= 255;
+        blue /= 255;
+        const max = Math.max(red, green, blue);
+        const min = Math.min(red, green, blue);
+        let hue = 0;
+        let difference = max - min;
+        switch (max) {
+            case red:
+                hue = (green - blue) / difference + (green < blue ? 6 : 0);
+                break;
+            case green:
+                hue = (blue - red) / difference + 2;
+                break;
+            case blue:
+                hue = (red - green) / difference + 4;
+                break;
+        }
+        return hue / 6 * 100 * 3.6;
+    }
 }
 class DiskManager {
     static async initialize() {
@@ -740,6 +764,9 @@ class Settings {
     }
     static setColorVariable(name, value) {
         $("body").get(0).style.setProperty("--" + name, value);
+        if (name === "clickable-text") {
+            $("#main-menu-image").css("filter", "hue-rotate(" + (Utils.hexToHue(value) - Settings.originalHue) + "deg)");
+        }
     }
     static resetValues() {
         Settings.updateColor(Settings.reset.mainColor, false);
@@ -750,6 +777,7 @@ Settings.reset = {
     "mainColor": "#5CD670",
     "accentColor": "#ADEAB7"
 };
+Settings.originalHue = Utils.hexToHue(Settings.reset.mainColor);
 class Stats {
     static async initialize() {
         Stats.data = State.getValue("stats") || await $.getJSON("src/data/stats.json");
