@@ -75,7 +75,13 @@ class Messenger {
         const children: any = $("#messages").children();
 
         for (let index: number = 0; index < children.length; index++) {
-            $(children[index]).css("opacity", 1 - (index / Messenger.maxMessages));
+            const child: any = $(children[index]);
+
+            if (index !== 0) {
+                child.stop();
+            }
+
+            child.css("opacity", 1 - (index / Messenger.maxMessages));
         }
     }
 }

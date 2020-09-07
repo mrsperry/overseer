@@ -110,7 +110,11 @@ class Messenger {
     static applyOpacity() {
         const children = $("#messages").children();
         for (let index = 0; index < children.length; index++) {
-            $(children[index]).css("opacity", 1 - (index / Messenger.maxMessages));
+            const child = $(children[index]);
+            if (index !== 0) {
+                child.stop();
+            }
+            child.css("opacity", 1 - (index / Messenger.maxMessages));
         }
     }
 }
