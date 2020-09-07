@@ -887,19 +887,24 @@ class Research {
         switch (type) {
             case "add-core":
                 CoreManager.addCore(1);
+                Messenger.write("New core online; auxillary <span class='clickable-no-click'>task processing</span> is available");
                 break;
             case "core-speeds":
                 CoreManager.upgradeCoreSpeeds();
+                Messenger.write("Primary cores cleared for additional <span class='clickable-no-click'>overclocking</span> and recycling");
                 break;
             case "add-disk":
                 DiskManager.addDisk(false);
+                Messenger.write("Additional <span class='clickable-no-click'>disk drive</span> mounted and initialized");
                 break;
             case "disk-size":
                 DiskManager.upgradeDiskStorage();
+                Messenger.write("Disk drive <span class='clickable-no-click'>storage</span> has been greatly expanded");
                 break;
             case "threat-level":
                 DiskManager.addThreatLevel();
                 DiskManager.addDisk(true);
+                Messenger.write("Disk fabrication and <span class='clickable-no-click'>quarantine zone</span> conversion complete");
                 break;
         }
     }
