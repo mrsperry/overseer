@@ -1,6 +1,8 @@
 class State {
     /** Game state data */
     private static data: any;
+    /** If the game is currently being played */
+    private static playing: boolean = false;
 
     /**
      * Gets the current state from local storage
@@ -13,13 +15,16 @@ class State {
      * Saves the current state to local storage
      */
     public static save(): void {
-        Messenger.save();
         Settings.save();
         Stats.save();
-        Research.save();
 
-        CoreManager.save();
-        DiskManager.save();
+        // Check if the game is currently being played
+        if (State.playing) {
+            Messenger.save();
+            Research.save();
+            CoreManager.save();
+            DiskManager.save();
+        }
 
         localStorage.setItem("save", JSON.stringify(State.data, null, 4));
     }
@@ -36,7 +41,7 @@ class State {
             "settings": State.data.settings || {},
             "stats": State.data.stats || {}
         }, null, 4));
-        
+
         window.location.reload();
     }
 
@@ -106,5 +111,12 @@ class State {
             State.setValue("paused", true);
             State.setValue("pause-time", Date.now());
         }
+    }
+
+    /**
+     * Indicates that the game is currently being played
+     */
+    public static gameStarted(): void {
+        State.playing = true;
     }
 }

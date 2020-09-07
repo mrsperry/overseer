@@ -26,8 +26,9 @@ class Main {
                     .fadeIn()
                     .css("display", "flex");
 
+                State.gameStarted();
+
                 Messenger.initialize();
-        
                 await DiskManager.initialize();
                 CoreManager.initialize();
                 await Research.initialize();

@@ -4,12 +4,14 @@ class State {
         State.data = JSON.parse(localStorage.getItem("save") || "{}");
     }
     static save() {
-        Messenger.save();
         Settings.save();
         Stats.save();
-        Research.save();
-        CoreManager.save();
-        DiskManager.save();
+        if (State.playing) {
+            Messenger.save();
+            Research.save();
+            CoreManager.save();
+            DiskManager.save();
+        }
         localStorage.setItem("save", JSON.stringify(State.data, null, 4));
     }
     static reset() {
@@ -58,7 +60,11 @@ class State {
             State.setValue("pause-time", Date.now());
         }
     }
+    static gameStarted() {
+        State.playing = true;
+    }
 }
+State.playing = false;
 class Messenger {
     static initialize() {
         for (const message of State.getValue("messages.history") || []) {
@@ -892,6 +898,7 @@ class Main {
             $("footer")
                 .fadeIn()
                 .css("display", "flex");
+            State.gameStarted();
             Messenger.initialize();
             await DiskManager.initialize();
             CoreManager.initialize();
