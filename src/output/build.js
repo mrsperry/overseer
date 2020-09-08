@@ -654,6 +654,7 @@ class DiskManager {
     }
     static addThreatLevel() {
         DiskManager.threatLevel++;
+        Research.incrementExponent(DiskManager.threatLevel);
     }
     static getThreatLevel() {
         return DiskManager.threatLevel;
@@ -852,13 +853,23 @@ class Research {
     static displayResearch() {
         for (let index = 1; index <= Research.data.length; index++) {
             const item = Research.data[index - 1];
-            const disabled = Research.reliability < (index * Research.costExponent) - 1.5;
+            let cost = Research.baseCost * (index === 1 ? 1 : (index - 1) * Research.costExponent);
+            let fraction = cost - Math.floor(cost);
+            fraction -= fraction % 0.25;
+            cost = Math.floor(cost) + fraction;
+            const disabled = Research.reliability < cost;
             const child = $("#research-" + index);
             if (child.length !== 0) {
                 $(child).prop("disabled", disabled);
                 continue;
             }
-            if (Research.purchased.includes(index) || Research.reliability < (index * Research.displayExponent) - 1.5) {
+            if (Research.purchased.includes(index)) {
+                continue;
+            }
+            if (Research.reliability < Research.baseDisplay * (index === 1 ? 1 : (index - 1) * Research.costExponent)) {
+                continue;
+            }
+            if (DiskManager.getThreatLevel() < item.level) {
                 continue;
             }
             if ($("#research").children("button").length === Research.maxDisplayed) {
@@ -884,7 +895,7 @@ class Research {
                 .text(item.title)
                 .appendTo(parent);
             $("<span>")
-                .text("+" + Utils.formatID(item.type) + " (" + ((index * Research.costExponent) - 1.5) + ")")
+                .text("+" + Utils.formatID(item.type) + " (" + cost + ")")
                 .appendTo(parent);
         }
     }
@@ -915,11 +926,16 @@ class Research {
                 break;
         }
     }
+    static incrementExponent(amount) {
+        Research.costExponent += 0.09 * amount;
+        Research.baseDisplay += 0.1;
+    }
 }
 Research.maxDisplayed = 5;
 Research.displayDelay = 50;
-Research.costExponent = 2.25;
-Research.displayExponent = 1.75;
+Research.baseCost = 0.75;
+Research.baseDisplay = 0.5;
+Research.costExponent = 2.35;
 Research.reliability = 0;
 class Main {
     static async initialize() {

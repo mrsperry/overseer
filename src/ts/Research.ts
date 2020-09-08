@@ -3,10 +3,12 @@ class Research {
     private static maxDisplayed: number = 5;
     /** The delay to use when displaying multiple research options at the same time */
     private static displayDelay: number = 50;
+    /** The base cost to use for research options */
+    private static baseCost: number = 0.75;
+    /** The base cost to use for displaying research options */
+    private static baseDisplay: number = 0.5;
     /** Exponent used when calculating the cost of research options */
-    private static costExponent: number = 2.25;
-    /** Exponent used when calculating if research options should be displayed */
-    private static displayExponent: number = 1.75;
+    private static costExponent: number = 2.35;
 
     /** An array containing all research options */
     private static data: any[];
@@ -59,8 +61,14 @@ class Research {
         for (let index: number = 1; index <= Research.data.length; index++) {
             // Get the research option
             const item: any = Research.data[index - 1];
+            // Calculate the cost of this research option
+            let cost: number = Research.baseCost * (index === 1 ? 1 : (index - 1) * Research.costExponent);
+            // Round the fraction of the cost to the nearest 25th
+            let fraction: number = cost - Math.floor(cost);
+            fraction -= fraction % 0.25;
+            cost = Math.floor(cost) + fraction;
             // Check if this option should be disabled (reliability <= cost)
-            const disabled: boolean = Research.reliability < (index * Research.costExponent) - 1.5;
+            const disabled: boolean = Research.reliability < cost;
 
             // If the option is already displayed update its disable state
             const child: any = $("#research-" + index);
@@ -69,8 +77,18 @@ class Research {
                 continue;
             }
 
-            // Check if this option has been purchased or if there is not enough reliability to display (reliability <= display cost)
-            if (Research.purchased.includes(index) || Research.reliability < (index * Research.displayExponent) - 1.5) {
+            // Check if this option has been purchased
+            if (Research.purchased.includes(index)) {
+                continue;
+            }
+
+            // Check if there is not enough reliability to display (reliability <= display cost)
+            if (Research.reliability < Research.baseDisplay * (index === 1 ? 1 : (index - 1) * Research.costExponent)) {
+                continue;
+            }
+
+            // Check if the options threat level is not greater than the current threat level
+            if (DiskManager.getThreatLevel() < item.level) {
                 continue;
             }
 
@@ -102,7 +120,7 @@ class Research {
                 .text(item.title)
                 .appendTo(parent);
             $("<span>")
-                .text("+" + Utils.formatID(item.type) + " (" + ((index * Research.costExponent) - 1.5) + ")")
+                .text("+" + Utils.formatID(item.type) + " (" + cost + ")")
                 .appendTo(parent);
         }
     }
@@ -138,5 +156,14 @@ class Research {
                 Messenger.write("Disk fabrication and <span class='clickable-no-click'>quarantine zone</span> conversion complete");
                 break;
         }
+    }
+
+    /**
+     * Increases the cost of all research and corrects the display cost accordingly
+     * @param amount The amount to increment by
+     */
+    public static incrementExponent(amount: number): void {
+        Research.costExponent += 0.09 * amount;
+        Research.baseDisplay += 0.1;
     }
 }

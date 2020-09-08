@@ -1,74 +1,92 @@
 [
     {
         "title": "Multithreading",
-        "type": "core-speeds"
+        "type": "core-speeds",
+        "level": 1
     },
     {
         "title": "Multiband Compression",
-        "type": "disk-size"
+        "type": "disk-size",
+        "level": 1
     },
     {
         "title": "Parallelization",
-        "type": "add-core"
+        "type": "add-core",
+        "level": 1
     },
     {
         "title": "Flash Drive Utilization",
-        "type": "add-disk"
-    },
-    {
-        "title": "Threat Database",
-        "type": "threat-level"
+        "type": "add-disk",
+        "level": 1
     },
     {
         "title": "HDD Usage",
-        "type": "add-disk"
+        "type": "add-disk",
+        "level": 1
     },
     {
         "title": "Clock Speed Sync",
-        "type": "core-speeds"
+        "type": "core-speeds",
+        "level": 1
+    },
+    {
+        "title": "Threat Database",
+        "type": "threat-level",
+        "level": 1
     },
     {
         "title": "Solid State Drives",
-        "type": "add-disk"
+        "type": "add-disk",
+        "level": 2
     },
     {
         "title": "Lookahead Compression",
-        "type": "disk-size"
+        "type": "disk-size",
+        "level": 2
     },
     {
         "title": "m.2 Allocation",
-        "type": "add-disk"
-    },
-    {
-        "title": "GPU Threading",
-        "type": "core-speeds"
-    },
-    {
-        "title": "File System Exploitation",
-        "type": "add-disk"
+        "type": "add-disk",
+        "level": 2
     },
     {
         "title": "Virtualization",
-        "type": "add-core"
+        "type": "add-core",
+        "level": 2
     },
     {
-        "title": "Cloud Storage",
-        "type": "add-disk"
+        "title": "File System Exploitation",
+        "type": "add-disk",
+        "level": 2
     },
     {
         "title": "Open Source Databases",
-        "type": "threat-level"
+        "type": "threat-level",
+        "level": 2
+    },
+    {
+        "title": "Cloud Storage",
+        "type": "add-disk",
+        "level": 3
+    },
+    {
+        "title": "GPU Threading",
+        "type": "core-speeds",
+        "level": 3
     },
     {
         "title": "Defragmentation",
-        "type": "add-disk"
+        "type": "add-disk",
+        "level": 3
     },
     {
         "title": "Hardware Reclamation",
-        "type": "add-core"
+        "type": "add-core",
+        "level": 3
     },
     {
         "title": "Drive Arrays",
-        "type": "add-disk"
+        "type": "add-disk",
+        "level": 3
     }
 ]

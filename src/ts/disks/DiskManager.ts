@@ -204,6 +204,8 @@ class DiskManager {
      */
     public static addThreatLevel(): void {
         DiskManager.threatLevel++;
+
+        Research.incrementExponent(DiskManager.threatLevel);
     }
 
     /**
