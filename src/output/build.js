@@ -1211,7 +1211,7 @@ class DiskFile {
         const extension = Utils.random(DiskManager.getFileExtensions());
         this.name = name + "." + extension;
         this.size = Utils.random(1, 20 + ((threatLevel - 1) * 100));
-        this.isThreat = Utils.random(0, 1 + (threatLevel * 7)) == 0;
+        this.isThreat = Utils.random(0, 1 + (threatLevel * 5)) == 0;
     }
     static deserialize(state) {
         const file = new DiskFile(0);

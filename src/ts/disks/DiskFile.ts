@@ -22,7 +22,7 @@ class DiskFile implements ISerializable {
 
         this.size = Utils.random(1, 20 + ((threatLevel - 1) * 100));
 
-        this.isThreat = Utils.random(0, 1 + (threatLevel * 7)) == 0;
+        this.isThreat = Utils.random(0, 1 + (threatLevel * 5)) == 0;
     }
 
     /**
