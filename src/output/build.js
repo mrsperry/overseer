@@ -816,8 +816,14 @@ class Stats {
                 .text(Utils.capitalize(namespace))
                 .appendTo(list);
             for (const stat in Stats.data[namespace]) {
+                const amount = Stats.data[namespace][stat];
+                const whole = Math.floor(amount);
+                let result = Utils.stringify(whole);
+                if (amount % 1 !== 0) {
+                    result += (amount - whole).toFixed(2).substring(1, 4);
+                }
                 $("<li>")
-                    .text(Utils.formatID(stat) + ": " + Utils.stringify(Stats.data[namespace][stat].toFixed(2)))
+                    .text(Utils.formatID(stat) + ": " + result)
                     .appendTo(list);
             }
         }

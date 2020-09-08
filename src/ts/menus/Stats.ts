@@ -68,8 +68,19 @@ class Stats {
                 .appendTo(list);
 
             for (const stat in Stats.data[namespace]) {
+                // Get the value of the stat
+                const amount: number = Stats.data[namespace][stat];
+                const whole: number = Math.floor(amount);
+
+                // Add commas to the whole part of the number
+                let result = Utils.stringify(whole);
+                // Add a fixed decimal if available
+                if (amount % 1 !== 0) {
+                    result += (amount - whole).toFixed(2).substring(1, 4);
+                }
+
                 $("<li>")
-                    .text(Utils.formatID(stat) + ": " + Utils.stringify(Stats.data[namespace][stat].toFixed(2)))
+                    .text(Utils.formatID(stat) + ": " + result)
                     .appendTo(list);
             }
         }
