@@ -4,9 +4,9 @@ class Research {
     /** The delay to use when displaying multiple research options at the same time */
     private static displayDelay: number = 50;
     /** Exponent used when calculating the cost of research options */
-    private static costExponent: number = 3.25;
+    private static costExponent: number = 2.25;
     /** Exponent used when calculating if research options should be displayed */
-    private static displayExponent: number = 2.75;
+    private static displayExponent: number = 1.75;
 
     /** An array containing all research options */
     private static data: any[];
@@ -60,7 +60,7 @@ class Research {
             // Get the research option
             const item: any = Research.data[index - 1];
             // Check if this option should be disabled (reliability <= cost)
-            const disabled: boolean = Research.reliability < 1 + (index * Research.costExponent);
+            const disabled: boolean = Research.reliability < (index * Research.costExponent) - 1.5;
 
             // If the option is already displayed update its disable state
             const child: any = $("#research-" + index);
@@ -70,7 +70,7 @@ class Research {
             }
 
             // Check if this option has been purchased or if there is not enough reliability to display (reliability <= display cost)
-            if (Research.purchased.includes(index) || Research.reliability < 1 + (index * Research.displayExponent)) {
+            if (Research.purchased.includes(index) || Research.reliability < (index * Research.displayExponent) - 1.5) {
                 continue;
             }
 
@@ -102,7 +102,7 @@ class Research {
                 .text(item.title)
                 .appendTo(parent);
             $("<span>")
-                .text("+" + Utils.formatID(item.type) + " (" + (1 + (index * Research.costExponent)) + ")")
+                .text("+" + Utils.formatID(item.type) + " (" + ((index * Research.costExponent) - 1.5) + ")")
                 .appendTo(parent);
         }
     }

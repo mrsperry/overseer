@@ -852,13 +852,13 @@ class Research {
     static displayResearch() {
         for (let index = 1; index <= Research.data.length; index++) {
             const item = Research.data[index - 1];
-            const disabled = Research.reliability < 1 + (index * Research.costExponent);
+            const disabled = Research.reliability < (index * Research.costExponent) - 1.5;
             const child = $("#research-" + index);
             if (child.length !== 0) {
                 $(child).prop("disabled", disabled);
                 continue;
             }
-            if (Research.purchased.includes(index) || Research.reliability < 1 + (index * Research.displayExponent)) {
+            if (Research.purchased.includes(index) || Research.reliability < (index * Research.displayExponent) - 1.5) {
                 continue;
             }
             if ($("#research").children("button").length === Research.maxDisplayed) {
@@ -884,7 +884,7 @@ class Research {
                 .text(item.title)
                 .appendTo(parent);
             $("<span>")
-                .text("+" + Utils.formatID(item.type) + " (" + (1 + (index * Research.costExponent)) + ")")
+                .text("+" + Utils.formatID(item.type) + " (" + ((index * Research.costExponent) - 1.5) + ")")
                 .appendTo(parent);
         }
     }
@@ -918,8 +918,8 @@ class Research {
 }
 Research.maxDisplayed = 5;
 Research.displayDelay = 50;
-Research.costExponent = 3.25;
-Research.displayExponent = 2.75;
+Research.costExponent = 2.25;
+Research.displayExponent = 1.75;
 Research.reliability = 0;
 class Main {
     static async initialize() {
