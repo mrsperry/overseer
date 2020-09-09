@@ -1,35 +1,51 @@
 class Settings {
+    /** The main content modal */
     private static modal: Modal;
-
+    /** Default fallback values used when resetting */
     private static reset: any = {
         "mainColor": "#5CD670",
         "accentColor": "#ADEAB7"
     };
 
+    /** The main color currently in use */
     private static mainColor: string;
+    /** The main color picker element */
     private static mainPicker: any;
+    /** The accent color currently in use */
     private static accentColor: string;
+    /** The accent color picker element */
     private static accentPicker: any;
+    /** The original hue of the main color */
     private static originalHue: number = Utils.hexToHue(Settings.reset.mainColor);
 
     /**
      * Initializes all settings
      */
     public static initialize(): void {
+        // Set the main color
         Settings.mainColor = State.getValue("settings.main-color") || Settings.reset.mainColor;
+        // Set the clickable text color
         Settings.setColorVariable("clickable-text", Settings.mainColor);
+
+        // Set the accent color
         Settings.accentColor = State.getValue("settings.accent-color") || Settings.reset.accentColor;
+        // Set the accent text color
         Settings.setColorVariable("clickable-text-hover", Settings.accentColor);
     }
 
+    /**
+     * Displays the settings menu
+     */
     public static show(): void {
         Settings.modal = new Modal("settings");
 
         const content: any = Settings.modal.getContent();
+        // Set the header
         $("<h1>")
             .text("Settings")
             .appendTo(content);
 
+        // Create the main color picker
         const mainColor: any = $("<div>")
             .addClass("color-picker")
             .appendTo(content);
@@ -47,6 +63,7 @@ class Settings {
             .text("Example text")
             .appendTo(mainColor);
 
+        // Create the accent color picker
         const accentColor: any = $("<div>")
             .addClass("color-picker")
             .appendTo(content);
@@ -64,6 +81,7 @@ class Settings {
             .text("Example text")
             .appendTo(accentColor);
 
+        // Create the reset settings and restart game links
         const resets: any = $("<div>")
             .addClass("resets")
             .appendTo(content);
@@ -78,6 +96,7 @@ class Settings {
             .click((): void => State.reset())
             .appendTo(resets);
 
+        // Add the close button
         const close: any = $("<button>")
             .addClass("bordered")
             .click((): void => Settings.modal.remove())
@@ -95,9 +114,16 @@ class Settings {
         State.setValue("settings.accent-color", Settings.accentColor);
     }
 
+    /**
+     * Updates a color picker
+     * @param value The newly selected hex value
+     * @param hover If this color is the accent color
+     */
     private static updateColor(value: string, hover: boolean): void {
+        // Set the global CSS variable
         Settings.setColorVariable("clickable-text" + (hover ? "-hover" : ""), value);
 
+        // Set the color picker values
         if (hover) {
             Settings.accentColor = value;
             Settings.accentPicker.get(0).value = value;
@@ -121,6 +147,9 @@ class Settings {
         }
     }
 
+    /**
+     * Resets all settings
+     */
     private static resetValues(): void {
         Settings.updateColor(Settings.reset.mainColor, false);
         Settings.updateColor(Settings.reset.accentColor, true);
