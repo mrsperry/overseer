@@ -11,5 +11,8 @@ Dates are formatted as year-month-day.
 - Core power now matches the maximum number of core speed upgrades you have
 - Moved `Reset settings` to the same line as `Restart game` in the settings menu and made it permanently red
 
+### Bug fixes
+- Fixed core upgrade buttons wrongly enabling after reload
+
 ## v1.0.0 - 2020-09-08
 ### Initial public release

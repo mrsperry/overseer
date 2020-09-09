@@ -282,11 +282,11 @@ class CoreTask {
     }
 }
 class Core {
-    constructor(id, power, upgrades) {
+    constructor(id) {
         this.id = id;
-        this.power = power;
-        this.upgrades = upgrades;
         this.task = null;
+        this.power = 1;
+        this.upgrades = 0;
         const parent = $("<div>")
             .attr("id", "core-" + id)
             .addClass("core")
@@ -325,21 +325,21 @@ class Core {
             .click(() => this.searchForFiles())
             .appendTo(this.info);
         this.setCoreTaskDisplay();
-        this.updatePower(power);
+        this.updatePower();
         this.updateButtons();
-        for (let index = 0; index < this.upgrades; index++) {
-            this.updatePower(this.power * 2);
-        }
     }
     static deserialize(state) {
-        const core = CoreManager.addCore(state.power, false);
-        core.upgrades = state.upgrades;
+        const core = CoreManager.addCore(false);
+        core.setUpgrades(state.upgrades);
         if (state.task !== null) {
             CoreTask.deserialize(state.task);
         }
     }
-    updatePower(power) {
-        this.power = power;
+    updatePower() {
+        let power = 1;
+        for (let index = 0; index < this.upgrades; index++) {
+            power *= 2;
+        }
         this.info.children(".core-power")
             .text(" @ " + power + "Mhz");
     }
@@ -363,15 +363,15 @@ class Core {
         this.info.children(".cancel-button")
             .prop("disabled", !this.isBusy());
         this.info.children(".overclock-button")
-            .prop("disabled", this.upgrades >= CoreManager.getMaxCoreUpgrades() || this.isBusy());
+            .prop("disabled", this.upgrades === CoreManager.getMaxCoreUpgrades() || this.isBusy());
         this.info.children(".search-button")
             .prop("disabled", this.isBusy());
     }
     overclock() {
         const task = CoreTask.create("Overclocking core", this.power * 1000, CoreTaskType.Overclock);
         task.setOnComplete(() => {
-            this.updatePower(this.power * 2);
             this.upgrades++;
+            this.updatePower();
             Stats.increment("cores", "times-overclocked");
         }).run(this);
         return task;
@@ -391,6 +391,11 @@ class Core {
     }
     getPower() {
         return this.power;
+    }
+    setUpgrades(upgrades) {
+        this.upgrades = upgrades;
+        this.updatePower();
+        this.updateButtons();
     }
     isBusy() {
         return this.task?.isBusy() || false;
@@ -416,7 +421,7 @@ class CoreManager {
             Core.deserialize(core);
         }
         if (CoreManager.coreList.length === 0) {
-            CoreManager.addCore(1, false);
+            CoreManager.addCore(false);
         }
     }
     static save() {
@@ -429,8 +434,9 @@ class CoreManager {
         }
         State.setValue("cores", data);
     }
-    static addCore(power, count = true) {
-        const core = new Core(CoreManager.coreList.length, power, CoreManager.maxCoreUpgrades);
+    static addCore(count = true) {
+        const core = new Core(CoreManager.coreList.length);
+        core.setUpgrades(CoreManager.maxCoreUpgrades);
         CoreManager.coreList.push(core);
         if (count) {
             Stats.increment("cores", "cores-obtained");
@@ -916,7 +922,7 @@ class Research {
         Stats.increment("research", "research-purchased");
         switch (type) {
             case "add-core":
-                CoreManager.addCore(1);
+                CoreManager.addCore();
                 Messenger.write("New core online; auxillary <span class='clickable-no-click'>task processing</span> is available");
                 break;
             case "core-speeds":

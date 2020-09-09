@@ -12,12 +12,15 @@ class Core implements ISerializable {
     /** The current core task */
     private task: CoreTask | null = null;
 
+    private power: number = 1;
+    private upgrades: number = 0;
+
     /**
      * Creates a new core
      * @param id The ID of the core
      * @param power The power of the core
      */
-    public constructor(private id: number, private power: number, private upgrades: number) {
+    public constructor(private id: number) {
         // Append the core HTML
         const parent: any = $("<div>")
             .attr("id", "core-" + id)
@@ -64,14 +67,9 @@ class Core implements ISerializable {
         // Set the idle display
         this.setCoreTaskDisplay();
         // Set the power display
-        this.updatePower(power);
+        this.updatePower();
         // Disable both core buttons
         this.updateButtons();
-
-        // Update the power of this core until it is at the current number of upgrades
-        for (let index: number = 0; index < this.upgrades; index++) {
-            this.updatePower(this.power * 2);
-        }
     }
 
     /**
@@ -79,8 +77,8 @@ class Core implements ISerializable {
      * @param state The serialized state to use to create the core
      */
     public static deserialize(state: any): void {
-        const core: Core = CoreManager.addCore(state.power, false);
-        core.upgrades = state.upgrades;
+        const core: Core = CoreManager.addCore(false);
+        core.setUpgrades(state.upgrades);
 
         if (state.task !== null) {
             CoreTask.deserialize(state.task);
@@ -88,11 +86,13 @@ class Core implements ISerializable {
     }
 
     /**
-     * Sets the power level of this core
-     * @param power The current power level
+     * Sets the power level of this core and updates the display
      */
-    public updatePower(power: number): void {
-        this.power = power;
+    public updatePower(): void {
+        let power: number = 1;
+        for (let index: number = 0; index < this.upgrades; index++) {
+            power *= 2;
+        }
 
         this.info.children(".core-power")
             .text(" @ " + power + "Mhz");
@@ -133,7 +133,7 @@ class Core implements ISerializable {
             .prop("disabled", !this.isBusy());
 
         this.info.children(".overclock-button")
-            .prop("disabled", this.upgrades >= CoreManager.getMaxCoreUpgrades() || this.isBusy());
+            .prop("disabled", this.upgrades === CoreManager.getMaxCoreUpgrades() || this.isBusy());
 
         this.info.children(".search-button")
             .prop("disabled", this.isBusy());
@@ -147,8 +147,8 @@ class Core implements ISerializable {
         const task: CoreTask = CoreTask.create("Overclocking core", this.power * 1000, CoreTaskType.Overclock);
 
         task.setOnComplete((): void => {
-            this.updatePower(this.power * 2);
             this.upgrades++;
+            this.updatePower();
 
             Stats.increment("cores", "times-overclocked");
         }).run(this);
@@ -189,6 +189,16 @@ class Core implements ISerializable {
      */
     public getPower(): number {
         return this.power;
+    }
+
+    /**
+     * @param upgrades The number of upgrades this core should have
+     */
+    public setUpgrades(upgrades: number): void {
+        this.upgrades = upgrades;
+        
+        this.updatePower();
+        this.updateButtons();
     }
 
     /**
