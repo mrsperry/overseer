@@ -43,4 +43,30 @@
         display: flex;
         justify-content: space-between;
     }
+
+    .disk .disk-info {
+        display: flex;
+        justify-content: space-between;
+        
+        button {
+            transition: opacity 250ms ease-in-out,
+                        color 250ms ease-in-out;
+            margin-right: 0.5rem;
+
+            &:active, &:hover {
+                color: var(--clickable-text-hover);
+            }
+
+            &:disabled {
+                cursor: default;
+                color: variables.$main-text;
+                opacity: 0.5;
+            }
+        }
+
+        span {
+            text-align: right;
+            width: 2.25rem;
+        }
+    }
 }
