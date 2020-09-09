@@ -1133,8 +1133,8 @@ class Disk {
         if (this.displayed) {
             this.setDisplayed(false);
             DiskManager.displayFiles(this);
-            this.updateInfo();
         }
+        this.updateInfo();
         return true;
     }
     wipeDisk(operation, core) {

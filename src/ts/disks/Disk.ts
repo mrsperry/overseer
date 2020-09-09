@@ -234,8 +234,9 @@ class Disk implements ISerializable {
         if (this.displayed) {
             this.setDisplayed(false);
             DiskManager.displayFiles(this);
-            this.updateInfo();
         }
+
+        this.updateInfo();
 
         return true;
     }
@@ -297,7 +298,7 @@ class Disk implements ISerializable {
             if (this.displayed) {
                 this.updateFileDisplay();
             }
-            
+
             this.updateInfo();
         } else {
             Messenger.write("No cores are currently available");

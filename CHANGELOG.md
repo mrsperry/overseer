@@ -13,6 +13,7 @@ Dates are formatted as year-month-day.
 
 ### Bug fixes
 - Fixed core upgrade buttons wrongly enabling after reload
+- Fixed quarantine zones not updating their usage percentage if their files were not displayed
 
 ## v1.0.0 - 2020-09-08
 ### Initial public release
