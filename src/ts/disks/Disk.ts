@@ -36,12 +36,19 @@ class Disk implements ISerializable {
             .text(name)
             .click((): void => DiskManager.displayFiles(this))
             .appendTo(this.parent);
+        const info: any = $("<span>")
+            .addClass("disk-info")
+            .appendTo(this.parent);
+        $("<button>")
+            .addClass("clickable-no-click")
+            .text("[" + (isQuarantine ? "x" : "+") + "]")
+            .appendTo(info);
         $("<span>")
             .addClass("disk-usage")
-            .appendTo(this.parent);
+            .appendTo(info);
 
-        // Set the usage percentage
-        this.updateUsage();
+        // Update the info section
+        this.updateInfo();
     }
 
     /**
@@ -141,15 +148,28 @@ class Disk implements ISerializable {
             this.updateFileDisplay();
         }
 
-        this.updateUsage();
+        this.updateInfo();
         return true;
     }
 
     /**
-     * Sets the HTML usage display using a percentage
+     * Updates the scan/purge button and the usage percentage
      */
-    private updateUsage(): void {
-        this.parent.children(".disk-usage")
+    private updateInfo(): void {
+        const info: any = this.parent.children(".disk-info");
+        
+        // Check if the scan/purge button should be disabled
+        const disabled: boolean = this.isWiping || this.getUsage() === 0;
+        const button: any = info.children("button")
+            .prop("disabled", disabled)
+            .off("click");
+        // Set the click event for the button
+        if (!disabled) {
+            button.click((): CoreTask => this.wipeDisk(this.isQuarantine));
+        }
+
+        // Update usage percentage
+        info.children(".disk-usage")
             .text(Math.floor((this.getUsage() / this.maxStorage) * 100) + "%");
     }
 
@@ -214,7 +234,7 @@ class Disk implements ISerializable {
         if (this.displayed) {
             this.setDisplayed(false);
             DiskManager.displayFiles(this);
-            this.updateUsage();
+            this.updateInfo();
         }
 
         return true;
@@ -249,7 +269,7 @@ class Disk implements ISerializable {
                     this.updateFileDisplay();
                 }
 
-                this.updateUsage();
+                this.updateInfo();
 
                 this.isWiping = false;
             })
@@ -259,6 +279,8 @@ class Disk implements ISerializable {
                 if (this.displayed) {
                     this.updateFileDisplay();
                 }
+
+                this.updateInfo();
             })
             .setDisk(this);
         
@@ -271,7 +293,12 @@ class Disk implements ISerializable {
         // Update header if the task can be run
         if (task.run(core)) {
             this.isWiping = true;
-            this.updateFileDisplay();
+
+            if (this.displayed) {
+                this.updateFileDisplay();
+            }
+            
+            this.updateInfo();
         } else {
             Messenger.write("No cores are currently available");
         }
@@ -350,7 +377,7 @@ class Disk implements ISerializable {
      */
     public setSize(size: number): void {
         this.maxStorage = size;
-        this.updateUsage();
+        this.updateInfo();
     }
 
     /**

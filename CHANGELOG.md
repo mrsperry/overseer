@@ -4,6 +4,9 @@ This changelog is for the HTML5 idle/incremental game [Overseer](https://mrsperr
 Dates are formatted as year-month-day.
 
 ## Upcoming changes
+### Additions
+- Added scan/purge buttons next to disk usage percentages
+
 ### Changes
 - Moved `Reset settings` to the same line as `Restart game` in the settings menu and made it permanently red
 

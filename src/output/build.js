@@ -1004,10 +1004,17 @@ class Disk {
             .text(name)
             .click(() => DiskManager.displayFiles(this))
             .appendTo(this.parent);
+        const info = $("<span>")
+            .addClass("disk-info")
+            .appendTo(this.parent);
+        $("<button>")
+            .addClass("clickable-no-click")
+            .text("[" + (isQuarantine ? "x" : "+") + "]")
+            .appendTo(info);
         $("<span>")
             .addClass("disk-usage")
-            .appendTo(this.parent);
-        this.updateUsage();
+            .appendTo(info);
+        this.updateInfo();
     }
     static deserialize(state) {
         const disk = DiskManager.addDisk(state.isQuarantine, false, state.name);
@@ -1061,11 +1068,19 @@ class Disk {
             }
             this.updateFileDisplay();
         }
-        this.updateUsage();
+        this.updateInfo();
         return true;
     }
-    updateUsage() {
-        this.parent.children(".disk-usage")
+    updateInfo() {
+        const info = this.parent.children(".disk-info");
+        const disabled = this.isWiping || this.getUsage() === 0;
+        const button = info.children("button")
+            .prop("disabled", disabled)
+            .off("click");
+        if (!disabled) {
+            button.click(() => this.wipeDisk(this.isQuarantine));
+        }
+        info.children(".disk-usage")
             .text(Math.floor((this.getUsage() / this.maxStorage) * 100) + "%");
     }
     updateFileDisplay(delay = 0) {
@@ -1109,7 +1124,7 @@ class Disk {
         if (this.displayed) {
             this.setDisplayed(false);
             DiskManager.displayFiles(this);
-            this.updateUsage();
+            this.updateInfo();
         }
         return true;
     }
@@ -1130,7 +1145,7 @@ class Disk {
                 }
                 this.updateFileDisplay();
             }
-            this.updateUsage();
+            this.updateInfo();
             this.isWiping = false;
         })
             .setOnCancel(() => {
@@ -1138,6 +1153,7 @@ class Disk {
             if (this.displayed) {
                 this.updateFileDisplay();
             }
+            this.updateInfo();
         })
             .setDisk(this);
         if (type === CoreTaskType.Scan && !DiskManager.isQuarantineAvailable()) {
@@ -1146,7 +1162,10 @@ class Disk {
         }
         if (task.run(core)) {
             this.isWiping = true;
-            this.updateFileDisplay();
+            if (this.displayed) {
+                this.updateFileDisplay();
+            }
+            this.updateInfo();
         }
         else {
             Messenger.write("No cores are currently available");
@@ -1194,7 +1213,7 @@ class Disk {
     }
     setSize(size) {
         this.maxStorage = size;
-        this.updateUsage();
+        this.updateInfo();
     }
     isQuarantineStorage() {
         return this.isQuarantine;
