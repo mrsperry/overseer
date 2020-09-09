@@ -6,6 +6,7 @@ Dates are formatted as year-month-day.
 ## Upcoming changes
 ### Additions
 - Added scan/purge buttons next to disk usage percentages
+- Added a message to the `OrderedNumbers` hack to differentiate it from `NumberMultiples`
 
 ### Changes
 - Core power now matches the maximum number of core speed upgrades you have

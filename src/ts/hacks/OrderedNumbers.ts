@@ -47,6 +47,10 @@ class OrderedNumbers extends Hack {
     public addContent(): void {
         super.addContent();
 
+        $("<h1>")
+            .text("Linear number sequence detected!")
+            .appendTo(this.content);
+
         const parent: any = $("<table>")
             .addClass("ordered-numbers")
             .appendTo(this.content);
