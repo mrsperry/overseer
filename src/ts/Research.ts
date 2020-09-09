@@ -135,7 +135,7 @@ class Research {
 
         switch (type) {
             case "add-core":
-                CoreManager.addCore(1);
+                CoreManager.addCore();
                 Messenger.write("New core online; auxillary <span class='clickable-no-click'>task processing</span> is available");
                 break;
             case "core-speeds":

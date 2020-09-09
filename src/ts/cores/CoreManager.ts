@@ -21,7 +21,7 @@ class CoreManager {
 
         // Add initial core if none were saved
         if (CoreManager.coreList.length === 0) {
-            CoreManager.addCore(1, false);
+            CoreManager.addCore(false);
         }
     }
 
@@ -47,8 +47,9 @@ class CoreManager {
      * @param count If this core should be added as a statistic
      * @returns The created core
      */
-    public static addCore(power: number, count: boolean = true): Core {
-        const core: Core = new Core(CoreManager.coreList.length, power, CoreManager.maxCoreUpgrades);
+    public static addCore(count: boolean = true): Core {
+        const core: Core = new Core(CoreManager.coreList.length);
+        core.setUpgrades(CoreManager.maxCoreUpgrades);
         CoreManager.coreList.push(core);
 
         if (count) {
