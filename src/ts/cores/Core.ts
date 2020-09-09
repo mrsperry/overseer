@@ -49,17 +49,17 @@ class Core implements ISerializable {
         $("<br>")
             .appendTo(this.info);
         $("<button>")
-            .addClass("core-button overclock-button")
+            .addClass("text-button overclock-button")
             .text("[+]")
             .click((): CoreTask => this.overclock())
             .appendTo(this.info);
         $("<button>")
-            .addClass("core-button cancel-button")
+            .addClass("text-button cancel-button")
             .text("[x]")
             .click((): void => this.cancelTask())
             .appendTo(this.info);
         $("<button>")
-            .addClass("core-button search-button")
+            .addClass("text-button search-button")
             .text("[search]")
             .click((): CoreTask => this.searchForFiles())
             .appendTo(this.info);

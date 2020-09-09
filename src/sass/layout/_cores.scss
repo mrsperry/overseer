@@ -15,31 +15,15 @@
             margin: 1rem 0rem 0rem;
         }
 
+        button + button {
+            margin-left: 0.5rem;
+        }
+
         .core-info {
             margin-left: 1rem;
         }
 
-        .core-button {
-            color: var(--clickable-text);
-            transition: color 250ms ease-in-out,
-                        opacity 250ms ease-in-out;
-
-            + button {
-                margin-left: 0.5rem;
-            }
-
-            &:hover, &:active {
-                color: var(--clickable-text-hover);
-            }
-
-            &:disabled {
-                cursor: auto;
-                opacity: 0.5;
-                color: variables.$main-text;
-            }
-        }
-
-        .cancel-button {
+        .cancel-button:not(:disabled) {
             color: variables.$clickable-text-error;
 
             &:hover, &:active {

@@ -40,7 +40,7 @@ class Disk implements ISerializable {
             .addClass("disk-info")
             .appendTo(this.parent);
         $("<button>")
-            .addClass("clickable-no-click")
+            .addClass("text-button clickable-no-click")
             .text("[" + (isQuarantine ? "x" : "+") + "]")
             .appendTo(info);
         $("<span>")
