@@ -282,11 +282,11 @@ class CoreTask {
     }
 }
 class Core {
-    constructor(id, power) {
+    constructor(id, power, upgrades) {
         this.id = id;
         this.power = power;
+        this.upgrades = upgrades;
         this.task = null;
-        this.upgrades = 0;
         const parent = $("<div>")
             .attr("id", "core-" + id)
             .addClass("core")
@@ -327,6 +327,9 @@ class Core {
         this.setCoreTaskDisplay();
         this.updatePower(power);
         this.updateButtons();
+        for (let index = 0; index < this.upgrades; index++) {
+            this.updatePower(this.power * 2);
+        }
     }
     static deserialize(state) {
         const core = CoreManager.addCore(state.power, false);
@@ -427,7 +430,7 @@ class CoreManager {
         State.setValue("cores", data);
     }
     static addCore(power, count = true) {
-        const core = new Core(CoreManager.coreList.length, power);
+        const core = new Core(CoreManager.coreList.length, power, CoreManager.maxCoreUpgrades);
         CoreManager.coreList.push(core);
         if (count) {
             Stats.increment("cores", "cores-obtained");

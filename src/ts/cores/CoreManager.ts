@@ -48,7 +48,7 @@ class CoreManager {
      * @returns The created core
      */
     public static addCore(power: number, count: boolean = true): Core {
-        const core: Core = new Core(CoreManager.coreList.length, power);
+        const core: Core = new Core(CoreManager.coreList.length, power, CoreManager.maxCoreUpgrades);
         CoreManager.coreList.push(core);
 
         if (count) {

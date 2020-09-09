@@ -12,15 +12,12 @@ class Core implements ISerializable {
     /** The current core task */
     private task: CoreTask | null = null;
 
-    /** The number of times this core has overclocked */
-    private upgrades: number = 0;
-
     /**
      * Creates a new core
      * @param id The ID of the core
      * @param power The power of the core
      */
-    public constructor(private id: number, private power: number) {
+    public constructor(private id: number, private power: number, private upgrades: number) {
         // Append the core HTML
         const parent: any = $("<div>")
             .attr("id", "core-" + id)
@@ -62,7 +59,7 @@ class Core implements ISerializable {
             .addClass("core-button search-button")
             .text("[search]")
             .click((): CoreTask => this.searchForFiles())
-            .appendTo(this.info)
+            .appendTo(this.info);
 
         // Set the idle display
         this.setCoreTaskDisplay();
@@ -70,6 +67,11 @@ class Core implements ISerializable {
         this.updatePower(power);
         // Disable both core buttons
         this.updateButtons();
+
+        // Update the power of this core until it is at the current number of upgrades
+        for (let index: number = 0; index < this.upgrades; index++) {
+            this.updatePower(this.power * 2);
+        }
     }
 
     /**
