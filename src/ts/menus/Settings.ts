@@ -64,16 +64,19 @@ class Settings {
             .text("Example text")
             .appendTo(accentColor);
 
+        const resets: any = $("<div>")
+            .addClass("resets")
+            .appendTo(content);
         $("<a>")
-            .addClass("clickable")
+            .addClass("clickable warning")
             .text("Reset settings")
             .click((): void => Settings.resetValues())
-            .appendTo(content);
+            .appendTo(resets);
         $("<a>")
             .addClass("clickable warning")
             .text("Restart game")
             .click((): void => State.reset())
-            .appendTo(content);
+            .appendTo(resets);
 
         const close: any = $("<button>")
             .addClass("bordered")
