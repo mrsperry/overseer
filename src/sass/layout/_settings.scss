@@ -4,11 +4,6 @@
     align-items: flex-start;
     padding: 1.5rem 2rem;
 
-    .color-picker {
-        display: flex;
-        align-items: center;
-    }
-    
     input {
         cursor: pointer;
         appearance: none;
@@ -18,8 +13,19 @@
         margin: 0rem 0.5rem;
     }
 
-    a {
+    .color-picker {
+        display: flex;
+        align-items: center;
+    }
+
+    .resets {
         align-self: center;
-        margin-top: 1rem;
+        display: flex;
+        justify-content: center;
+        margin-top: 1.5rem;
+
+        a + a {
+            margin-left: 3rem;
+        }
     }
 }

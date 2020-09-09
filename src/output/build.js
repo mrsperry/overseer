@@ -735,16 +735,19 @@ class Settings {
             .addClass("clickable-no-click active")
             .text("Example text")
             .appendTo(accentColor);
+        const resets = $("<div>")
+            .addClass("resets")
+            .appendTo(content);
         $("<a>")
-            .addClass("clickable")
+            .addClass("clickable warning")
             .text("Reset settings")
             .click(() => Settings.resetValues())
-            .appendTo(content);
+            .appendTo(resets);
         $("<a>")
             .addClass("clickable warning")
             .text("Restart game")
             .click(() => State.reset())
-            .appendTo(content);
+            .appendTo(resets);
         const close = $("<button>")
             .addClass("bordered")
             .click(() => Settings.modal.remove())
