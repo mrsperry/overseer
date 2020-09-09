@@ -310,17 +310,17 @@ class Core {
         $("<br>")
             .appendTo(this.info);
         $("<button>")
-            .addClass("core-button overclock-button")
+            .addClass("text-button overclock-button")
             .text("[+]")
             .click(() => this.overclock())
             .appendTo(this.info);
         $("<button>")
-            .addClass("core-button cancel-button")
+            .addClass("text-button cancel-button")
             .text("[x]")
             .click(() => this.cancelTask())
             .appendTo(this.info);
         $("<button>")
-            .addClass("core-button search-button")
+            .addClass("text-button search-button")
             .text("[search]")
             .click(() => this.searchForFiles())
             .appendTo(this.info);
@@ -1017,7 +1017,7 @@ class Disk {
             .addClass("disk-info")
             .appendTo(this.parent);
         $("<button>")
-            .addClass("clickable-no-click")
+            .addClass("text-button clickable-no-click")
             .text("[" + (isQuarantine ? "x" : "+") + "]")
             .appendTo(info);
         $("<span>")
