@@ -18,57 +18,27 @@ abstract class Hack {
 
         // Create the hack modal
         this.modal = new Modal("hack");
-        this.content = this.modal.getContent();
+        this.content = this.modal.getContent()
+            .html(Views.get("hacks/pretext"));
 
-        this.addPretextContent();
+        // Add a link to start the hack
+        this.content.children("a").click((): void => this.content.fadeOut(400, (): void => {
+            this.content.empty().fadeIn();
+            this.handle = window.setInterval((): void => this.countdown(), 1000);
+
+            this.addContent();
+        }));
 
         HackTimer.stop();
         Stats.increment("hacks", "times-hacked");
     }
 
-    /**
-     * Creates the hack content parents and gives a short description of what to do next
-     */
-    private addPretextContent(): void {
-        $("<h1>")
-            .addClass("centered bold pretext-header")
-            .text("Quarantine Breach Detected")
-            .appendTo(this.content);
-        $("<p>")
-            .addClass("centered pretext")
-            .text("Real time quarantine monitoring has picked up an unknown number of files executing cracking functions!")
-            .appendTo(this.content);
-        $("<p>")
-            .addClass("centered pretext")
-            .html("If left unchecked these files may damage the integrity of the quarantine drives and <span class='clickable-no-click active-error'>allow other threats to escape</span>.")
-            .appendTo(this.content);
-        $("<p>")
-            .addClass("centered pretext")
-            .html("There is a <span class='clickable-no-click active-error'>limited time span</span> where available containment functions will be effective...")
-            .appendTo(this.content);
-        $("<a>")
-            .addClass("clickable")
-            .text("Run counter-measures")
-            .click((): void => this.content.fadeOut(400, (): void => {
-                this.content.empty().fadeIn();
-                this.addContent();
-                this.handle = window.setInterval((): void => this.countdown(), 1000);
-            }))
-            .appendTo(this.content);
-    }
-
-    /**
-     * Adds the initial hack interface content with the countdown timer
-     */
     protected addContent(): void {
-        const header: any = $("<h1>")
-            .addClass("centered")
-            .text("Time until quarantine breakout: ")
-            .appendTo(this.content);
-        $("<span>")
-            .addClass("hack-countdown clickable-no-click bold")
-            .text(this.time)
-            .appendTo(header);
+        // Set the base hack content
+        this.content.html(Views.get("hacks/base"));
+        this.content.children("h1")
+            .children(".hack-countdown")
+            .text(this.time);
     }
 
     /**

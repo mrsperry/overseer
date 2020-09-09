@@ -39,71 +39,26 @@ class Settings {
     public static show(): void {
         Settings.modal = new Modal("settings");
 
-        const content: any = Settings.modal.getContent();
-        // Set the header
-        $("<h1>")
-            .text("Settings")
-            .appendTo(content);
+        const content: any = Settings.modal.getContent()
+            .html(Views.get("menus/settings"));
 
-        // Create the main color picker
-        const mainColor: any = $("<div>")
-            .addClass("color-picker")
-            .appendTo(content);
-        $("<span>")
-            .text("Main color: ")
-            .appendTo(mainColor);
-        Settings.mainPicker = $("<input>")
-            .attr("id", "main-color")
-            .attr("type", "color")
+        // Set the color and events for the main picker
+        Settings.mainPicker = $("#main-color")
             .attr("value", Settings.mainColor)
-            .on("input change", (event: any): void => Settings.updateColor(event.target.value, false))
-            .appendTo(mainColor);
-        $("<p>")
-            .addClass("clickable-no-click")
-            .text("Example text")
-            .appendTo(mainColor);
+            .on("input change", (event: any): void => Settings.updateColor(event.target.value, false));
 
-        // Create the accent color picker
-        const accentColor: any = $("<div>")
-            .addClass("color-picker")
-            .appendTo(content);
-        $("<span>")
-            .text("Accent color: ")
-            .appendTo(accentColor);
-        Settings.accentPicker = $("<input>")
-            .attr("id", "accent-color")
-            .attr("type", "color")
+        // Set the color and events for the accent picker
+        Settings.accentPicker = $("#accent-color")
             .attr("value", Settings.accentColor)
-            .on("input change", (event: any): void => Settings.updateColor(event.target.value, true))
-            .appendTo(accentColor);
-        $("<p>")
-            .addClass("clickable-no-click active")
-            .text("Example text")
-            .appendTo(accentColor);
+            .on("input change", (event: any): void => Settings.updateColor(event.target.value, true));
+    
+        // Set the reset click events
+        $("#reset-settings").click((): void => Settings.resetValues());
+        $("#restart-game").click((): void => State.reset());
 
-        // Create the reset settings and restart game links
-        const resets: any = $("<div>")
-            .addClass("resets")
-            .appendTo(content);
-        $("<a>")
-            .addClass("clickable warning")
-            .text("Reset settings")
-            .click((): void => Settings.resetValues())
-            .appendTo(resets);
-        $("<a>")
-            .addClass("clickable warning")
-            .text("Restart game")
-            .click((): void => State.reset())
-            .appendTo(resets);
-
-        // Add the close button
-        const close: any = $("<button>")
-            .addClass("bordered")
-            .click((): void => Settings.modal.remove())
-            .appendTo(content);
-        $("<span>")
-            .text("Close")
-            .appendTo(close);
+        // Set the close button's click event
+        content.children("button")
+            .click((): void => Settings.modal.remove());
     }
 
     /**

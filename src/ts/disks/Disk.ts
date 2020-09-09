@@ -28,24 +28,20 @@ class Disk implements ISerializable {
         this.parent = $("<div>")
             .attr("id", "disk-" + id)
             .addClass("disk")
+            .html(Views.get("disk"))
             .hide()
             .fadeIn()
             .appendTo(isQuarantine ? "#quarantines" : "#drives");
-        $("<span>")
-            .addClass("disk-name clickable")
+
+        // Set the name of the disk
+        this.parent.children(".disk-name")
             .text(name)
-            .click((): void => DiskManager.displayFiles(this))
-            .appendTo(this.parent);
-        const info: any = $("<span>")
-            .addClass("disk-info")
-            .appendTo(this.parent);
-        $("<button>")
-            .addClass("text-button clickable-no-click")
-            .text("[" + (isQuarantine ? "x" : "+") + "]")
-            .appendTo(info);
-        $("<span>")
-            .addClass("disk-usage")
-            .appendTo(info);
+            .click((): void => DiskManager.displayFiles(this));
+
+        // Set the disk button's text
+        this.parent.children(".disk-info")
+            .children("button")
+            .text("[" + (isQuarantine ? "x" : "+") + "]");
 
         // Update the info section
         this.updateInfo();

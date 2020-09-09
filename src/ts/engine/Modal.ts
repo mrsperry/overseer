@@ -13,15 +13,15 @@ class Modal {
 
         const container: any = $("<div>")
             .addClass("modal-container")
+            .html(Views.get("modal"))
             .hide()
             .fadeIn()
             .appendTo("body");
-        $("<div>")
-            .addClass("modal-bg")
-            .appendTo(container);
-        this.content = $("<div>")
-            .addClass("modal-content " + (className === undefined ? "" : className) + "-content")
-            .appendTo(container);
+
+        this.content = container.children(".modal-content");
+        if (className !== undefined) {
+            this.content.addClass(className + "-content");
+        }
     }
 
     /**

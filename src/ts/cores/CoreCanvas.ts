@@ -8,10 +8,9 @@ class CoreCanvas {
     private context: any;
 
     public constructor(parent: JQuery<HTMLElement>) {
-        const canvas: any = $("<canvas>")
+        const canvas: any = parent.children("canvas")
             .attr("width", CoreCanvas.canvasSize)
-            .attr("height", CoreCanvas.canvasSize)
-            .appendTo(parent);
+            .attr("height", CoreCanvas.canvasSize);
 
         // Initial transformations of the canvas
         this.context = canvas[0].getContext("2d");

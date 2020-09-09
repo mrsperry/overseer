@@ -120,12 +120,23 @@ class Messenger {
 }
 Messenger.messages = [];
 Messenger.maxMessages = 15;
+class Views {
+    static async initialize() {
+        const manifest = await $.get("src/views/manifest.txt");
+        for (const fileName of manifest.split("\n")) {
+            Views.data[fileName.trim()] = await $.get("src/views/" + fileName + ".html");
+        }
+    }
+    static get(id) {
+        return Views.data[id] || "Could not find view: " + id;
+    }
+}
+Views.data = {};
 class CoreCanvas {
     constructor(parent) {
-        const canvas = $("<canvas>")
+        const canvas = parent.children("canvas")
             .attr("width", CoreCanvas.canvasSize)
-            .attr("height", CoreCanvas.canvasSize)
-            .appendTo(parent);
+            .attr("height", CoreCanvas.canvasSize);
         this.context = canvas[0].getContext("2d");
         this.context.translate(CoreCanvas.canvasRadius, CoreCanvas.canvasRadius);
         this.context.rotate((-90 * Math.PI) / 180);
@@ -290,40 +301,17 @@ class Core {
         const parent = $("<div>")
             .attr("id", "core-" + id)
             .addClass("core")
+            .html(Views.get("core"))
             .hide()
             .fadeIn()
             .appendTo("#cores");
         this.canvas = new CoreCanvas(parent);
         this.canvas.drawCore(0);
-        this.info = $("<div>")
-            .addClass("core-info")
-            .appendTo(parent);
-        $("<div>")
-            .addClass("core-task")
-            .appendTo(this.info);
-        $("<span>")
-            .text("Core #" + (id + 1))
-            .appendTo(this.info);
-        $("<span>")
-            .addClass("core-power")
-            .appendTo(this.info);
-        $("<br>")
-            .appendTo(this.info);
-        $("<button>")
-            .addClass("text-button overclock-button")
-            .text("[+]")
-            .click(() => this.overclock())
-            .appendTo(this.info);
-        $("<button>")
-            .addClass("text-button cancel-button")
-            .text("[x]")
-            .click(() => this.cancelTask())
-            .appendTo(this.info);
-        $("<button>")
-            .addClass("text-button search-button")
-            .text("[search]")
-            .click(() => this.searchForFiles())
-            .appendTo(this.info);
+        this.info = parent.children(".core-info");
+        this.info.children(".core-name").text("Core #" + (id + 1));
+        this.info.children(".overclock-button").click(() => this.overclock());
+        this.info.children(".cancel-button").click(() => this.cancelTask());
+        this.info.children(".search-button").click(() => this.searchForFiles());
         this.setCoreTaskDisplay();
         this.updatePower();
         this.updateButtons();
@@ -708,62 +696,18 @@ class Settings {
     }
     static show() {
         Settings.modal = new Modal("settings");
-        const content = Settings.modal.getContent();
-        $("<h1>")
-            .text("Settings")
-            .appendTo(content);
-        const mainColor = $("<div>")
-            .addClass("color-picker")
-            .appendTo(content);
-        $("<span>")
-            .text("Main color: ")
-            .appendTo(mainColor);
-        Settings.mainPicker = $("<input>")
-            .attr("id", "main-color")
-            .attr("type", "color")
+        const content = Settings.modal.getContent()
+            .html(Views.get("menus/settings"));
+        Settings.mainPicker = $("#main-color")
             .attr("value", Settings.mainColor)
-            .on("input change", (event) => Settings.updateColor(event.target.value, false))
-            .appendTo(mainColor);
-        $("<p>")
-            .addClass("clickable-no-click")
-            .text("Example text")
-            .appendTo(mainColor);
-        const accentColor = $("<div>")
-            .addClass("color-picker")
-            .appendTo(content);
-        $("<span>")
-            .text("Accent color: ")
-            .appendTo(accentColor);
-        Settings.accentPicker = $("<input>")
-            .attr("id", "accent-color")
-            .attr("type", "color")
+            .on("input change", (event) => Settings.updateColor(event.target.value, false));
+        Settings.accentPicker = $("#accent-color")
             .attr("value", Settings.accentColor)
-            .on("input change", (event) => Settings.updateColor(event.target.value, true))
-            .appendTo(accentColor);
-        $("<p>")
-            .addClass("clickable-no-click active")
-            .text("Example text")
-            .appendTo(accentColor);
-        const resets = $("<div>")
-            .addClass("resets")
-            .appendTo(content);
-        $("<a>")
-            .addClass("clickable warning")
-            .text("Reset settings")
-            .click(() => Settings.resetValues())
-            .appendTo(resets);
-        $("<a>")
-            .addClass("clickable warning")
-            .text("Restart game")
-            .click(() => State.reset())
-            .appendTo(resets);
-        const close = $("<button>")
-            .addClass("bordered")
-            .click(() => Settings.modal.remove())
-            .appendTo(content);
-        $("<span>")
-            .text("Close")
-            .appendTo(close);
+            .on("input change", (event) => Settings.updateColor(event.target.value, true));
+        $("#reset-settings").click(() => Settings.resetValues());
+        $("#restart-game").click(() => State.reset());
+        content.children("button")
+            .click(() => Settings.modal.remove());
     }
     static save() {
         State.setValue("settings.main-color", Settings.mainColor);
@@ -960,6 +904,7 @@ class Main {
         State.load();
         Settings.initialize();
         await Stats.initialize();
+        await Views.initialize();
         $(window).on("beforeunload", () => State.save());
     }
     static startGame() {
@@ -1005,24 +950,16 @@ class Disk {
         this.parent = $("<div>")
             .attr("id", "disk-" + id)
             .addClass("disk")
+            .html(Views.get("disk"))
             .hide()
             .fadeIn()
             .appendTo(isQuarantine ? "#quarantines" : "#drives");
-        $("<span>")
-            .addClass("disk-name clickable")
+        this.parent.children(".disk-name")
             .text(name)
-            .click(() => DiskManager.displayFiles(this))
-            .appendTo(this.parent);
-        const info = $("<span>")
-            .addClass("disk-info")
-            .appendTo(this.parent);
-        $("<button>")
-            .addClass("text-button clickable-no-click")
-            .text("[" + (isQuarantine ? "x" : "+") + "]")
-            .appendTo(info);
-        $("<span>")
-            .addClass("disk-usage")
-            .appendTo(info);
+            .click(() => DiskManager.displayFiles(this));
+        this.parent.children(".disk-info")
+            .children("button")
+            .text("[" + (isQuarantine ? "x" : "+") + "]");
         this.updateInfo();
     }
     static deserialize(state) {
@@ -1303,15 +1240,14 @@ class Modal {
         State.togglePause();
         const container = $("<div>")
             .addClass("modal-container")
+            .html(Views.get("modal"))
             .hide()
             .fadeIn()
             .appendTo("body");
-        $("<div>")
-            .addClass("modal-bg")
-            .appendTo(container);
-        this.content = $("<div>")
-            .addClass("modal-content " + (className === undefined ? "" : className) + "-content")
-            .appendTo(container);
+        this.content = container.children(".modal-content");
+        if (className !== undefined) {
+            this.content.addClass(className + "-content");
+        }
     }
     getContent() {
         return this.content;
@@ -1329,47 +1265,21 @@ class Hack {
         this.handle = 0;
         this.locked = false;
         this.modal = new Modal("hack");
-        this.content = this.modal.getContent();
-        this.addPretextContent();
+        this.content = this.modal.getContent()
+            .html(Views.get("hacks/pretext"));
+        this.content.children("a").click(() => this.content.fadeOut(400, () => {
+            this.content.empty().fadeIn();
+            this.handle = window.setInterval(() => this.countdown(), 1000);
+            this.addContent();
+        }));
         HackTimer.stop();
         Stats.increment("hacks", "times-hacked");
     }
-    addPretextContent() {
-        $("<h1>")
-            .addClass("centered bold pretext-header")
-            .text("Quarantine Breach Detected")
-            .appendTo(this.content);
-        $("<p>")
-            .addClass("centered pretext")
-            .text("Real time quarantine monitoring has picked up an unknown number of files executing cracking functions!")
-            .appendTo(this.content);
-        $("<p>")
-            .addClass("centered pretext")
-            .html("If left unchecked these files may damage the integrity of the quarantine drives and <span class='clickable-no-click active-error'>allow other threats to escape</span>.")
-            .appendTo(this.content);
-        $("<p>")
-            .addClass("centered pretext")
-            .html("There is a <span class='clickable-no-click active-error'>limited time span</span> where available containment functions will be effective...")
-            .appendTo(this.content);
-        $("<a>")
-            .addClass("clickable")
-            .text("Run counter-measures")
-            .click(() => this.content.fadeOut(400, () => {
-            this.content.empty().fadeIn();
-            this.addContent();
-            this.handle = window.setInterval(() => this.countdown(), 1000);
-        }))
-            .appendTo(this.content);
-    }
     addContent() {
-        const header = $("<h1>")
-            .addClass("centered")
-            .text("Time until quarantine breakout: ")
-            .appendTo(this.content);
-        $("<span>")
-            .addClass("hack-countdown clickable-no-click bold")
-            .text(this.time)
-            .appendTo(header);
+        this.content.html(Views.get("hacks/base"));
+        this.content.children("h1")
+            .children(".hack-countdown")
+            .text(this.time);
     }
     countdown() {
         this.content.children("h1")

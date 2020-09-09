@@ -1,5 +1,6 @@
 /// <reference path="engine/State.ts"/>
 /// <reference path="engine/Messenger.ts"/>
+/// <reference path="engine/Views.ts"/>
 /// <reference path="cores/CoreManager.ts"/>
 /// <reference path="disks/DiskManager.ts"/>
 /// <reference path="menus/Settings.ts"/>
@@ -11,6 +12,7 @@ class Main {
         State.load();
         Settings.initialize();
         await Stats.initialize();
+        await Views.initialize();
 
         $(window).on("beforeunload", (): void => State.save());
     }

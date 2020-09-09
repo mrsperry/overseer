@@ -25,6 +25,7 @@ class Core implements ISerializable {
         const parent: any = $("<div>")
             .attr("id", "core-" + id)
             .addClass("core")
+            .html(Views.get("core"))
             .hide()
             .fadeIn()
             .appendTo("#cores");
@@ -34,35 +35,11 @@ class Core implements ISerializable {
         this.canvas.drawCore(0);
 
         // Append all the information about the core
-        this.info = $("<div>")
-            .addClass("core-info")
-            .appendTo(parent);
-        $("<div>")
-            .addClass("core-task")
-            .appendTo(this.info);
-        $("<span>")
-            .text("Core #" + (id + 1))
-            .appendTo(this.info);
-        $("<span>")
-            .addClass("core-power")
-            .appendTo(this.info);
-        $("<br>")
-            .appendTo(this.info);
-        $("<button>")
-            .addClass("text-button overclock-button")
-            .text("[+]")
-            .click((): CoreTask => this.overclock())
-            .appendTo(this.info);
-        $("<button>")
-            .addClass("text-button cancel-button")
-            .text("[x]")
-            .click((): void => this.cancelTask())
-            .appendTo(this.info);
-        $("<button>")
-            .addClass("text-button search-button")
-            .text("[search]")
-            .click((): CoreTask => this.searchForFiles())
-            .appendTo(this.info);
+        this.info = parent.children(".core-info");
+        this.info.children(".core-name").text("Core #" + (id + 1));
+        this.info.children(".overclock-button").click((): CoreTask => this.overclock());
+        this.info.children(".cancel-button").click((): void => this.cancelTask());
+        this.info.children(".search-button").click((): CoreTask => this.searchForFiles());
 
         // Set the idle display
         this.setCoreTaskDisplay();
