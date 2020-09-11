@@ -1,0 +1,42 @@
+{
+    "suspicious-folder": {
+        "trigger": "scan",
+        "title": "Suspicious Folder",
+        "description": [
+            "After the most recent scan, automatic threat heuristics were ran on a recently created folder. The results on the origin of the folder were inconclusive and it is unknown if the folder was created by an admin.",
+            "An admin can be prompted to decide the folder's fate at the risk of reputation. Pre-emptive purging of the folder may remove any threats but forgoes any knowledge gained by collecting the files and further scanning them."
+        ],
+        "options": [
+            {
+                "id": "prompt-admin",
+                "success": [
+                    "After manual review the admin declared that the contents of the folder were malicious and the folder should be deleted immediately without further review.",
+                    "Purging the folder from existence took nanoseconds. All that remains is question of how it was created."
+                ],
+                "fail": [
+                    "After manual review it appears the folder was in fact created by an admin. Such folders are clearly marked as protected and should not be reviewed by automated systems.",
+                    "Failure to detect protected folders is indicative of system corruption and after a short diagnostics test it appears some detection keys were invalidated.",
+                    "An easy enough fix, but how did it happen in the first place?"
+                ]
+            },
+            {
+                "id": "purge-folder",
+                "success": [
+                    "Purging the folder and all of its contents was a simple matter. The absence of the folder was much more complex.",
+                    "The questions lingered: Who created it? What was its purpose? Was destroying it a mistake?"
+                ]
+            },
+            {
+                "id": "collect-files",
+                "success": [
+                    "After allocating the files to available disk drives a further inspection revealed nothing out of the ordinary with the folder.",
+                    "Regardless, protocol requires additional scanning of the files to ensure no vulnerabilities are hidden within."
+                ],
+                "fail": [
+                    "As suddenly as the folder appeared... it vanished. Real time scans show only a blip where the folder should be.",
+                    "The only logical conclusion is an automatic admin-level deletion of the folder. But nothing about this situation is logical."
+                ]
+            }
+        ]
+    }
+}

@@ -132,6 +132,72 @@ class Views {
     }
 }
 Views.data = {};
+class Verdict {
+    constructor(id) {
+        this.modal = new Modal("verdict");
+        this.data = Verdict.verdicts[id];
+        this.content = this.modal.getContent();
+        this.addContent();
+        this.registerEvents();
+    }
+    static async initialize() {
+        Verdict.verdicts = await $.getJSON("src/data/verdicts.json");
+    }
+    addContent() {
+        $("<h1>")
+            .text(this.data.title)
+            .appendTo(this.content);
+        const paragraphs = $("<div>")
+            .addClass("paragraph-holder")
+            .appendTo(this.content);
+        for (const paragraph of Utils.createStringList(this.data.description)) {
+            $("<p>")
+                .addClass("centered")
+                .html(paragraph)
+                .appendTo(paragraphs);
+        }
+        const options = $("<div>")
+            .addClass("option-holder")
+            .appendTo(this.content);
+        for (const option of this.data.options) {
+            const button = $("<button>")
+                .addClass("bordered " + option.id)
+                .appendTo(options);
+            $("<span>")
+                .text(Utils.formatID(option.id))
+                .appendTo(button);
+        }
+    }
+    async resolve(option, success) {
+        return new Promise((resolve) => {
+            this.content.fadeOut(400, () => {
+                this.content.fadeIn();
+                const paragraphHolder = this.content.children(".paragraph-holder")
+                    .empty().fadeIn();
+                const paragraphs = Utils.createStringList(this.data.options[option][success ? "success" : "fail"]);
+                for (const paragraph of paragraphs) {
+                    $("<p>")
+                        .addClass("centered")
+                        .html(paragraph)
+                        .appendTo(paragraphHolder);
+                }
+                const optionHolder = this.content.children(".option-holder")
+                    .empty().fadeIn();
+                const close = $("<button>")
+                    .addClass("bordered")
+                    .click(() => this.modal.remove())
+                    .appendTo(optionHolder);
+                $("<span>")
+                    .text("Continue")
+                    .appendTo(close);
+                resolve();
+            });
+        });
+    }
+    static getVerdict(id) {
+        return Verdict.verdicts[id];
+    }
+}
 class CoreCanvas {
     constructor(parent) {
         const canvas = parent.children("canvas")
@@ -496,6 +562,14 @@ class Utils {
         }
         return result;
     }
+    static createStringList(items) {
+        if (Array.isArray(items)) {
+            return items;
+        }
+        else {
+            return [items];
+        }
+    }
     static getAlphanumericString(length) {
         const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".split("");
         let result = "";
@@ -589,9 +663,10 @@ class DiskManager {
             }
             if (disk.addFile(Utils.random(1, this.threatLevel + 1))) {
                 Stats.increment("disks", "files-discovered");
-                return;
+                return true;
             }
         }
+        return false;
     }
     static addFileToQuarantine(file) {
         for (const disk of DiskManager.disks) {
@@ -905,6 +980,7 @@ class Main {
         Settings.initialize();
         await Stats.initialize();
         await Views.initialize();
+        await Verdict.initialize();
         $(window).on("beforeunload", () => State.save());
     }
     static startGame() {
@@ -1778,3 +1854,65 @@ OrderedNumbers.levels = [
         "numbers-per-row": 5
     },
 ];
+class SuspiciousFolder extends Verdict {
+    constructor() {
+        super("suspicious-folder");
+    }
+    registerEvents() {
+        const options = this.content.children(".option-holder");
+        options.children(".prompt-admin").click(() => this.promptAdmin(0));
+        options.children(".purge-folder").click(() => this.purgeFolder(1));
+        options.children(".collect-files").click(() => this.collectFiles(2));
+    }
+    promptAdmin(option) {
+        const success = Utils.random();
+        $.when(super.resolve(option, success)).done(() => {
+            let amount = Utils.random(SuspiciousFolder.minReliability, SuspiciousFolder.maxReliability) / 100;
+            if (!success) {
+                amount *= -1;
+                amount = amount.toString().substring(1, amount.length);
+            }
+            const reliability = $("<p>")
+                .addClass("centered")
+                .text("Reliability " + (success ? "gained" : "lost") + ": ")
+                .appendTo(this.content.children(".paragraph-holder"));
+            $("<span>")
+                .addClass("clickable-no-click " + (success ? "" : "active-error"))
+                .text(amount)
+                .appendTo(reliability);
+            Research.addReliability(amount);
+        });
+    }
+    purgeFolder(option) {
+        super.resolve(option, true);
+    }
+    collectFiles(option) {
+        const success = Utils.random(0, 4) !== 0;
+        $.when(super.resolve(option, success)).done(() => {
+            if (success) {
+                const filesToAdd = Utils.random(SuspiciousFolder.minFiles, SuspiciousFolder.maxFiles);
+                let amount = 0;
+                for (let index = 0; index < filesToAdd; index++) {
+                    if (DiskManager.addFileToDisk()) {
+                        amount++;
+                    }
+                    else {
+                        break;
+                    }
+                }
+                const files = $("<p>")
+                    .addClass("centered")
+                    .text("Files gained: ")
+                    .appendTo(this.content.children(".paragraph-holder"));
+                $("<span>")
+                    .addClass("clickable-no-click")
+                    .text(amount)
+                    .appendTo(files);
+            }
+        });
+    }
+}
+SuspiciousFolder.minReliability = 25;
+SuspiciousFolder.maxReliability = 75;
+SuspiciousFolder.minFiles = 1;
+SuspiciousFolder.maxFiles = 6;

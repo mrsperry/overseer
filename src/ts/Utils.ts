@@ -69,6 +69,18 @@ class Utils {
     }
 
     /**
+     * Puts single strings into an array to guarantee a string list
+     * @param items The string to convert
+     */
+    public static createStringList(items: string | string[]): string[] {
+        if (Array.isArray(items)) {
+            return items;
+        } else {
+            return [items];
+        }
+    }
+
+    /**
      * Creates a random alphanumeric string
      * @param length The length of the string
      * @returns The random alphanumeric string

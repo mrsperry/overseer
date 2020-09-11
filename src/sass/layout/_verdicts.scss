@@ -1,0 +1,15 @@
+.verdict-content {
+    width: 40rem;
+
+    .option-holder {
+        display: flex;
+
+        button + button {
+            margin-left: 1rem;
+        }
+    }
+
+    p {
+        margin-bottom: 1rem;
+    }
+}

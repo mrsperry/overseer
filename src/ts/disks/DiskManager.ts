@@ -93,8 +93,9 @@ class DiskManager {
 
     /**
      * Tries to add a file to regular disks; if no disk has enough space then it will not be added
+     * @returns If a file was added
      */
-    public static addFileToDisk(): void {
+    public static addFileToDisk(): boolean {
         for (const disk of DiskManager.disks) {
             if (disk.isQuarantineStorage() || disk.isBusy()) {
                 continue;
@@ -102,9 +103,11 @@ class DiskManager {
 
             if (disk.addFile(Utils.random(1, this.threatLevel + 1))) {
                 Stats.increment("disks", "files-discovered");
-                return;
+                return true;
             }
         }
+
+        return false;
     }
 
     /**

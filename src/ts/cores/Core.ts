@@ -141,7 +141,7 @@ class Core implements ISerializable {
         const task: CoreTask = CoreTask.create("Searching for files", Core.fileSearchCost, CoreTaskType.Search);
 
         task.setIsInfinite(true)
-            .setOnComplete((): void => DiskManager.addFileToDisk())
+            .setOnComplete((): boolean => DiskManager.addFileToDisk())
             .run(this);
 
         return task;
