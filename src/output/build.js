@@ -1543,7 +1543,12 @@ class HackTimer {
                 new Cryptogram(threatLevel);
                 break;
             case 1:
-                new HiddenPasswords(threatLevel);
+                if (Settings.isSettingEnabled("poor-eyesight-features")) {
+                    HackTimer.createHack();
+                }
+                else {
+                    new HiddenPasswords(threatLevel);
+                }
                 break;
             case 2:
                 new NumberMultiples(threatLevel);

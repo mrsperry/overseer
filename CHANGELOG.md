@@ -8,6 +8,7 @@ Dates are formatted as year-month-day.
 - Added scan/purge buttons next to disk usage percentages
 - Added a message to the `OrderedNumbers` hack to differentiate it from `NumberMultiples`
 - Added new settings to the settings menu
+    - **Poor eyesight features**: For now this setting removes the `HiddenPasswords` hack.
 
 ### Changes
 - Core power now matches the maximum number of core speed upgrades you have
