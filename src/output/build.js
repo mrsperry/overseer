@@ -433,7 +433,11 @@ class Core {
     searchForFiles() {
         const task = CoreTask.create("Searching for files", Core.fileSearchCost, CoreTaskType.Search);
         task.setIsInfinite(true)
-            .setOnComplete(() => DiskManager.addFileToDisk())
+            .setOnComplete(() => {
+            if (!DiskManager.addFileToDisk() && Settings.isSettingEnabled("stop-searching-automatically")) {
+                this.cancelTask();
+            }
+        })
             .run(this);
         return task;
     }

@@ -141,7 +141,11 @@ class Core implements ISerializable {
         const task: CoreTask = CoreTask.create("Searching for files", Core.fileSearchCost, CoreTaskType.Search);
 
         task.setIsInfinite(true)
-            .setOnComplete((): boolean => DiskManager.addFileToDisk())
+            .setOnComplete((): void => {
+                if (!DiskManager.addFileToDisk() && Settings.isSettingEnabled("stop-searching-automatically")) {
+                    this.cancelTask();
+                }
+            })
             .run(this);
 
         return task;
