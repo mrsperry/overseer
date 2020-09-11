@@ -41,4 +41,4 @@ class Main {
     }
 }
 
-((): Promise<any> => Main.initialize())();
+$(document).ready((): Promise<any> => Main.initialize());

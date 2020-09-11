@@ -972,7 +972,7 @@ class Main {
         });
     }
 }
-(() => Main.initialize())();
+$(document).ready(() => Main.initialize());
 var CoreTaskType;
 (function (CoreTaskType) {
     CoreTaskType[CoreTaskType["Overclock"] = 0] = "Overclock";
