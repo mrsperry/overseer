@@ -329,7 +329,7 @@ class Core {
         this.updateButtons();
     }
     static deserialize(state) {
-        const core = CoreManager.addCore(state.power, false);
+        const core = CoreManager.addCore(state.power);
         core.upgrades = state.upgrades;
         if (state.task !== null) {
             CoreTask.deserialize(state.task);
