@@ -6,15 +6,15 @@ class Cryptogram extends Hack {
     /** Data for each level of this hack */
     private static levels: any[] = [
         {
-            "time": 20,
+            "time": 25,
             "characters": 5
         },
         {
-            "time": 25,
+            "time": 30,
             "characters": 7
         },
         {
-            "time": 30,
+            "time": 35,
             "characters": 10
         }
     ];

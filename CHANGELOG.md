@@ -11,6 +11,7 @@ Dates are formatted as year-month-day.
 ### Changes
 - Core power now matches the maximum number of core speed upgrades you have
 - Moved `Reset settings` to the same line as `Restart game` in the settings menu and made it permanently red
+- Added an additional five seconds to every level of every hack
 
 ### Bug fixes
 - Fixed core upgrade buttons wrongly enabling after reload

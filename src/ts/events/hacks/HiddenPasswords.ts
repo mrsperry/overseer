@@ -5,17 +5,17 @@ class HiddenPasswords extends Hack {
     private static data: any = {
         "levels": [
             {
-                "time": 20,
+                "time": 25,
                 "passwords": 2,
                 "lines": 7
             },
             {
-                "time": 35,
+                "time": 40,
                 "passwords": 4,
                 "lines": 13
             },
             {
-                "time": 50,
+                "time": 55,
                 "passwords": 6,
                 "lines": 20
             }

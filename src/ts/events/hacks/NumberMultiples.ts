@@ -6,19 +6,19 @@ class NumberMultiples extends Hack {
     /** Data for each level of this hack */
     private static levels: any[] = [
         {
-            "time": 20,
+            "time": 25,
             "highest-number": 20,
             "grid-size": 3,
             "multipliers": 2
         },
         {
-            "time": 40,
+            "time": 45,
             "highest-number": 30,
             "grid-size": 4,
             "multipliers": 3
         },
         {
-            "time": 60,
+            "time": 65,
             "highest-number": 40,
             "grid-size": 5,
             "multipliers": 5

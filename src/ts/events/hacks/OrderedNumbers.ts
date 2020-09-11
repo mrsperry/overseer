@@ -4,17 +4,17 @@ class OrderedNumbers extends Hack {
      */
     private static levels: any[] = [
         {
-            "time": 20,
+            "time": 25,
             "max-numbers": 9,
             "numbers-per-row": 3
         },
         {
-            "time": 30,
+            "time": 35,
             "max-numbers": 16,
             "numbers-per-row": 4
         },
         {
-            "time": 40,
+            "time": 45,
             "max-numbers": 25,
             "numbers-per-row": 5
         },

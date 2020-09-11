@@ -1472,15 +1472,15 @@ class Cryptogram extends Hack {
 Cryptogram.letters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 Cryptogram.levels = [
     {
-        "time": 20,
+        "time": 25,
         "characters": 5
     },
     {
-        "time": 25,
+        "time": 30,
         "characters": 7
     },
     {
-        "time": 30,
+        "time": 35,
         "characters": 10
     }
 ];
@@ -1619,17 +1619,17 @@ HiddenPasswords.lineLength = 55;
 HiddenPasswords.data = {
     "levels": [
         {
-            "time": 20,
+            "time": 25,
             "passwords": 2,
             "lines": 7
         },
         {
-            "time": 35,
+            "time": 40,
             "passwords": 4,
             "lines": 13
         },
         {
-            "time": 50,
+            "time": 55,
             "passwords": 6,
             "lines": 20
         }
@@ -1762,19 +1762,19 @@ NumberMultiples.minMultiplier = 2;
 NumberMultiples.maxMultiplier = 10;
 NumberMultiples.levels = [
     {
-        "time": 20,
+        "time": 25,
         "highest-number": 20,
         "grid-size": 3,
         "multipliers": 2
     },
     {
-        "time": 40,
+        "time": 45,
         "highest-number": 30,
         "grid-size": 4,
         "multipliers": 3
     },
     {
-        "time": 60,
+        "time": 65,
         "highest-number": 40,
         "grid-size": 5,
         "multipliers": 5
@@ -1840,17 +1840,17 @@ class OrderedNumbers extends Hack {
 }
 OrderedNumbers.levels = [
     {
-        "time": 20,
+        "time": 25,
         "max-numbers": 9,
         "numbers-per-row": 3
     },
     {
-        "time": 30,
+        "time": 35,
         "max-numbers": 16,
         "numbers-per-row": 4
     },
     {
-        "time": 40,
+        "time": 45,
         "max-numbers": 25,
         "numbers-per-row": 5
     },
