@@ -4,7 +4,11 @@ class Settings {
     /** Default fallback values used when resetting */
     private static reset: any = {
         "mainColor": "#5CD670",
-        "accentColor": "#ADEAB7"
+        "accentColor": "#ADEAB7",
+        "toggles": {
+            "stop-searching-automatically": false,
+            "poor-eyesight-features": false
+        }
     };
 
     /** The main color currently in use */
@@ -17,6 +21,9 @@ class Settings {
     private static accentPicker: any;
     /** The original hue of the main color */
     private static originalHue: number = Utils.hexToHue(Settings.reset.mainColor);
+
+    /** Object containing all toggle states */
+    private static toggles: any;
 
     /**
      * Initializes all settings
@@ -31,6 +38,9 @@ class Settings {
         Settings.accentColor = State.getValue("settings.accent-color") || Settings.reset.accentColor;
         // Set the accent text color
         Settings.setColorVariable("clickable-text-hover", Settings.accentColor);
+
+        // Set the toggles
+        Settings.toggles = State.getValue("settings.toggles") || Settings.reset.toggles;
     }
 
     /**
@@ -52,6 +62,20 @@ class Settings {
             .attr("value", Settings.accentColor)
             .on("input change", (event: any): void => Settings.updateColor(event.target.value, true));
     
+        for (const id in Settings.toggles) {
+            const element: any = $("#" + id);
+
+            // Set the enable and disable click events
+            const enable: any = $(element).children("button:first-child");
+            enable.click((): void => Settings.toggleSetting(id, true));
+
+            const disable: any = $(element).children("button:last-child");
+            disable.click((): void => Settings.toggleSetting(id, false));
+
+            // Set the enable state
+            Settings.toggleSetting(id, Settings.toggles[id] || false);
+        }
+
         // Set the reset click events
         $("#reset-settings").click((): void => Settings.resetValues());
         $("#restart-game").click((): void => State.reset());
@@ -67,6 +91,15 @@ class Settings {
     public static save(): void {
         State.setValue("settings.main-color", Settings.mainColor);
         State.setValue("settings.accent-color", Settings.accentColor);
+        State.setValue("settings.toggles", Settings.toggles);
+    }
+
+    /**
+     * @param setting The setting ID to check
+     * @returns If the setting is enabled
+     */
+    public static isSettingEnabled(setting: string): boolean {
+        return Settings.toggles[setting] || false;
     }
 
     /**
@@ -100,6 +133,27 @@ class Settings {
         if (name === "clickable-text") {
             $("#main-menu-image").css("filter", "hue-rotate(" + (Utils.hexToHue(value) - Settings.originalHue) + "deg)");
         }
+    }
+
+    /**
+     * Toggles a setting on or off
+     * @param id The setting ID to toggle
+     * @param enabled If the setting should be turned on or off
+     */
+    private static toggleSetting(id: string, enabled: boolean): void {
+        const parent: any = $("#" + id);
+        const enable: any = parent.children("button:first-child");
+        const disable: any = parent.children("button:last-child");
+
+        if (enabled) {
+            enable.addClass("active");
+            disable.removeClass("active");
+        } else {
+            enable.removeClass("active");
+            disable.addClass("active");
+        }
+
+        Settings.toggles[id] = enabled;
     }
 
     /**

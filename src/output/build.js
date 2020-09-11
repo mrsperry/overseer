@@ -768,6 +768,7 @@ class Settings {
         Settings.setColorVariable("clickable-text", Settings.mainColor);
         Settings.accentColor = State.getValue("settings.accent-color") || Settings.reset.accentColor;
         Settings.setColorVariable("clickable-text-hover", Settings.accentColor);
+        Settings.toggles = State.getValue("settings.toggles") || Settings.reset.toggles;
     }
     static show() {
         Settings.modal = new Modal("settings");
@@ -779,6 +780,14 @@ class Settings {
         Settings.accentPicker = $("#accent-color")
             .attr("value", Settings.accentColor)
             .on("input change", (event) => Settings.updateColor(event.target.value, true));
+        for (const id in Settings.toggles) {
+            const element = $("#" + id);
+            const enable = $(element).children("button:first-child");
+            enable.click(() => Settings.toggleSetting(id, true));
+            const disable = $(element).children("button:last-child");
+            disable.click(() => Settings.toggleSetting(id, false));
+            Settings.toggleSetting(id, Settings.toggles[id] || false);
+        }
         $("#reset-settings").click(() => Settings.resetValues());
         $("#restart-game").click(() => State.reset());
         content.children("button")
@@ -787,6 +796,10 @@ class Settings {
     static save() {
         State.setValue("settings.main-color", Settings.mainColor);
         State.setValue("settings.accent-color", Settings.accentColor);
+        State.setValue("settings.toggles", Settings.toggles);
+    }
+    static isSettingEnabled(setting) {
+        return Settings.toggles[setting] || false;
     }
     static updateColor(value, hover) {
         Settings.setColorVariable("clickable-text" + (hover ? "-hover" : ""), value);
@@ -805,6 +818,20 @@ class Settings {
             $("#main-menu-image").css("filter", "hue-rotate(" + (Utils.hexToHue(value) - Settings.originalHue) + "deg)");
         }
     }
+    static toggleSetting(id, enabled) {
+        const parent = $("#" + id);
+        const enable = parent.children("button:first-child");
+        const disable = parent.children("button:last-child");
+        if (enabled) {
+            enable.addClass("active");
+            disable.removeClass("active");
+        }
+        else {
+            enable.removeClass("active");
+            disable.addClass("active");
+        }
+        Settings.toggles[id] = enabled;
+    }
     static resetValues() {
         Settings.updateColor(Settings.reset.mainColor, false);
         Settings.updateColor(Settings.reset.accentColor, true);
@@ -812,7 +839,11 @@ class Settings {
 }
 Settings.reset = {
     "mainColor": "#5CD670",
-    "accentColor": "#ADEAB7"
+    "accentColor": "#ADEAB7",
+    "toggles": {
+        "stop-searching-automatically": false,
+        "poor-eyesight-features": false
+    }
 };
 Settings.originalHue = Utils.hexToHue(Settings.reset.mainColor);
 class Stats {
