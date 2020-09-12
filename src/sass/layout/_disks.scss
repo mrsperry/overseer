@@ -3,7 +3,7 @@
 #disks {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: repeat(2, 162px);
+    grid-template-rows: 162px 55px;
     column-gap: 1.5rem;
     row-gap: 1.1rem;
 
@@ -39,15 +39,12 @@
         }
     }
 
-    .disk, .file {
+    .disk, .file, .disk-info {
         display: flex;
         justify-content: space-between;
     }
 
     .disk .disk-info {
-        display: flex;
-        justify-content: space-between;
-        
         button {
             margin-right: 0.5rem;
         }

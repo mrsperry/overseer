@@ -32,13 +32,13 @@ body {
     #main-content {
         display: none;
         grid-template-columns: 350px 700px 350px;
-        grid-template-rows: 140px;
+        grid-template-rows: 140px 235px;
         column-gap: 2rem;
         row-gap: 2rem;
 
         #messages {
             grid-column: 1;
-            grid-row: 1 / 3;
+            grid-row: 1 / 4;
         }
 
         #cores {
@@ -46,14 +46,14 @@ body {
             grid-row: 1;
         }
 
-        #research {
-            grid-column: 3;
-            grid-row: 1 / 3;
-        }
-
         #disks {
             grid-column: 2;
             grid-row: 2;
+        }
+
+        #research {
+            grid-column: 2;
+            grid-row: 3;
         }
     }
 }
