@@ -5,6 +5,31 @@
     flex-direction: column;
 
     h1 {
+        text-align: center;
         margin-bottom: 1rem;
+    }
+
+    button {
+        align-self: center;
+        width: 50%;
+    }
+
+    .option-choice {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        + button, + .option-choice {
+            margin-top: 1rem;
+        }
+
+        > span {
+            margin: 0rem;
+        }
+
+        button {
+            width: 40%;
+            margin: 0rem;
+        }
     }
 }

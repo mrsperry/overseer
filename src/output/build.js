@@ -923,52 +923,100 @@ class Research {
         }
     }
     static displayResearch() {
-        for (let index = 1; index <= Research.data.length; index++) {
-            const item = Research.data[index - 1];
-            let cost = Research.baseCost * (index === 1 ? 1 : (index - 1) * Research.costExponent);
+        for (let index = 0; index < Research.data.length; index++) {
+            const option = Research.data[index];
+            const isChoice = Array.isArray(option);
+            const base = index + 1;
+            let cost = Research.baseCost * (base === 1 ? 1 : (base - 1) * Research.costExponent);
             let fraction = cost - Math.floor(cost);
             fraction -= fraction % 0.25;
             cost = Math.floor(cost) + fraction;
             const disabled = Research.reliability < cost;
-            const child = $("#research-" + index);
-            if (child.length !== 0) {
-                $(child).prop("disabled", disabled);
-                continue;
+            const element = $("#research-" + index);
+            if (element.length !== 0) {
+                if (isChoice) {
+                    for (const child of element.children("button")) {
+                        $(child).prop("disabled", disabled);
+                    }
+                    continue;
+                }
+                else {
+                    element.prop("disabled", disabled);
+                    continue;
+                }
             }
             if (Research.purchased.includes(index)) {
                 continue;
             }
-            if (Research.reliability < Research.baseDisplay * (index === 1 ? 1 : (index - 1) * Research.costExponent)) {
+            if (Research.reliability < Research.baseDisplay * (base === 1 ? 1 : (base - 1) * Research.costExponent)) {
                 continue;
             }
-            if (DiskManager.getThreatLevel() < item.level) {
+            const threatLevel = DiskManager.getThreatLevel();
+            if (isChoice) {
+                if ((threatLevel < option[0].level)) {
+                    continue;
+                }
+            }
+            else if (threatLevel < option.level) {
                 continue;
             }
-            if ($("#research").children("button").length === Research.maxDisplayed) {
+            if ($("#research").children().length === Research.maxDisplayed + 1) {
                 return;
             }
-            const parent = $("<button>")
-                .attr("id", "research-" + index)
-                .addClass("bordered")
-                .prop("disabled", disabled)
-                .click(() => {
-                Research.purchaseResearch(index, item.type);
-                parent.prop("disabled", true)
-                    .fadeOut(400, () => {
-                    parent.remove();
-                    Research.displayResearch();
+            const createButton = (data, showCost) => {
+                const button = $("<button>")
+                    .addClass("bordered")
+                    .prop("disabled", disabled);
+                $("<span>")
+                    .text(data.title)
+                    .appendTo(button);
+                $("<span>")
+                    .text("+" + Utils.formatID(data.type) + (showCost ? " (" + cost + ")" : ""))
+                    .appendTo(button);
+                return button;
+            };
+            let parent;
+            if (isChoice) {
+                parent = $("<div>").addClass("option-choice");
+                const button1 = createButton(option[0], false)
+                    .appendTo(parent);
+                $("<span>")
+                    .addClass("pointer")
+                    .text("<")
+                    .appendTo(parent);
+                $("<span>")
+                    .text(cost)
+                    .appendTo(parent);
+                $("<span>")
+                    .addClass("pointer")
+                    .text(">")
+                    .appendTo(parent);
+                const button2 = createButton(option[1], false).appendTo(parent);
+                const purchase = (type) => {
+                    Research.purchaseResearch(index, type);
+                    parent.fadeOut(400, () => {
+                        parent.remove();
+                        Research.displayResearch();
+                    });
+                };
+                button1.one("click", () => purchase(option[0].type));
+                button2.one("click", () => purchase(option[1].type));
+            }
+            else {
+                parent = createButton(option, true)
+                    .one("click", () => {
+                    parent.fadeOut(400, () => {
+                        parent.remove();
+                        Research.displayResearch();
+                    });
+                    Research.purchaseResearch(index, option.type);
                 });
-            })
-                .hide()
-                .delay(Research.displayDelay * index)
+            }
+            parent.hide()
+                .attr("id", "research-" + index)
+                .delay(Research.displayDelay * (index + 1))
                 .fadeIn()
                 .appendTo("#research");
-            $("<span>")
-                .text(item.title)
-                .appendTo(parent);
-            $("<span>")
-                .text("+" + Utils.formatID(item.type) + " (" + cost + ")")
-                .appendTo(parent);
         }
     }
     static purchaseResearch(index, type) {

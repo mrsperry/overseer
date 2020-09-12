@@ -58,23 +58,33 @@ class Research {
      * Displays available research options
      */
     private static displayResearch(): void {
-        for (let index: number = 1; index <= Research.data.length; index++) {
+        for (let index: number = 0; index < Research.data.length; index++) {
             // Get the research option
-            const item: any = Research.data[index - 1];
-            // Calculate the cost of this research option
-            let cost: number = Research.baseCost * (index === 1 ? 1 : (index - 1) * Research.costExponent);
+            const option: any = Research.data[index];
+            // Check if this option is a choice
+            const isChoice: boolean = Array.isArray(option);
+            // Calculate the cost of this option
+            const base: number = index + 1;
+            let cost: number = Research.baseCost * (base === 1 ? 1 : (base - 1) * Research.costExponent);
             // Round the fraction of the cost to the nearest 25th
             let fraction: number = cost - Math.floor(cost);
             fraction -= fraction % 0.25;
             cost = Math.floor(cost) + fraction;
-            // Check if this option should be disabled (reliability <= cost)
+            // Check if this option should be disabled
             const disabled: boolean = Research.reliability < cost;
 
             // If the option is already displayed update its disable state
-            const child: any = $("#research-" + index);
-            if (child.length !== 0) {
-                $(child).prop("disabled", disabled);
-                continue;
+            const element: any = $("#research-" + index);
+            if (element.length !== 0) {
+                if (isChoice) {
+                    for (const child of element.children("button")) {
+                        $(child).prop("disabled", disabled);
+                    }
+                    continue;
+                } else {
+                    element.prop("disabled", disabled);
+                    continue;
+                }
             }
 
             // Check if this option has been purchased
@@ -83,45 +93,100 @@ class Research {
             }
 
             // Check if there is not enough reliability to display (reliability <= display cost)
-            if (Research.reliability < Research.baseDisplay * (index === 1 ? 1 : (index - 1) * Research.costExponent)) {
+            if (Research.reliability < Research.baseDisplay * (base === 1 ? 1 : (base - 1) * Research.costExponent)) {
                 continue;
             }
 
-            // Check if the options threat level is not greater than the current threat level
-            if (DiskManager.getThreatLevel() < item.level) {
+            // Check if the option's threat level is not greater than the current threat level
+            const threatLevel: number = DiskManager.getThreatLevel();
+            if (isChoice) {
+                if ((threatLevel < option[0].level)) {
+                    continue;
+                }
+            } else if (threatLevel < option.level) {
                 continue;
             }
 
             // Limit the number of displayed options
-            if ($("#research").children("button").length === Research.maxDisplayed) {
+            if ($("#research").children().length === Research.maxDisplayed + 1) {
                 return;
             }
 
-            // Create the element
-            const parent: any = $("<button>")
-                .attr("id", "research-" + index)
-                .addClass("bordered")
-                .prop("disabled", disabled)
-                .click((): void => {
-                    Research.purchaseResearch(index, item.type);
+            const createButton: any = (data: any, showCost: boolean): any => {
+                const button: any = $("<button>")
+                    .addClass("bordered")
+                    .prop("disabled", disabled);
 
-                    parent.prop("disabled", true)
-                        .fadeOut(400, (): void => {
+                // Add the option's content
+                $("<span>")
+                    .text(data.title)
+                    .appendTo(button);
+                $("<span>")
+                    .text("+" + Utils.formatID(data.type) + (showCost ? " (" + cost + ")" : ""))
+                    .appendTo(button);
+
+                return button;
+            };
+
+            // Create the element
+            let parent: any;
+            if (isChoice) {
+                parent = $("<div>").addClass("option-choice");
+
+                // Create the first option
+                const button1: any = createButton(option[0], false)
+                    .appendTo(parent);
+                
+                // Add the cost and decoration between options
+                $("<span>")
+                    .addClass("pointer")
+                    .text("<")
+                    .appendTo(parent);
+                $("<span>")
+                    .text(cost)
+                    .appendTo(parent);
+                $("<span>")
+                    .addClass("pointer")
+                    .text(">")
+                    .appendTo(parent);
+
+                // Create the second button
+                const button2: any = createButton(option[1], false).appendTo(parent);
+
+                // Create the click event for both buttons
+                const purchase: any = (type: string): void => {
+                    Research.purchaseResearch(index, type);
+
+                    parent.fadeOut(400, (): void => {
+                        parent.remove();
+
+                        Research.displayResearch();
+                    });
+                };
+
+                // Set the click events
+                button1.one("click", (): void => purchase(option[0].type));
+                button2.one("click", (): void => purchase(option[1].type));
+            } else {
+                parent = createButton(option, true)
+                    .one("click", (): void => {
+                        // Remove this option and display a new one if available
+                        parent.fadeOut(400, (): void => {
                             parent.remove();
 
                             Research.displayResearch();
                         });
-                })
-                .hide()
-                .delay(Research.displayDelay * index)
+                        
+                        Research.purchaseResearch(index, option.type);
+                    });
+            }
+
+            // Append the option with shared properties added
+            parent.hide()
+                .attr("id", "research-" + index)
+                .delay(Research.displayDelay * (index + 1))
                 .fadeIn()
                 .appendTo("#research");
-            $("<span>")
-                .text(item.title)
-                .appendTo(parent);
-            $("<span>")
-                .text("+" + Utils.formatID(item.type) + " (" + cost + ")")
-                .appendTo(parent);
         }
     }
 
