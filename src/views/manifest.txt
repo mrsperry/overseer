@@ -1,6 +1,7 @@
 hacks/base
 hacks/pretext
 menus/settings
+channel
 core
 disk
 modal

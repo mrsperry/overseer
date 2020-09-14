@@ -2,5 +2,7 @@ enum CoreTaskType {
     Overclock,
     Search,
     Scan,
-    Purge
+    Purge,
+    Crack,
+    Siphon
 }

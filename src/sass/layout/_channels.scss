@@ -1,0 +1,10 @@
+.channel {
+    + .channel {
+        margin-top: 1rem;
+    }
+
+    .channel-info, .channel-meta {
+        display: flex;
+        justify-content: space-between;
+    }
+}

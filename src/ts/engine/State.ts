@@ -24,6 +24,7 @@ class State {
             Research.save();
             CoreManager.save();
             DiskManager.save();
+            ChannelManager.save();
         }
 
         localStorage.setItem("save", JSON.stringify(State.data, null, 4));

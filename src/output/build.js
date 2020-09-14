@@ -11,6 +11,7 @@ class State {
             Research.save();
             CoreManager.save();
             DiskManager.save();
+            ChannelManager.save();
         }
         localStorage.setItem("save", JSON.stringify(State.data, null, 4));
     }
@@ -229,6 +230,7 @@ class CoreTask {
         this.type = type;
         this.core = null;
         this.disk = null;
+        this.channel = null;
         this.handle = null;
         this.startTime = 0;
         this.isInfinite = false;
@@ -242,7 +244,6 @@ class CoreTask {
     }
     static deserialize(state) {
         const core = CoreManager.getCore(state.core);
-        const disk = DiskManager.getDisk(state.disk);
         let task;
         switch (state.type) {
             case 0:
@@ -252,10 +253,16 @@ class CoreTask {
                 task = core.searchForFiles();
                 break;
             case 2:
-                task = disk.wipeDisk(false, core);
+                task = DiskManager.getDisk(state.disk).wipeDisk(false, core);
+                break;
+            case 3:
+                task = DiskManager.getDisk(state.disk).wipeDisk(true, core);
+                break;
+            case 4:
+                task = ChannelManager.getChannel(state.channel).crack();
                 break;
             default:
-                task = disk.wipeDisk(true, core);
+                task = ChannelManager.getChannel(state.channel).siphon();
                 break;
         }
         task.startTime = Date.now() - (state.saveTime - state.startTime);
@@ -314,6 +321,9 @@ class CoreTask {
             this.core.updateButtons();
             return true;
         }
+        else {
+            Messenger.write("No cores are currently available");
+        }
         return false;
     }
     isBusy() {
@@ -352,6 +362,7 @@ class CoreTask {
         return {
             "core": this.core.getID(),
             "disk": this.disk?.getID() || 0,
+            "channel": this.channel?.getID() || 0,
             "type": this.type,
             "startTime": this.startTime,
             "saveTime": Date.now()
@@ -1079,6 +1090,7 @@ class Main {
             State.gameStarted();
             Messenger.initialize();
             await DiskManager.initialize();
+            ChannelManager.initialize();
             CoreManager.initialize();
             if (State.getValue("paused")) {
                 State.togglePause();
@@ -1095,6 +1107,8 @@ var CoreTaskType;
     CoreTaskType[CoreTaskType["Search"] = 1] = "Search";
     CoreTaskType[CoreTaskType["Scan"] = 2] = "Scan";
     CoreTaskType[CoreTaskType["Purge"] = 3] = "Purge";
+    CoreTaskType[CoreTaskType["Crack"] = 4] = "Crack";
+    CoreTaskType[CoreTaskType["Siphon"] = 5] = "Siphon";
 })(CoreTaskType || (CoreTaskType = {}));
 class Disk {
     constructor(id, name, maxStorage, isQuarantine) {
@@ -1271,9 +1285,6 @@ class Disk {
                 this.updateFileDisplay();
             }
             this.updateInfo();
-        }
-        else {
-            Messenger.write("No cores are currently available");
         }
         return task;
     }
@@ -2005,3 +2016,123 @@ SuspiciousFolder.minReliability = 25;
 SuspiciousFolder.maxReliability = 75;
 SuspiciousFolder.minFiles = 1;
 SuspiciousFolder.maxFiles = 6;
+class Channel {
+    constructor(id) {
+        this.id = id;
+        this.isBusy = false;
+        this.parent = $("<div>")
+            .addClass("channel")
+            .html(Views.get("channel"))
+            .hide()
+            .fadeIn()
+            .appendTo("#channels");
+        this.name = this.generateChannelName();
+        this.detection = 0;
+        this.remaining = (id + 1) * 1000;
+        this.isCracked = false;
+        const info = this.parent.children(".channel-info");
+        info.children(".channel-name")
+            .click(() => this.displayDataCore());
+        info.children("button")
+            .click(() => this.isCracked ? this.siphon() : this.crack());
+        this.updateInfo();
+    }
+    updateInfo() {
+        const info = this.parent.children(".channel-info");
+        info.children(".channel-name")
+            .text(this.name);
+        info.children("button")
+            .prop("disabled", this.isBusy || (this.isCracked && this.remaining === 0))
+            .text("[" + (this.isCracked ? "siphon" : "crack") + "]");
+        const meta = this.parent.children(".channel-meta");
+        meta.children(".channel-detection").text("Detection: " + (this.isCracked ? this.detection + "%" : "???"));
+        meta.children(".channel-remaining").text((this.isCracked ? this.remaining + "kb" : "???") + " remaining");
+    }
+    static deserialize(data) {
+        const channel = ChannelManager.addChannel();
+        channel.name = data.name;
+        channel.detection = data.detection;
+        channel.remaining = data.remaining;
+        channel.isCracked = data.isCracked;
+        channel.isBusy = data.isBusy;
+        channel.updateInfo();
+    }
+    crack() {
+        const task = CoreTask.create("Cracking " + this.name, 50, CoreTaskType.Crack)
+            .setOnComplete(() => {
+            this.isCracked = true;
+            this.updateInfo();
+        })
+            .setOnCancel(() => {
+            this.isBusy = false;
+            this.updateInfo();
+        });
+        if (task.run()) {
+            this.isBusy = true;
+            this.updateInfo();
+        }
+        return task;
+    }
+    siphon() {
+        const task = CoreTask.create("Siphoning " + this.name, 10, CoreTaskType.Siphon)
+            .setIsInfinite(true)
+            .setOnComplete(() => {
+            this.remaining--;
+            if (this.remaining === 0) {
+                task.onCancel();
+            }
+            this.updateInfo();
+        })
+            .setOnCancel(() => {
+            this.isBusy = false;
+            this.updateInfo();
+        });
+        if (task.run()) {
+            this.isBusy = true;
+            this.updateInfo();
+        }
+        return task;
+    }
+    displayDataCore() {
+    }
+    generateChannelName() {
+        let result = "";
+        for (let index = 0; index < Channel.nameLength; index++) {
+            result += Utils.getAlphanumericString(2).toUpperCase() + ":";
+        }
+        return result.substring(0, result.length - 1);
+    }
+    serialize() {
+        return {
+            "name": this.name,
+            "detection": this.detection,
+            "remaining": this.remaining,
+            "isCracked": this.isCracked,
+            "isBusy": this.isBusy
+        };
+    }
+}
+Channel.nameLength = 5;
+class ChannelManager {
+    static initialize() {
+        ChannelManager.channels = [];
+        for (const channel of State.getValue("channels") || []) {
+            Channel.deserialize(channel);
+        }
+    }
+    static addChannel() {
+        const channel = new Channel(ChannelManager.channels.length);
+        ChannelManager.channels.push(channel);
+        return channel;
+    }
+    static getChannel(index) {
+        return ChannelManager.channels[index];
+    }
+    static save() {
+        const channels = [];
+        for (const channel of ChannelManager.channels) {
+            channels.push(channel.serialize());
+        }
+        State.setValue("channels", channels);
+    }
+}

@@ -3,6 +3,8 @@ class CoreTask implements ISerializable {
     private core: any = null;
     /** The disk this task modifies */
     private disk: any = null;
+    /** The channel this task modifies */
+    private channel: any = null;
 
     /** Window handler for this core's interval */
     private handle: number | null = null;
@@ -35,7 +37,6 @@ class CoreTask implements ISerializable {
      */
     public static deserialize(state: any): void {
         const core: Core = CoreManager.getCore(state.core);
-        const disk: Disk = DiskManager.getDisk(state.disk);
 
         let task: CoreTask;
         switch (state.type) {
@@ -46,10 +47,16 @@ class CoreTask implements ISerializable {
                 task = core.searchForFiles();
                 break;
             case 2:
-                task = disk.wipeDisk(false, core);
+                task = DiskManager.getDisk(state.disk).wipeDisk(false, core);
+                break;
+            case 3:
+                task = DiskManager.getDisk(state.disk).wipeDisk(true, core);
+                break;
+            case 4:
+                task = ChannelManager.getChannel(state.channel).crack();
                 break;
             default:
-                task = disk.wipeDisk(true, core);
+                task = ChannelManager.getChannel(state.channel).siphon();
                 break;
         }
 
@@ -151,6 +158,8 @@ class CoreTask implements ISerializable {
             this.core.updateButtons();
 
             return true;
+        } else {
+            Messenger.write("No cores are currently available");
         }
 
         return false;
@@ -233,6 +242,7 @@ class CoreTask implements ISerializable {
         return {
             "core": this.core.getID(),
             "disk": this.disk?.getID() || 0,
+            "channel": this.channel?.getID() || 0,
             "type": this.type,
             "startTime": this.startTime,
             "saveTime": Date.now()

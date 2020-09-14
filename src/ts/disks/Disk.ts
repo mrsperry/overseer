@@ -296,8 +296,6 @@ class Disk implements ISerializable {
             }
 
             this.updateInfo();
-        } else {
-            Messenger.write("No cores are currently available");
         }
 
         return task;
