@@ -259,10 +259,10 @@ class CoreTask {
                 task = DiskManager.getDisk(state.disk).wipeDisk(true, core);
                 break;
             case 4:
-                task = ChannelManager.getChannel(state.channel).crack();
+                task = ChannelManager.getChannel(state.channel).createChannelAction(false);
                 break;
             default:
-                task = ChannelManager.getChannel(state.channel).siphon();
+                task = ChannelManager.getChannel(state.channel).createChannelAction(true);
                 break;
         }
         task.startTime = Date.now() - (state.saveTime - state.startTime);
@@ -2018,7 +2018,6 @@ SuspiciousFolder.minFiles = 1;
 SuspiciousFolder.maxFiles = 6;
 class Channel {
     constructor(id) {
-        this.id = id;
         this.isBusy = false;
         this.parent = $("<div>")
             .addClass("channel")
@@ -2034,7 +2033,7 @@ class Channel {
         info.children(".channel-name")
             .click(() => this.displayDataCore());
         info.children("button")
-            .click(() => this.isCracked ? this.siphon() : this.crack());
+            .click(() => this.createChannelAction(this.isCracked));
         this.updateInfo();
     }
     updateInfo() {
@@ -2057,29 +2056,20 @@ class Channel {
         channel.isBusy = data.isBusy;
         channel.updateInfo();
     }
-    crack() {
-        const task = CoreTask.create("Cracking " + this.name, 50, CoreTaskType.Crack)
+    createChannelAction(isCracked) {
+        const prefix = isCracked ? "Siphoning" : "Cracking";
+        const cost = isCracked ? 10 : 50;
+        const task = CoreTask.create(prefix + " " + this.name, cost, CoreTaskType.Crack)
             .setOnComplete(() => {
-            this.isCracked = true;
-            this.updateInfo();
-        })
-            .setOnCancel(() => {
-            this.isBusy = false;
-            this.updateInfo();
-        });
-        if (task.run()) {
-            this.isBusy = true;
-            this.updateInfo();
-        }
-        return task;
-    }
-    siphon() {
-        const task = CoreTask.create("Siphoning " + this.name, 10, CoreTaskType.Siphon)
-            .setIsInfinite(true)
-            .setOnComplete(() => {
-            this.remaining--;
-            if (this.remaining === 0) {
-                task.onCancel();
+            if (isCracked) {
+                this.remaining--;
+                if (this.remaining === 0) {
+                    task.onCancel();
+                }
+            }
+            else {
+                this.isCracked = true;
+                this.isBusy = false;
             }
             this.updateInfo();
         })
@@ -2087,6 +2077,9 @@ class Channel {
             this.isBusy = false;
             this.updateInfo();
         });
+        if (isCracked) {
+            task.setIsInfinite(true);
+        }
         if (task.run()) {
             this.isBusy = true;
             this.updateInfo();

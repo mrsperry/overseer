@@ -4,7 +4,7 @@ class Channel implements ISerializable {
 
     /** HTML element parent */
     private parent: JQuery<HTMLElement>;
-
+    
     /** The name of this channel */
     private name: string;
     /** The percentage of a hack occurring when siphoning data */
@@ -41,7 +41,7 @@ class Channel implements ISerializable {
         info.children(".channel-name")
             .click((): void => this.displayDataCore());
         info.children("button")
-            .click((): CoreTask => this.isCracked ? this.siphon() : this.crack());
+            .click((): CoreTask => this.createChannelAction(this.isCracked));
     
         // Set all other info on the display
         this.updateInfo();
@@ -80,41 +80,25 @@ class Channel implements ISerializable {
     }
 
     /**
-     * Creates a new task to crack this channel
-     * @returns The core task
+     * Create a new channel task
+     * @param isCracked If the channel is currently cracked
      */
-    public crack(): CoreTask {
-        const task: CoreTask = CoreTask.create("Cracking " + this.name, 50, CoreTaskType.Crack)
+    public createChannelAction(isCracked: boolean): CoreTask {
+        const prefix: string = isCracked ? "Siphoning" : "Cracking";
+        const cost: number = isCracked ? 10 : 50;
+
+        const task: CoreTask = CoreTask.create(prefix + " " + this.name, cost, CoreTaskType.Crack)
             .setOnComplete((): void => {
-                this.isCracked = true;
-                this.updateInfo();
-            })
-            .setOnCancel((): void => {
-                this.isBusy = false;
-                this.updateInfo();
-            });
-        
-        if (task.run()) {
-            this.isBusy = true;
-            this.updateInfo();
-        }
+                if (isCracked) {
+                    this.remaining--;
 
-        return task;
-    }
-
-    /**
-     * Creates a new task to siphon data from this channel
-     * @returns The core task
-     */
-    public siphon(): CoreTask {
-        const task: CoreTask = CoreTask.create("Siphoning " + this.name, 10, CoreTaskType.Siphon)
-            .setIsInfinite(true)
-            .setOnComplete((): void => {
-                this.remaining--;
-
-                // Stop this task if there is no data left to siphon
-                if (this.remaining === 0) {
-                    task.onCancel();
+                    // Stop this task if there is no data left to siphon
+                    if (this.remaining === 0) {
+                        task.onCancel();
+                    }
+                } else {
+                    this.isCracked = true;
+                    this.isBusy = false;
                 }
 
                 this.updateInfo();
@@ -123,7 +107,12 @@ class Channel implements ISerializable {
                 this.isBusy = false;
                 this.updateInfo();
             });
-        
+
+        // Set siphoning as an infinite task
+        if (isCracked) {
+            task.setIsInfinite(true);
+        }
+            
         if (task.run()) {
             this.isBusy = true;
             this.updateInfo();

@@ -53,10 +53,10 @@ class CoreTask implements ISerializable {
                 task = DiskManager.getDisk(state.disk).wipeDisk(true, core);
                 break;
             case 4:
-                task = ChannelManager.getChannel(state.channel).crack();
+                task = ChannelManager.getChannel(state.channel).createChannelAction(false);
                 break;
             default:
-                task = ChannelManager.getChannel(state.channel).siphon();
+                task = ChannelManager.getChannel(state.channel).createChannelAction(true);
                 break;
         }
 
