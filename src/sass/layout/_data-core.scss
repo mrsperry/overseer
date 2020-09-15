@@ -1,0 +1,9 @@
+@use "../utils/variables";
+
+#data-core {
+    canvas {
+        padding: 0.5rem;
+        border: 1px solid variables.$main-border;
+        margin: 1rem;
+    }
+}

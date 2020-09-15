@@ -35,6 +35,7 @@ class Main {
                 Messenger.initialize();
                 await DiskManager.initialize();
                 ChannelManager.initialize();
+                DataCore.initialize();
                 CoreManager.initialize();
                 // Unpause the game after core tasks have been initialized
                 if (State.getValue("paused")) {

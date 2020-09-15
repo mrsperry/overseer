@@ -4,11 +4,13 @@ class Channel implements ISerializable {
 
     /** HTML element parent */
     private parent: JQuery<HTMLElement>;
-    
+
     /** The name of this channel */
     private name: string;
     /** The percentage of a hack occurring when siphoning data */
     private detection: number;
+    /** The amount of data siphoned */
+    private siphoned: number;
     /** The amount of data remaining */
     private remaining: number;
 
@@ -33,6 +35,7 @@ class Channel implements ISerializable {
         // Set channel defaults
         this.name = this.generateChannelName();
         this.detection = 0;
+        this.siphoned = 0;
         this.remaining = (id + 1) * 1000;
         this.isCracked = false;
 
@@ -73,6 +76,7 @@ class Channel implements ISerializable {
         const channel: Channel = ChannelManager.addChannel();
         channel.name = data.name;
         channel.detection = data.detection;
+        channel.siphoned = data.siphoned;
         channel.remaining = data.remaining;
         channel.isCracked = data.isCracked;
         channel.isBusy = data.isBusy;
@@ -90,7 +94,7 @@ class Channel implements ISerializable {
         const task: CoreTask = CoreTask.create(prefix + " " + this.name, cost, CoreTaskType.Crack)
             .setOnComplete((): void => {
                 if (isCracked) {
-                    this.remaining--;
+                    DataCore.displayData((++this.siphoned / --this.remaining) * 100);
 
                     // Stop this task if there is no data left to siphon
                     if (this.remaining === 0) {
@@ -150,6 +154,7 @@ class Channel implements ISerializable {
         return {
             "name": this.name,
             "detection": this.detection,
+            "siphoned": this.siphoned,
             "remaining": this.remaining,
             "isCracked": this.isCracked,
             "isBusy": this.isBusy

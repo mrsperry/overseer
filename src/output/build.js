@@ -12,6 +12,7 @@ class State {
             CoreManager.save();
             DiskManager.save();
             ChannelManager.save();
+            DataCore.save();
         }
         localStorage.setItem("save", JSON.stringify(State.data, null, 4));
     }
@@ -1091,6 +1092,7 @@ class Main {
             Messenger.initialize();
             await DiskManager.initialize();
             ChannelManager.initialize();
+            DataCore.initialize();
             CoreManager.initialize();
             if (State.getValue("paused")) {
                 State.togglePause();
@@ -2027,6 +2029,7 @@ class Channel {
             .appendTo("#channels");
         this.name = this.generateChannelName();
         this.detection = 0;
+        this.siphoned = 0;
         this.remaining = (id + 1) * 1000;
         this.isCracked = false;
         const info = this.parent.children(".channel-info");
@@ -2051,6 +2054,7 @@ class Channel {
         const channel = ChannelManager.addChannel();
         channel.name = data.name;
         channel.detection = data.detection;
+        channel.siphoned = data.siphoned;
         channel.remaining = data.remaining;
         channel.isCracked = data.isCracked;
         channel.isBusy = data.isBusy;
@@ -2062,7 +2066,7 @@ class Channel {
         const task = CoreTask.create(prefix + " " + this.name, cost, CoreTaskType.Crack)
             .setOnComplete(() => {
             if (isCracked) {
-                this.remaining--;
+                DataCore.displayData((++this.siphoned / --this.remaining) * 100);
                 if (this.remaining === 0) {
                     task.onCancel();
                 }
@@ -2099,6 +2103,7 @@ class Channel {
         return {
             "name": this.name,
             "detection": this.detection,
+            "siphoned": this.siphoned,
             "remaining": this.remaining,
             "isCracked": this.isCracked,
             "isBusy": this.isBusy
@@ -2129,3 +2134,35 @@ class ChannelManager {
         State.setValue("channels", channels);
     }
 }
+class DataCore {
+    static initialize() {
+        const canvas = $("<canvas>")
+            .attr("width", DataCore.canvasSize)
+            .attr("height", DataCore.canvasSize)
+            .appendTo("#data-core");
+        DataCore.context = canvas[0].getContext("2d");
+        DataCore.progress = State.getValue("data-core") || 0;
+        DataCore.displayData(DataCore.progress);
+    }
+    static displayData(progress) {
+        DataCore.progress = progress;
+        const context = DataCore.context;
+        context.clearRect(0, 0, DataCore.canvasSize, DataCore.canvasSize);
+        context.fillStyle = $("body").css("--clickable-text");
+        for (let index = 0; index < Math.floor(progress); index++) {
+            const fraction = Math.floor(index / DataCore.cubesPerRow);
+            const x = (index * DataCore.realCubeSize) - (fraction * DataCore.canvasSize);
+            const y = (DataCore.canvasSize - DataCore.cubeSize) - (fraction * DataCore.realCubeSize);
+            context.beginPath();
+            context.rect(x, y, DataCore.cubeSize, DataCore.cubeSize);
+            context.fill();
+        }
+    }
+    static save() {
+        State.setValue("data-core", DataCore.progress);
+    }
+}
+DataCore.canvasSize = 300;
+DataCore.cubeSize = 29;
+DataCore.realCubeSize = 30;
+DataCore.cubesPerRow = 10;
