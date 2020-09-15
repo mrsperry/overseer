@@ -1,9 +1,13 @@
 @use "../utils/variables";
 
 #data-core {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
     canvas {
         padding: 0.5rem;
         border: 1px solid variables.$main-border;
-        margin: 1rem;
+        margin-top: 0.5rem;
     }
 }
