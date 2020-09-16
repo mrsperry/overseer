@@ -12,6 +12,10 @@ class ChannelManager {
         for (const channel of State.getValue("channels") || []) {
             Channel.deserialize(channel);
         }
+
+        if (ChannelManager.channels.length === 0) {
+            ChannelManager.displayChannel(ChannelManager.addChannel());
+        }
     }
 
     /**
