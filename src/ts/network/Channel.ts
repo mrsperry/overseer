@@ -178,7 +178,7 @@ class Channel implements ISerializable {
      * Gets the current percentage of data siphoned
      */
     public getProgress(): number {
-        return (this.siphoned / this.remaining) * 100;
+        return (this.siphoned / (this.remaining + this.siphoned)) * 100;
     }
 
     /**

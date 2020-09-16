@@ -2117,7 +2117,7 @@ class Channel {
         }
     }
     getProgress() {
-        return (this.siphoned / this.remaining) * 100;
+        return (this.siphoned / (this.remaining + this.siphoned)) * 100;
     }
     serialize() {
         return {
