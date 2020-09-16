@@ -10,11 +10,9 @@ class DataCore {
 
     /** The canvas display context */
     private static context: any;
-    /** The current progress of the data core */
-    private static progress: number;
 
     /**
-     * Loads data core data from the state
+     * Creates the data core canvas element
      */
     public static initialize(): void {
         // Create the display canvas
@@ -22,12 +20,25 @@ class DataCore {
             .attr("width", DataCore.canvasSize)
             .attr("height", DataCore.canvasSize)
             .appendTo("#data-core");
-
-        // Get the context
         DataCore.context = canvas[0].getContext("2d");
-        // Display any saved data
-        DataCore.progress = State.getValue("data-core") || 0;
-        DataCore.displayData(DataCore.progress);
+    }
+
+    /**
+     * Adds progress without clearing the context
+     * @param progress The total progress percentage
+     */
+    public static addData(progress: number): void {
+        DataCore.displayData(progress);
+    }
+
+    /**
+     * Adds progress after clearing the context
+     * @param progress The total progress percentage
+     */
+    public static resetData(progress: number): void {
+        // Reset the canvas
+        DataCore.context.clearRect(0, 0, DataCore.canvasSize, DataCore.canvasSize);
+        DataCore.displayData(progress);
     }
 
     /**
@@ -36,13 +47,11 @@ class DataCore {
      * Each 1% of progress translates to one cube displayed
      * @param progress The amount of progress to display
      */
-    public static displayData(progress: number): void {
-        DataCore.progress = progress;
-
+    private static displayData(progress: number): void {
         // Get the context
         const context: any = DataCore.context;
-        // Reset the canvas
-        context.clearRect(0, 0, DataCore.canvasSize, DataCore.canvasSize);
+
+        // Set the fill style
         context.fillStyle = $("body").css("--clickable-text");
 
         // Draw the progress cubes
@@ -58,12 +67,5 @@ class DataCore {
             context.rect(x, y, DataCore.cubeSize, DataCore.cubeSize);
             context.fill();
         }
-    }
-
-    /**
-     * Saves the data core to the state
-     */
-    public static save(): void {
-        State.setValue("data-core", DataCore.progress);
     }
 }

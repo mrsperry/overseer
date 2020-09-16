@@ -14,10 +14,12 @@ class Channel implements ISerializable {
     /** The amount of data remaining */
     private remaining: number;
 
+    /** If this channel's data core is displayed */
+    private isDisplayed: boolean;
     /** If this channel has been cracked */
     private isCracked: boolean;
     /** If this channel is currently being cracked or siphoned */
-    private isBusy: boolean = false;
+    private isBusy: boolean;
 
     /**
      * Creates a new channel
@@ -37,12 +39,15 @@ class Channel implements ISerializable {
         this.detection = 0;
         this.siphoned = 0;
         this.remaining = (id + 1) * 1000;
+
         this.isCracked = false;
+        this.isDisplayed = false;
+        this.isBusy = false;
 
         // Set the on click events for the channel buttons
         const info: any = this.parent.children(".channel-info");
         info.children(".channel-name")
-            .click((): void => this.displayDataCore());
+            .click((): void => ChannelManager.displayChannel(this));
         info.children("button")
             .click((): CoreTask => this.createChannelAction(this.isCracked));
     
@@ -78,9 +83,14 @@ class Channel implements ISerializable {
         channel.detection = data.detection;
         channel.siphoned = data.siphoned;
         channel.remaining = data.remaining;
+        channel.isDisplayed = data.isDisplayed;
         channel.isCracked = data.isCracked;
         channel.isBusy = data.isBusy;
         channel.updateInfo();
+        
+        if (channel.isDisplayed) {
+            ChannelManager.displayChannel(channel);
+        }
     }
 
     /**
@@ -94,7 +104,13 @@ class Channel implements ISerializable {
         const task: CoreTask = CoreTask.create(prefix + " " + this.name, cost, CoreTaskType.Crack)
             .setOnComplete((): void => {
                 if (isCracked) {
-                    DataCore.displayData((++this.siphoned / --this.remaining) * 100);
+                    this.siphoned++;
+                    this.remaining--;
+
+                    // Only update the data core if this channel is displayed
+                    if (this.isDisplayed) {
+                        DataCore.addData(this.getProgress());
+                    }
 
                     // Stop this task if there is no data left to siphon
                     if (this.remaining === 0) {
@@ -126,13 +142,6 @@ class Channel implements ISerializable {
     }
 
     /**
-     * Update the data core display
-     */
-    private displayDataCore(): void {
-
-    }
-
-    /**
      * Generates a new channel name using random alphanumeric characters
      * 
      * A sample output name may be: FK:8B:WO:BK:T5
@@ -148,6 +157,31 @@ class Channel implements ISerializable {
     }
 
     /**
+     * Sets if this channel should be displayed
+     * 
+     * This also adds or removes the active class from channel names
+     * @param displayed If this channel should be displayed
+     */
+    public setDisplayed(displayed: boolean): void {
+        this.isDisplayed = displayed;
+
+        const name: any = this.parent.children(".channel-info")
+            .children(".channel-name");
+        if (displayed) {
+            name.addClass("active");
+        } else {
+            name.removeClass("active");
+        }
+    }
+
+    /**
+     * Gets the current percentage of data siphoned
+     */
+    public getProgress(): number {
+        return (this.siphoned / this.remaining) * 100;
+    }
+
+    /**
      * @returns The serialized state of this channel
      */
     public serialize(): any {
@@ -156,6 +190,7 @@ class Channel implements ISerializable {
             "detection": this.detection,
             "siphoned": this.siphoned,
             "remaining": this.remaining,
+            "isDisplayed": this.isDisplayed,
             "isCracked": this.isCracked,
             "isBusy": this.isBusy
         };

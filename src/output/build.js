@@ -12,7 +12,6 @@ class State {
             CoreManager.save();
             DiskManager.save();
             ChannelManager.save();
-            DataCore.save();
         }
         localStorage.setItem("save", JSON.stringify(State.data, null, 4));
     }
@@ -1091,8 +1090,8 @@ class Main {
             State.gameStarted();
             Messenger.initialize();
             await DiskManager.initialize();
-            ChannelManager.initialize();
             DataCore.initialize();
+            ChannelManager.initialize();
             CoreManager.initialize();
             if (State.getValue("paused")) {
                 State.togglePause();
@@ -2020,7 +2019,6 @@ SuspiciousFolder.minFiles = 1;
 SuspiciousFolder.maxFiles = 6;
 class Channel {
     constructor(id) {
-        this.isBusy = false;
         this.parent = $("<div>")
             .addClass("channel")
             .html(Views.get("channel"))
@@ -2032,9 +2030,11 @@ class Channel {
         this.siphoned = 0;
         this.remaining = (id + 1) * 1000;
         this.isCracked = false;
+        this.isDisplayed = false;
+        this.isBusy = false;
         const info = this.parent.children(".channel-info");
         info.children(".channel-name")
-            .click(() => this.displayDataCore());
+            .click(() => ChannelManager.displayChannel(this));
         info.children("button")
             .click(() => this.createChannelAction(this.isCracked));
         this.updateInfo();
@@ -2056,9 +2056,13 @@ class Channel {
         channel.detection = data.detection;
         channel.siphoned = data.siphoned;
         channel.remaining = data.remaining;
+        channel.isDisplayed = data.isDisplayed;
         channel.isCracked = data.isCracked;
         channel.isBusy = data.isBusy;
         channel.updateInfo();
+        if (channel.isDisplayed) {
+            ChannelManager.displayChannel(channel);
+        }
     }
     createChannelAction(isCracked) {
         const prefix = isCracked ? "Siphoning" : "Cracking";
@@ -2066,7 +2070,11 @@ class Channel {
         const task = CoreTask.create(prefix + " " + this.name, cost, CoreTaskType.Crack)
             .setOnComplete(() => {
             if (isCracked) {
-                DataCore.displayData((++this.siphoned / --this.remaining) * 100);
+                this.siphoned++;
+                this.remaining--;
+                if (this.isDisplayed) {
+                    DataCore.addData(this.getProgress());
+                }
                 if (this.remaining === 0) {
                     task.onCancel();
                 }
@@ -2090,8 +2098,6 @@ class Channel {
         }
         return task;
     }
-    displayDataCore() {
-    }
     generateChannelName() {
         let result = "";
         for (let index = 0; index < Channel.nameLength; index++) {
@@ -2099,12 +2105,27 @@ class Channel {
         }
         return result.substring(0, result.length - 1);
     }
+    setDisplayed(displayed) {
+        this.isDisplayed = displayed;
+        const name = this.parent.children(".channel-info")
+            .children(".channel-name");
+        if (displayed) {
+            name.addClass("active");
+        }
+        else {
+            name.removeClass("active");
+        }
+    }
+    getProgress() {
+        return (this.siphoned / this.remaining) * 100;
+    }
     serialize() {
         return {
             "name": this.name,
             "detection": this.detection,
             "siphoned": this.siphoned,
             "remaining": this.remaining,
+            "isDisplayed": this.isDisplayed,
             "isCracked": this.isCracked,
             "isBusy": this.isBusy
         };
@@ -2126,6 +2147,13 @@ class ChannelManager {
     static getChannel(index) {
         return ChannelManager.channels[index];
     }
+    static displayChannel(channel) {
+        for (const current of ChannelManager.channels) {
+            current.setDisplayed(false);
+        }
+        channel.setDisplayed(true);
+        DataCore.resetData(channel.getProgress());
+    }
     static save() {
         const channels = [];
         for (const channel of ChannelManager.channels) {
@@ -2141,13 +2169,16 @@ class DataCore {
             .attr("height", DataCore.canvasSize)
             .appendTo("#data-core");
         DataCore.context = canvas[0].getContext("2d");
-        DataCore.progress = State.getValue("data-core") || 0;
-        DataCore.displayData(DataCore.progress);
+    }
+    static addData(progress) {
+        DataCore.displayData(progress);
+    }
+    static resetData(progress) {
+        DataCore.context.clearRect(0, 0, DataCore.canvasSize, DataCore.canvasSize);
+        DataCore.displayData(progress);
     }
     static displayData(progress) {
-        DataCore.progress = progress;
         const context = DataCore.context;
-        context.clearRect(0, 0, DataCore.canvasSize, DataCore.canvasSize);
         context.fillStyle = $("body").css("--clickable-text");
         for (let index = 0; index < Math.floor(progress); index++) {
             const fraction = Math.floor(index / DataCore.cubesPerRow);
@@ -2157,9 +2188,6 @@ class DataCore {
             context.rect(x, y, DataCore.cubeSize, DataCore.cubeSize);
             context.fill();
         }
-    }
-    static save() {
-        State.setValue("data-core", DataCore.progress);
     }
 }
 DataCore.canvasSize = 300;

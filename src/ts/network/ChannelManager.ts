@@ -34,6 +34,19 @@ class ChannelManager {
     }
 
     /**
+     * Displays a specified channel and its data core
+     * @param channel The channel to display
+     */
+    public static displayChannel(channel: Channel): void {
+        for (const current of ChannelManager.channels) {
+            current.setDisplayed(false);
+        }
+
+        channel.setDisplayed(true);
+        DataCore.resetData(channel.getProgress());
+    }
+
+    /**
      * Saves all channels to the state
      */
     public static save(): void {
