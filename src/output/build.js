@@ -2073,7 +2073,7 @@ class Channel {
                 this.siphoned++;
                 this.remaining--;
                 if (this.isDisplayed) {
-                    DataCore.addData(this.getProgress());
+                    DataCore.setData(this.getProgress());
                 }
                 if (this.remaining === 0) {
                     task.onCancel();
@@ -2172,28 +2172,60 @@ class DataCore {
             .attr("height", DataCore.canvasSize)
             .appendTo("#data-core");
         DataCore.context = canvas[0].getContext("2d");
+        DataCore.cubes = [];
     }
-    static addData(progress) {
-        DataCore.displayData(progress);
+    static setData(progress) {
+        const toAdd = Math.floor(progress) - DataCore.cubes.length;
+        for (let index = 0; index < toAdd; index++) {
+            DataCore.cubes.push(0);
+        }
+        DataCore.displayData();
     }
     static resetData(progress) {
         DataCore.context.clearRect(0, 0, DataCore.canvasSize, DataCore.canvasSize);
-        DataCore.displayData(progress);
+        DataCore.cubes = [];
+        DataCore.setData(progress);
     }
-    static displayData(progress) {
+    static displayData() {
         const context = DataCore.context;
-        context.fillStyle = $("body").css("--clickable-text");
-        for (let index = 0; index < Math.floor(progress); index++) {
-            const fraction = Math.floor(index / DataCore.cubesPerRow);
-            const x = (index * DataCore.realCubeSize) - (fraction * DataCore.canvasSize);
-            const y = (DataCore.canvasSize - DataCore.cubeSize) - (fraction * DataCore.realCubeSize);
-            context.beginPath();
-            context.rect(x, y, DataCore.cubeSize, DataCore.cubeSize);
-            context.fill();
+        if (DataCore.handler !== undefined) {
+            window.clearInterval(DataCore.handler);
         }
+        let frameCount = 0;
+        DataCore.handler = window.setInterval(() => {
+            context.fillStyle = $("body").css("--clickable-text");
+            const cubes = DataCore.cubes;
+            const cubesToDraw = Math.min(frameCount / DataCore.cubeFadeSpeed, cubes.length);
+            for (let index = 0; index < cubesToDraw; index++) {
+                const fraction = Math.floor(index / DataCore.cubesPerRow);
+                const x = (index * DataCore.realCubeSize) - (fraction * DataCore.canvasSize);
+                const y = (DataCore.canvasSize - DataCore.cubeSize) - (fraction * DataCore.realCubeSize);
+                let scale = DataCore.cubes[index];
+                if (scale >= 100) {
+                    continue;
+                }
+                else {
+                    DataCore.cubes[index]++;
+                }
+                scale /= 100;
+                const offset = DataCore.cubeRadius - (DataCore.cubeRadius * scale);
+                context.beginPath();
+                context.translate(x + offset, y + offset);
+                context.scale(scale, scale);
+                context.rect(0, 0, DataCore.cubeSize, DataCore.cubeSize);
+                context.fill();
+                context.setTransform(1, 0, 0, 1, 0, 0);
+            }
+            if (cubes[cubes.length - 1] >= 100) {
+                window.clearInterval(DataCore.handler);
+            }
+            frameCount++;
+        }, 1);
     }
 }
 DataCore.canvasSize = 300;
 DataCore.cubeSize = 29;
 DataCore.realCubeSize = 30;
+DataCore.cubeRadius = DataCore.cubeSize / 2;
 DataCore.cubesPerRow = 10;
+DataCore.cubeFadeSpeed = 3;

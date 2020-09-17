@@ -109,7 +109,7 @@ class Channel implements ISerializable {
 
                     // Only update the data core if this channel is displayed
                     if (this.isDisplayed) {
-                        DataCore.addData(this.getProgress());
+                        DataCore.setData(this.getProgress());
                     }
 
                     // Stop this task if there is no data left to siphon
