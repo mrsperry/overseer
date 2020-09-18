@@ -119,8 +119,25 @@ class Utils {
      * @param number The number to format
      * @returns A string containing the properly formatted number
      */
-    public static stringify(number: number): string {
+    public static addCommas(number: number): string {
         return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    /**
+     * Adds a byte postfix to a number
+     * 
+     * Numbers below 1000 wil receive a "kb" postfix
+     * 
+     * Otherwise numbers will receive a "mb" postfix
+     * @param number The number to format
+     * @returns A string containing the properly formatted number
+     */
+    public static addPostfix(number: number): string {
+        if (number < 1000) {
+            return number + "kb";
+        } else {
+            return +(number / 1000).toFixed(1) + "mb";
+        }
     }
 
     /**

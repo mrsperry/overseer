@@ -102,7 +102,7 @@ class Disk implements ISerializable {
             .text(file.getName())
             .appendTo(parent);
         $("<span>")
-            .text(file.getSize() + "kb")
+            .text(Utils.addPostfix(file.getSize()))
             .appendTo(parent);
         
         this.displayedFiles++;
@@ -190,7 +190,7 @@ class Disk implements ISerializable {
         } else {
             header.addClass(this.isWiping ? "disabled" : "clickable")
                 .text((this.isQuarantine ? "Purge" : "Scan") + " files");
-            size.text(Utils.stringify(this.getUsage()) + "kb/" + Utils.stringify(this.maxStorage) + "kb");
+            size.text(Utils.addPostfix(this.getUsage()) + "/" + Utils.addPostfix(this.maxStorage));
 
             if (!this.isWiping) {
                 header.click((): CoreTask => this.wipeDisk(this.isQuarantine));

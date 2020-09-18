@@ -605,8 +605,16 @@ class Utils {
         words[0] = Utils.capitalize(words[0]);
         return words.join(" ");
     }
-    static stringify(number) {
+    static addCommas(number) {
         return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+    static addPostfix(number) {
+        if (number < 1000) {
+            return number + "kb";
+        }
+        else {
+            return +(number / 1000).toFixed(1) + "mb";
+        }
     }
     static hexToHue(hex) {
         let red = "0x" + hex[1] + hex[2];
@@ -903,7 +911,7 @@ class Stats {
             for (const stat in Stats.data[namespace]) {
                 const amount = Stats.data[namespace][stat];
                 const whole = Math.floor(amount);
-                let result = Utils.stringify(whole);
+                let result = Utils.addCommas(whole);
                 if (amount % 1 !== 0) {
                     result += (amount - whole).toFixed(2).substring(1, 4);
                 }
@@ -1177,7 +1185,7 @@ class Disk {
             .text(file.getName())
             .appendTo(parent);
         $("<span>")
-            .text(file.getSize() + "kb")
+            .text(Utils.addPostfix(file.getSize()))
             .appendTo(parent);
         this.displayedFiles++;
     }
@@ -1227,7 +1235,7 @@ class Disk {
         else {
             header.addClass(this.isWiping ? "disabled" : "clickable")
                 .text((this.isQuarantine ? "Purge" : "Scan") + " files");
-            size.text(Utils.stringify(this.getUsage()) + "kb/" + Utils.stringify(this.maxStorage) + "kb");
+            size.text(Utils.addPostfix(this.getUsage()) + "/" + Utils.addPostfix(this.maxStorage));
             if (!this.isWiping) {
                 header.click(() => this.wipeDisk(this.isQuarantine));
             }
@@ -2063,7 +2071,7 @@ class Channel {
             .text("[" + (this.isCracked ? "siphon" : "crack") + "]");
         const meta = this.parent.children(".channel-meta");
         meta.children(".channel-detection").text("Detection: " + (this.isCracked ? this.detection + "%" : "???"));
-        meta.children(".channel-remaining").text((this.isCracked ? this.remaining + "kb" : "???") + " remaining");
+        meta.children(".channel-remaining").text((this.isCracked ? Utils.addPostfix(this.remaining) : "???") + " remaining");
     }
     static deserialize(data) {
         const channel = ChannelManager.addChannel();

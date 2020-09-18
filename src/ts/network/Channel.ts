@@ -77,7 +77,7 @@ class Channel implements ISerializable {
         // Update the channel meta
         const meta: any = this.parent.children(".channel-meta");
         meta.children(".channel-detection").text("Detection: " + (this.isCracked ? this.detection + "%" : "???"));
-        meta.children(".channel-remaining").text((this.isCracked ? this.remaining + "kb" : "???") + " remaining");
+        meta.children(".channel-remaining").text((this.isCracked ? Utils.addPostfix(this.remaining) : "???") + " remaining");
     }
 
     /**

@@ -73,7 +73,7 @@ class Stats {
                 const whole: number = Math.floor(amount);
 
                 // Add commas to the whole part of the number
-                let result = Utils.stringify(whole);
+                let result = Utils.addCommas(whole);
                 // Add a fixed decimal if available
                 if (amount % 1 !== 0) {
                     result += (amount - whole).toFixed(2).substring(1, 4);
