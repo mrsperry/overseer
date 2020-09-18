@@ -2067,7 +2067,8 @@ class Channel {
     createChannelAction(isCracked) {
         const prefix = isCracked ? "Siphoning" : "Cracking";
         const cost = isCracked ? 10 : 50;
-        const task = CoreTask.create(prefix + " " + this.name, cost, CoreTaskType.Crack)
+        const type = isCracked ? CoreTaskType.Siphon : CoreTaskType.Crack;
+        const task = CoreTask.create(prefix + " " + this.name, cost, type)
             .setOnComplete(() => {
             if (isCracked) {
                 this.siphoned++;

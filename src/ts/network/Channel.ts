@@ -100,8 +100,9 @@ class Channel implements ISerializable {
     public createChannelAction(isCracked: boolean): CoreTask {
         const prefix: string = isCracked ? "Siphoning" : "Cracking";
         const cost: number = isCracked ? 10 : 50;
+        const type: CoreTaskType = isCracked ? CoreTaskType.Siphon : CoreTaskType.Crack;
 
-        const task: CoreTask = CoreTask.create(prefix + " " + this.name, cost, CoreTaskType.Crack)
+        const task: CoreTask = CoreTask.create(prefix + " " + this.name, cost, type)
             .setOnComplete((): void => {
                 if (isCracked) {
                     this.siphoned++;
