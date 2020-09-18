@@ -25,7 +25,7 @@ class Channel implements ISerializable {
      * Creates a new channel
      * @param id The ID of this channel
      */
-    public constructor(id: number) {
+    public constructor(private id: number) {
         // Create the channel parent
         this.parent = $("<div>")
             .addClass("channel")
@@ -103,6 +103,7 @@ class Channel implements ISerializable {
         const type: CoreTaskType = isCracked ? CoreTaskType.Siphon : CoreTaskType.Crack;
 
         const task: CoreTask = CoreTask.create(prefix + " " + this.name, cost, type)
+            .setChannel(this)
             .setOnComplete((): void => {
                 if (isCracked) {
                     this.siphoned++;
@@ -173,6 +174,13 @@ class Channel implements ISerializable {
         } else {
             name.removeClass("active");
         }
+    }
+
+    /**
+     * @returns The ID of this channel
+     */
+    public getID(): number {
+        return this.id;
     }
 
     /**

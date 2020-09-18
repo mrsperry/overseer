@@ -220,6 +220,15 @@ class CoreTask implements ISerializable {
     }
 
     /**
+     * @param channel The channel this task modifies
+     */
+    public setChannel(channel: Channel): CoreTask {
+        this.channel = channel;
+
+        return this;
+    }
+
+    /**
      * @param onComplete The function to run if the task is completed
      */
     public setOnComplete(onComplete: Function): CoreTask {

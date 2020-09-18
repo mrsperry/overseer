@@ -350,6 +350,10 @@ class CoreTask {
         this.disk = disk;
         return this;
     }
+    setChannel(channel) {
+        this.channel = channel;
+        return this;
+    }
     setOnComplete(onComplete) {
         this.complete = onComplete;
         return this;
@@ -2019,6 +2023,7 @@ SuspiciousFolder.minFiles = 1;
 SuspiciousFolder.maxFiles = 6;
 class Channel {
     constructor(id) {
+        this.id = id;
         this.parent = $("<div>")
             .addClass("channel")
             .html(Views.get("channel"))
@@ -2069,6 +2074,7 @@ class Channel {
         const cost = isCracked ? 10 : 50;
         const type = isCracked ? CoreTaskType.Siphon : CoreTaskType.Crack;
         const task = CoreTask.create(prefix + " " + this.name, cost, type)
+            .setChannel(this)
             .setOnComplete(() => {
             if (isCracked) {
                 this.siphoned++;
@@ -2116,6 +2122,9 @@ class Channel {
         else {
             name.removeClass("active");
         }
+    }
+    getID() {
+        return this.id;
     }
     getProgress() {
         return (this.siphoned / (this.remaining + this.siphoned)) * 100;
