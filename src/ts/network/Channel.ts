@@ -47,7 +47,11 @@ class Channel implements ISerializable {
         // Set the on click events for the channel buttons
         const info: any = this.parent.children(".channel-info");
         info.children(".channel-name")
-            .click((): void => ChannelManager.displayChannel(this));
+            .click((): void => {
+                if (!this.isDisplayed) {
+                    ChannelManager.displayChannel(this)
+                }
+            });
         info.children("button")
             .click((): CoreTask => this.createChannelAction(this.isCracked));
     

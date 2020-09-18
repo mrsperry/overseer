@@ -2039,7 +2039,11 @@ class Channel {
         this.isBusy = false;
         const info = this.parent.children(".channel-info");
         info.children(".channel-name")
-            .click(() => ChannelManager.displayChannel(this));
+            .click(() => {
+            if (!this.isDisplayed) {
+                ChannelManager.displayChannel(this);
+            }
+        });
         info.children("button")
             .click(() => this.createChannelAction(this.isCracked));
         this.updateInfo();
