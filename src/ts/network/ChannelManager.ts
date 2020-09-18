@@ -47,6 +47,13 @@ class ChannelManager {
     }
 
     /**
+     * @returns All registered channels
+     */
+    public static getAllChannels(): Channel[] {
+        return ChannelManager.channels;
+    }
+
+    /**
      * Displays a specified channel and its data core
      * @param channel The channel to display
      */

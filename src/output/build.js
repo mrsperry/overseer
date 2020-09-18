@@ -836,7 +836,7 @@ class Settings {
         if (name === "clickable-text") {
             $("#main-menu-image").css("filter", "hue-rotate(" + (Utils.hexToHue(value) - Settings.originalHue) + "deg)");
             try {
-                DataCore.setData(ChannelManager.getDisplayedChannel().getProgress());
+                DataCore.resetData(ChannelManager.getDisplayedChannel().getProgress());
             }
             catch (exception) { }
         }
@@ -1106,6 +1106,7 @@ class Main {
             }
             await Research.initialize();
             HackTimer.initialize();
+            ChannelDetection.initialize();
         });
     }
 }
@@ -2038,6 +2039,7 @@ class Channel {
         this.detection = 0;
         this.siphoned = 0;
         this.remaining = (id + 1) * 1000;
+        this.dataInterval = this.remaining / 100;
         this.isCracked = false;
         this.isDisplayed = false;
         this.isBusy = false;
@@ -2069,6 +2071,7 @@ class Channel {
         channel.detection = data.detection;
         channel.siphoned = data.siphoned;
         channel.remaining = data.remaining;
+        channel.dataInterval = data.dataInterval;
         channel.isDisplayed = data.isDisplayed;
         channel.isCracked = data.isCracked;
         channel.isBusy = data.isBusy;
@@ -2087,6 +2090,16 @@ class Channel {
             if (isCracked) {
                 this.siphoned++;
                 this.remaining--;
+                if (this.detection < 100) {
+                    if (ChannelDetection.shouldIncreaseDetection()) {
+                        this.detection++;
+                    }
+                }
+                if (this.siphoned % this.dataInterval === 0) {
+                    if (ChannelDetection.shouldGenerateHack(this.detection)) {
+                        HackTimer.createHack();
+                    }
+                }
                 if (this.isDisplayed) {
                     DataCore.setData(this.getProgress());
                 }
@@ -2134,8 +2147,18 @@ class Channel {
     getID() {
         return this.id;
     }
+    getDetection() {
+        return this.detection;
+    }
+    setDetection(detection) {
+        this.detection = detection;
+        this.updateInfo();
+    }
     getProgress() {
         return (this.siphoned / (this.remaining + this.siphoned)) * 100;
+    }
+    getIsBusy() {
+        return this.isBusy;
     }
     serialize() {
         return {
@@ -2143,6 +2166,7 @@ class Channel {
             "detection": this.detection,
             "siphoned": this.siphoned,
             "remaining": this.remaining,
+            "dataInterval": this.dataInterval,
             "isDisplayed": this.isDisplayed,
             "isCracked": this.isCracked,
             "isBusy": this.isBusy
@@ -2150,6 +2174,39 @@ class Channel {
     }
 }
 Channel.nameLength = 5;
+class ChannelDetection {
+    static initialize() {
+        window.setInterval(ChannelDetection.update, 1000);
+    }
+    static shouldIncreaseDetection() {
+        const chance = Utils.random(ChannelDetection.minIncreaseChance, ChannelDetection.maxIncreaseChance);
+        return chance > Utils.random(0, 100);
+    }
+    static shouldGenerateHack(detection) {
+        return detection > Utils.random(0, 100);
+    }
+    static update() {
+        const channels = ChannelManager.getAllChannels();
+        for (const channel of channels) {
+            if (channel.getIsBusy()) {
+                continue;
+            }
+            let detection = channel.getDetection();
+            if (detection === 0) {
+                continue;
+            }
+            const chance = Utils.random(ChannelDetection.minDecreaseChance, ChannelDetection.maxDecreaseChance);
+            if (chance < Utils.random(0, 100)) {
+                continue;
+            }
+            channel.setDetection(--detection);
+        }
+    }
+}
+ChannelDetection.minIncreaseChance = 8;
+ChannelDetection.maxIncreaseChance = 16;
+ChannelDetection.minDecreaseChance = 5;
+ChannelDetection.maxDecreaseChance = 12;
 class ChannelManager {
     static initialize() {
         ChannelManager.channels = [];
@@ -2170,6 +2227,9 @@ class ChannelManager {
     }
     static getDisplayedChannel() {
         return ChannelManager.displayed;
+    }
+    static getAllChannels() {
+        return ChannelManager.channels;
     }
     static displayChannel(channel) {
         for (const current of ChannelManager.channels) {

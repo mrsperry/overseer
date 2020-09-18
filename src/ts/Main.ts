@@ -42,7 +42,9 @@ class Main {
                     State.togglePause();
                 }
                 await Research.initialize();
+
                 HackTimer.initialize();
+                ChannelDetection.initialize();
             });
     }
 }

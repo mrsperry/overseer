@@ -13,6 +13,8 @@ class Channel implements ISerializable {
     private siphoned: number;
     /** The amount of data remaining */
     private remaining: number;
+    /** The amount of data needed for a memory cube */
+    private dataInterval: number;
 
     /** If this channel's data core is displayed */
     private isDisplayed: boolean;
@@ -39,6 +41,7 @@ class Channel implements ISerializable {
         this.detection = 0;
         this.siphoned = 0;
         this.remaining = (id + 1) * 1000;
+        this.dataInterval = this.remaining / 100;
 
         this.isCracked = false;
         this.isDisplayed = false;
@@ -87,6 +90,7 @@ class Channel implements ISerializable {
         channel.detection = data.detection;
         channel.siphoned = data.siphoned;
         channel.remaining = data.remaining;
+        channel.dataInterval = data.dataInterval;
         channel.isDisplayed = data.isDisplayed;
         channel.isCracked = data.isCracked;
         channel.isBusy = data.isBusy;
@@ -112,6 +116,21 @@ class Channel implements ISerializable {
                 if (isCracked) {
                     this.siphoned++;
                     this.remaining--;
+
+                    // Update the detection level
+                    if (this.detection < 100) {
+                        if (ChannelDetection.shouldIncreaseDetection()) {
+                            this.detection++;
+                        }
+                    }
+
+                    // Check if this data interval will give a memory cube
+                    if (this.siphoned % this.dataInterval === 0) {
+                        // Try to generate a hack
+                        if (ChannelDetection.shouldGenerateHack(this.detection)) {
+                            HackTimer.createHack();
+                        }
+                    }
 
                     // Only update the data core if this channel is displayed
                     if (this.isDisplayed) {
@@ -188,10 +207,33 @@ class Channel implements ISerializable {
     }
 
     /**
-     * Gets the current percentage of data siphoned
+     * @returns The detection percentage
+     */
+    public getDetection(): number {
+        return this.detection;
+    }
+
+    /**
+     * @param detection The new detection percentage
+     */
+    public setDetection(detection: number): void {
+        this.detection = detection;
+
+        this.updateInfo();
+    }
+
+    /**
+     * @returns The current percentage of data siphoned
      */
     public getProgress(): number {
         return (this.siphoned / (this.remaining + this.siphoned)) * 100;
+    }
+
+    /**
+     * @returns If this channel has a task modifying it
+     */
+    public getIsBusy(): boolean {
+        return this.isBusy;
     }
 
     /**
@@ -203,6 +245,7 @@ class Channel implements ISerializable {
             "detection": this.detection,
             "siphoned": this.siphoned,
             "remaining": this.remaining,
+            "dataInterval": this.dataInterval,
             "isDisplayed": this.isDisplayed,
             "isCracked": this.isCracked,
             "isBusy": this.isBusy
