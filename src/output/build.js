@@ -835,6 +835,10 @@ class Settings {
         $("body").get(0).style.setProperty("--" + name, value);
         if (name === "clickable-text") {
             $("#main-menu-image").css("filter", "hue-rotate(" + (Utils.hexToHue(value) - Settings.originalHue) + "deg)");
+            try {
+                DataCore.setData(ChannelManager.getDisplayedChannel().getProgress());
+            }
+            catch (exception) { }
         }
     }
     static toggleSetting(id, enabled) {
@@ -2164,11 +2168,15 @@ class ChannelManager {
     static getChannel(index) {
         return ChannelManager.channels[index];
     }
+    static getDisplayedChannel() {
+        return ChannelManager.displayed;
+    }
     static displayChannel(channel) {
         for (const current of ChannelManager.channels) {
             current.setDisplayed(false);
         }
         channel.setDisplayed(true);
+        ChannelManager.displayed = channel;
         DataCore.resetData(channel.getProgress());
     }
     static save() {
@@ -2205,9 +2213,9 @@ class DataCore {
         if (DataCore.handler !== undefined) {
             window.clearInterval(DataCore.handler);
         }
+        context.fillStyle = $("body").css("--clickable-text");
         let frameCount = 0;
         DataCore.handler = window.setInterval(() => {
-            context.fillStyle = $("body").css("--clickable-text");
             const cubes = DataCore.cubes;
             const cubesToDraw = Math.min(frameCount / DataCore.cubeFadeSpeed, cubes.length);
             for (let index = 0; index < cubesToDraw; index++) {

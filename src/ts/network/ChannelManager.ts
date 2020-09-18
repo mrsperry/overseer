@@ -1,6 +1,8 @@
 class ChannelManager {
     /** A list of all handled channels */
     private static channels: Channel[];
+    /** The currently displayed channel */
+    private static displayed: Channel;
 
     /**
      * Loads channels from the state
@@ -38,6 +40,13 @@ class ChannelManager {
     }
 
     /**
+     * @returns The currently displayed channel
+     */
+    public static getDisplayedChannel(): Channel {
+        return ChannelManager.displayed;
+    }
+
+    /**
      * Displays a specified channel and its data core
      * @param channel The channel to display
      */
@@ -47,6 +56,7 @@ class ChannelManager {
         }
 
         channel.setDisplayed(true);
+        ChannelManager.displayed = channel;
         DataCore.resetData(channel.getProgress());
     }
 

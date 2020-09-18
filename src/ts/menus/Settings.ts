@@ -129,9 +129,15 @@ class Settings {
     private static setColorVariable(name: string, value: string): void {
         $("body").get(0).style.setProperty("--" + name, value);
 
-        // Change the hue of the main menu image if its displayed
         if (name === "clickable-text") {
+            // Change the hue of the main menu image if its displayed
             $("#main-menu-image").css("filter", "hue-rotate(" + (Utils.hexToHue(value) - Settings.originalHue) + "deg)");
+        
+            // Try to change the data core color
+            // This will error if the color is changed in the main menu
+            try {
+                DataCore.resetData(ChannelManager.getDisplayedChannel().getProgress());
+            } catch (exception) { }
         }
     }
 

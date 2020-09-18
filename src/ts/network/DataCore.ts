@@ -72,7 +72,7 @@ class DataCore {
      * Each 1% of progress translates to one cube displayed
      * @param progress The amount of progress to display
      */
-    public static displayData(): void {
+    private static displayData(): void {
         // Get the context
         const context: any = DataCore.context;
 
@@ -81,13 +81,13 @@ class DataCore {
             window.clearInterval(DataCore.handler);
         }
 
+        // Set the fill style
+        context.fillStyle = $("body").css("--clickable-text");
+
         // Number of frames that have passed
         let frameCount: number = 0;
         // Create a new interval
         DataCore.handler = window.setInterval((): void => {
-            // Set the fill style
-            context.fillStyle = $("body").css("--clickable-text");
-
             // Get the cubes to draw
             const cubes: any[] = DataCore.cubes;
             // Calculate the number of cubes to draw this frame (adds a cascade effect)
