@@ -43,11 +43,6 @@
     a {
         margin-top: 1rem;
     }
-
-    .pretext {
-        max-width: 35rem;
-        margin-bottom: 1rem;
-    }
     
     .header {
         margin-bottom: 1rem;
@@ -71,6 +66,10 @@
 
         .text-line {
             cursor: default;
+        }
+
+        p + p {
+            margin-top: 0rem;
         }
     }
     

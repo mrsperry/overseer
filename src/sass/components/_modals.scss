@@ -25,6 +25,7 @@
     z-index: 1;
     flex-direction: column;
     background-color: variables.$main-bg;
+    max-width: 35rem;
     padding: 2rem;
     border: 1px solid variables.$main-border;
 
@@ -41,5 +42,13 @@
         align-self: center;
         padding: 0.5rem 1rem;
         margin-top: 1.25rem;
+    }
+
+    p {
+        text-align: center;
+        
+        + p {
+            margin-top: 1rem;
+        }
     }
 }
