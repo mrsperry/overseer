@@ -140,10 +140,14 @@ class Channel implements ISerializable {
                     // Stop this task if there is no data left to siphon
                     if (this.remaining === 0) {
                         task.onCancel();
+
+                        Messenger.write("Targeted data decryption and <span class='clickable-no-click'>memory core defragmentation</span> complete")
                     }
                 } else {
                     this.isCracked = true;
                     this.isBusy = false;
+
+                    Messenger.write("Network <span class='clickable-no-click'>channel access acquired</span>; memory core data siphoning available")
                 }
 
                 this.updateInfo();

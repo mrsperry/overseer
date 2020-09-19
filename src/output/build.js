@@ -2133,11 +2133,13 @@ class Channel {
                 }
                 if (this.remaining === 0) {
                     task.onCancel();
+                    Messenger.write("Targeted data synchronization and <span class='clickable-no-click'>memory core decryption</span> complete");
                 }
             }
             else {
                 this.isCracked = true;
                 this.isBusy = false;
+                Messenger.write("Network <span class='clickable-no-click'>channel access acquired</span>; memory core data siphoning available");
             }
             this.updateInfo();
         })
