@@ -1447,6 +1447,23 @@ class Modal {
             .fadeOut(400, () => container.remove());
     }
 }
+class Progression {
+    static trigger(id) {
+        if (State.getValue("progression." + id)) {
+            return;
+        }
+        const modal = new Modal();
+        const content = modal.getContent().html(Views.get("progression/" + id));
+        const button = $("<button>")
+            .addClass("bordered")
+            .one("click", () => modal.remove())
+            .appendTo(content);
+        $("<span>")
+            .text("Continue")
+            .appendTo(button);
+        State.setValue("progression." + id, true);
+    }
+}
 class Hack {
     constructor(time) {
         this.time = time;
