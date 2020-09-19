@@ -87,7 +87,7 @@ class Stats {
 
         const close: any = $("<button>")
             .addClass("bordered")
-            .click((): void => modal.remove())
+            .one("click", (): void => modal.remove())
             .appendTo(content);
         $("<span>")
             .text("Close")

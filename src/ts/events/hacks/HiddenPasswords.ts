@@ -132,7 +132,7 @@ class HiddenPasswords extends Hack {
             const passwordElement: any = $("<span>")
                 .attr("password-index", index)
                 .text(password)
-                .click((): void => {
+                .one("click", (): void => {
                     if (this.locked) {
                         return;
                     }

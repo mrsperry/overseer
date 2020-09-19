@@ -94,7 +94,7 @@ class NumberMultiples extends Hack {
                 const cell: any = $("<td>")
                     .addClass("clickable")
                     .text(number)
-                    .click((): void => {
+                    .one("click", (): void => {
                         if (this.locked) {
                             return;
                         }

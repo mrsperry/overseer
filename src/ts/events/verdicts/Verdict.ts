@@ -97,7 +97,7 @@ abstract class Verdict {
                 // Add a continue button
                 const close: any = $("<button>")
                     .addClass("bordered")
-                    .click((): void => this.modal.remove())
+                    .one("click", (): void => this.modal.remove())
                     .appendTo(optionHolder);
                 $("<span>")
                     .text("Continue")

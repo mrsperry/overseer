@@ -22,9 +22,9 @@ class SuspiciousFolder extends Verdict {
      */
     protected registerEvents(): void {
         const options: any = this.content.children(".option-holder");
-        options.children(".prompt-admin").click((): void => this.promptAdmin(0));
-        options.children(".purge-folder").click((): void => this.purgeFolder(1));
-        options.children(".collect-files").click((): void => this.collectFiles(2));
+        options.children(".prompt-admin").one("click", (): void => this.promptAdmin(0));
+        options.children(".purge-folder").one("click", (): void => this.purgeFolder(1));
+        options.children(".collect-files").one("click", (): void => this.collectFiles(2));
     }
 
     /**

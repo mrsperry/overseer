@@ -186,7 +186,7 @@ class Verdict {
                     .empty().fadeIn();
                 const close = $("<button>")
                     .addClass("bordered")
-                    .click(() => this.modal.remove())
+                    .one("click", () => this.modal.remove())
                     .appendTo(optionHolder);
                 $("<span>")
                     .text("Continue")
@@ -390,9 +390,9 @@ class Core {
         this.canvas.drawCore(0);
         this.info = parent.children(".core-info");
         this.info.children(".core-name").text("Core #" + (id + 1));
-        this.info.children(".overclock-button").click(() => this.overclock());
-        this.info.children(".cancel-button").click(() => this.cancelTask());
-        this.info.children(".search-button").click(() => this.searchForFiles());
+        this.info.children(".overclock-button").on("click", () => this.overclock());
+        this.info.children(".cancel-button").on("click", () => this.cancelTask());
+        this.info.children(".search-button").on("click", () => this.searchForFiles());
         this.setCoreTaskDisplay();
         this.updatePower();
         this.updateButtons();
@@ -813,15 +813,15 @@ class Settings {
         for (const id in Settings.toggles) {
             const element = $("#" + id);
             const enable = $(element).children("button:first-child");
-            enable.click(() => Settings.toggleSetting(id, true));
+            enable.on("click", () => Settings.toggleSetting(id, true));
             const disable = $(element).children("button:last-child");
-            disable.click(() => Settings.toggleSetting(id, false));
+            disable.on("click", () => Settings.toggleSetting(id, false));
             Settings.toggleSetting(id, Settings.toggles[id] || false);
         }
-        $("#reset-settings").click(() => Settings.resetValues());
-        $("#restart-game").click(() => State.reset());
+        $("#reset-settings").on("click", () => Settings.resetValues());
+        $("#restart-game").on("click", () => State.reset());
         content.children("button")
-            .click(() => Settings.modal.remove());
+            .one("click", () => Settings.modal.remove());
     }
     static save() {
         State.setValue("settings.main-color", Settings.mainColor);
@@ -925,7 +925,7 @@ class Stats {
         }
         const close = $("<button>")
             .addClass("bordered")
-            .click(() => modal.remove())
+            .one("click", () => modal.remove())
             .appendTo(content);
         $("<span>")
             .text("Close")
@@ -1150,7 +1150,7 @@ class Disk {
             .appendTo(isQuarantine ? "#quarantines" : "#drives");
         this.parent.children(".disk-name")
             .text(name)
-            .click(() => DiskManager.displayFiles(this));
+            .on("click", () => DiskManager.displayFiles(this));
         this.parent.children(".disk-info")
             .children("button")
             .text("[" + (isQuarantine ? "x" : "+") + "]");
@@ -1218,7 +1218,7 @@ class Disk {
             .prop("disabled", disabled)
             .off("click");
         if (!disabled) {
-            button.click(() => this.wipeDisk(this.isQuarantine));
+            button.on("click", () => this.wipeDisk(this.isQuarantine));
         }
         info.children(".disk-usage")
             .text(Math.floor((this.getUsage() / this.maxStorage) * 100) + "%");
@@ -1240,7 +1240,7 @@ class Disk {
                 .text((this.isQuarantine ? "Purge" : "Scan") + " files");
             size.text(Utils.addPostfix(this.getUsage()) + "/" + Utils.addPostfix(this.maxStorage));
             if (!this.isWiping) {
-                header.click(() => this.wipeDisk(this.isQuarantine));
+                header.on("click", () => this.wipeDisk(this.isQuarantine));
             }
         }
         if (this.files.length > Disk.maxDisplayedFiles) {
@@ -1475,7 +1475,7 @@ class Hack {
         this.modal = new Modal("hack");
         this.content = this.modal.getContent()
             .html(Views.get("hacks/pretext"));
-        this.content.children("a").click(() => this.content.fadeOut(400, () => {
+        this.content.children("a").one("click", () => this.content.fadeOut(400, () => {
             this.content.empty().fadeIn();
             this.handle = window.setInterval(() => this.countdown(), 1000);
             this.addContent();
@@ -1556,7 +1556,7 @@ class Cryptogram extends Hack {
                 const letter = letters[currentIndex];
                 const code = $("<li>")
                     .text(letter + ": 0x" + letters.charCodeAt(currentIndex).toString(16))
-                    .click(() => {
+                    .on("click", () => {
                     if (this.locked) {
                         return;
                     }
@@ -1717,7 +1717,7 @@ class HiddenPasswords extends Hack {
             const passwordElement = $("<span>")
                 .attr("password-index", index)
                 .text(password)
-                .click(() => {
+                .one("click", () => {
                 if (this.locked) {
                     return;
                 }
@@ -1830,7 +1830,7 @@ class NumberMultiples extends Hack {
                 const cell = $("<td>")
                     .addClass("clickable")
                     .text(number)
-                    .click(() => {
+                    .one("click", () => {
                     if (this.locked) {
                         return;
                     }
@@ -1947,7 +1947,7 @@ class OrderedNumbers extends Hack {
                     .attr("data-index", display)
                     .addClass("clickable")
                     .text(display)
-                    .click(() => {
+                    .one("click", () => {
                     if (this.locked) {
                         return;
                     }
@@ -1998,9 +1998,9 @@ class SuspiciousFolder extends Verdict {
     }
     registerEvents() {
         const options = this.content.children(".option-holder");
-        options.children(".prompt-admin").click(() => this.promptAdmin(0));
-        options.children(".purge-folder").click(() => this.purgeFolder(1));
-        options.children(".collect-files").click(() => this.collectFiles(2));
+        options.children(".prompt-admin").one("click", () => this.promptAdmin(0));
+        options.children(".purge-folder").one("click", () => this.purgeFolder(1));
+        options.children(".collect-files").one("click", () => this.collectFiles(2));
     }
     promptAdmin(option) {
         const success = Utils.random();
@@ -2073,13 +2073,13 @@ class Channel {
         this.isBusy = false;
         const info = this.parent.children(".channel-info");
         info.children(".channel-name")
-            .click(() => {
+            .on("click", () => {
             if (!this.isDisplayed) {
                 ChannelManager.displayChannel(this);
             }
         });
         info.children("button")
-            .click(() => this.createChannelAction(this.isCracked));
+            .one("click", () => this.createChannelAction(this.isCracked));
         this.updateInfo();
     }
     updateInfo() {

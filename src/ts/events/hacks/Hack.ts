@@ -22,7 +22,7 @@ abstract class Hack {
             .html(Views.get("hacks/pretext"));
 
         // Add a link to start the hack
-        this.content.children("a").click((): void => this.content.fadeOut(400, (): void => {
+        this.content.children("a").one("click", (): void => this.content.fadeOut(400, (): void => {
             this.content.empty().fadeIn();
             this.handle = window.setInterval((): void => this.countdown(), 1000);
 

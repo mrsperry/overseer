@@ -37,9 +37,9 @@ class Core implements ISerializable {
         // Append all the information about the core
         this.info = parent.children(".core-info");
         this.info.children(".core-name").text("Core #" + (id + 1));
-        this.info.children(".overclock-button").click((): CoreTask => this.overclock());
-        this.info.children(".cancel-button").click((): void => this.cancelTask());
-        this.info.children(".search-button").click((): CoreTask => this.searchForFiles());
+        this.info.children(".overclock-button").on("click", (): CoreTask => this.overclock());
+        this.info.children(".cancel-button").on("click", (): void => this.cancelTask());
+        this.info.children(".search-button").on("click", (): CoreTask => this.searchForFiles());
 
         // Set the idle display
         this.setCoreTaskDisplay();

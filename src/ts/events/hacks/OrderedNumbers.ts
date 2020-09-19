@@ -77,7 +77,7 @@ class OrderedNumbers extends Hack {
                     .attr("data-index", display)
                     .addClass("clickable")
                     .text(display)
-                    .click((): void => {
+                    .one("click", (): void => {
                         if (this.locked) {
                             return;
                         }

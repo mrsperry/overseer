@@ -36,7 +36,7 @@ class Disk implements ISerializable {
         // Set the name of the disk
         this.parent.children(".disk-name")
             .text(name)
-            .click((): void => DiskManager.displayFiles(this));
+            .on("click", (): void => DiskManager.displayFiles(this));
 
         // Set the disk button's text
         this.parent.children(".disk-info")
@@ -161,7 +161,7 @@ class Disk implements ISerializable {
             .off("click");
         // Set the click event for the button
         if (!disabled) {
-            button.click((): CoreTask => this.wipeDisk(this.isQuarantine));
+            button.on("click", (): CoreTask => this.wipeDisk(this.isQuarantine));
         }
 
         // Update usage percentage
@@ -193,7 +193,7 @@ class Disk implements ISerializable {
             size.text(Utils.addPostfix(this.getUsage()) + "/" + Utils.addPostfix(this.maxStorage));
 
             if (!this.isWiping) {
-                header.click((): CoreTask => this.wipeDisk(this.isQuarantine));
+                header.on("click", (): CoreTask => this.wipeDisk(this.isQuarantine));
             }
         }
 

@@ -89,7 +89,7 @@ class Cryptogram extends Hack {
                 // Append the letter as a hexadecimal string
                 const code: any = $("<li>")
                     .text(letter + ": 0x" + letters.charCodeAt(currentIndex).toString(16))
-                    .click((): void => {
+                    .on("click", (): void => {
                         if (this.locked) {
                             return;
                         }

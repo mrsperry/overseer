@@ -67,22 +67,22 @@ class Settings {
 
             // Set the enable and disable click events
             const enable: any = $(element).children("button:first-child");
-            enable.click((): void => Settings.toggleSetting(id, true));
+            enable.on("click", (): void => Settings.toggleSetting(id, true));
 
             const disable: any = $(element).children("button:last-child");
-            disable.click((): void => Settings.toggleSetting(id, false));
+            disable.on("click", (): void => Settings.toggleSetting(id, false));
 
             // Set the enable state
             Settings.toggleSetting(id, Settings.toggles[id] || false);
         }
 
         // Set the reset click events
-        $("#reset-settings").click((): void => Settings.resetValues());
-        $("#restart-game").click((): void => State.reset());
+        $("#reset-settings").on("click", (): void => Settings.resetValues());
+        $("#restart-game").on("click", (): void => State.reset());
 
         // Set the close button's click event
         content.children("button")
-            .click((): void => Settings.modal.remove());
+            .one("click", (): void => Settings.modal.remove());
     }
 
     /**
