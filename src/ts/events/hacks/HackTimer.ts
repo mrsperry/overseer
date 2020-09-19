@@ -46,11 +46,11 @@ class HackTimer {
     }
 
     /**
-     * Starts a new random hack with the current threat level
+     * Starts a new random hack with the current number of channels
      * @param type The type of hack to create
      */
     public static createHack(type?: number): void {
-        const threatLevel: number = DiskManager.getThreatLevel();
+        const channels: number = ChannelManager.getAllChannels().length;
 
         // Get a random type if not specified
         if (type === undefined) {
@@ -63,20 +63,20 @@ class HackTimer {
         // Create a new hack
         switch (type) {
             case 0:
-                new Cryptogram(threatLevel);
+                new Cryptogram(channels);
                 break;
             case 1:
                 if (Settings.isSettingEnabled("poor-eyesight-features")) {
                     HackTimer.createHack();
                 } else {
-                    new HiddenPasswords(threatLevel);
+                    new HiddenPasswords(channels);
                 }
                 break;
             case 2:
-                new NumberMultiples(threatLevel);
+                new NumberMultiples(channels);
                 break;
             default:
-                new OrderedNumbers(threatLevel);
+                new OrderedNumbers(channels);
                 break;
         }
     }

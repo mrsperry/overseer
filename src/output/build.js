@@ -1634,28 +1634,28 @@ class HackTimer {
         HackTimer.isRunning = false;
     }
     static createHack(type) {
-        const threatLevel = DiskManager.getThreatLevel();
+        const channels = ChannelManager.getAllChannels().length;
         if (type === undefined) {
             type = Utils.random(0, 4);
         }
         State.setValue("hack-type", type);
         switch (type) {
             case 0:
-                new Cryptogram(threatLevel);
+                new Cryptogram(channels);
                 break;
             case 1:
                 if (Settings.isSettingEnabled("poor-eyesight-features")) {
                     HackTimer.createHack();
                 }
                 else {
-                    new HiddenPasswords(threatLevel);
+                    new HiddenPasswords(channels);
                 }
                 break;
             case 2:
-                new NumberMultiples(threatLevel);
+                new NumberMultiples(channels);
                 break;
             default:
-                new OrderedNumbers(threatLevel);
+                new OrderedNumbers(channels);
                 break;
         }
     }
