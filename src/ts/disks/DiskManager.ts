@@ -206,6 +206,10 @@ class DiskManager {
      * Increments the threat level
      */
     public static addThreatLevel(): void {
+        if (DiskManager.threatLevel === 1) {
+            Progression.trigger("channel-unlock");
+        }
+
         DiskManager.threatLevel++;
 
         Research.incrementExponent(DiskManager.threatLevel);

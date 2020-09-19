@@ -752,6 +752,9 @@ class DiskManager {
         return false;
     }
     static addThreatLevel() {
+        if (DiskManager.threatLevel === 1) {
+            Progression.trigger("channel-unlock");
+        }
         DiskManager.threatLevel++;
         Research.incrementExponent(DiskManager.threatLevel);
     }

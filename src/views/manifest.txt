@@ -1,6 +1,7 @@
 hacks/base
 hacks/pretext
 menus/settings
+progression/channel-unlock
 channel
 core
 disk
