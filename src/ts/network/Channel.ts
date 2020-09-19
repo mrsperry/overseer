@@ -56,7 +56,7 @@ class Channel implements ISerializable {
                 }
             });
         info.children("button")
-            .one("click", (): CoreTask => this.createChannelAction(this.isCracked));
+            .on("click", (): CoreTask => this.createChannelAction(this.isCracked));
     
         // Set all other info on the display
         this.updateInfo();

@@ -2079,7 +2079,7 @@ class Channel {
             }
         });
         info.children("button")
-            .one("click", () => this.createChannelAction(this.isCracked));
+            .on("click", () => this.createChannelAction(this.isCracked));
         this.updateInfo();
     }
     updateInfo() {
