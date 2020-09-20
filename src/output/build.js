@@ -172,6 +172,7 @@ class Verdict {
     }
     async resolve(option, success) {
         return new Promise((resolve) => {
+            State.setValue("verdict-type", -1);
             this.content.fadeOut(400, () => {
                 this.content.fadeIn();
                 const paragraphHolder = this.content.children(".paragraph-holder")

@@ -77,6 +77,8 @@ abstract class Verdict {
      */
     protected async resolve(option: number, success: boolean): Promise<any> {
         return new Promise((resolve: any) => {
+            State.setValue("verdict-type", -1);
+
             // Hide all content
             this.content.fadeOut(400, (): void => {
                 this.content.fadeIn();
