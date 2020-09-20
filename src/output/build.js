@@ -1499,13 +1499,12 @@ class Hack {
     }
     success() {
         this.removeInterface(true);
-        Messenger.write("Quarantine lockdown <span class='clickable-no-click'>successful</span>; all files accounted for");
+        Messenger.write("Channel <span class='clickable-no-click'>lockdown prevented</span>; resuming automatic data siphoning");
         Stats.increment("hacks", "hacks-solved");
     }
     fail() {
         this.removeInterface(false);
-        const filesLost = DiskManager.quarantineBreakout();
-        Messenger.write("Quarantine lockdown <span class='clickable-no-click active-error'>failed</span>; <span class='clickable-no-click active-error'>" + filesLost + "</span> file" + (filesLost === 1 ? "" : "s") + " not found");
+        Messenger.write("Channel <span class='clickable-no-click active-error'>lockdown complete</span>; cracking functions must be re-run to access the channel");
         Stats.increment("hacks", "hacks-failed");
     }
     removeInterface(success) {
@@ -2133,7 +2132,7 @@ class Channel {
                 }
                 if (this.remaining === 0) {
                     task.onCancel();
-                    Messenger.write("Targeted data synchronization and <span class='clickable-no-click'>memory core decryption</span> complete");
+                    Messenger.write("Targeted data decryption and <span class='clickable-no-click'>memory core defragmentation</span> complete");
                 }
             }
             else {

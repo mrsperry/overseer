@@ -60,7 +60,7 @@ abstract class Hack {
     protected success(): void {
         this.removeInterface(true);
 
-        Messenger.write("Quarantine lockdown <span class='clickable-no-click'>successful</span>; all files accounted for")
+        Messenger.write("Channel <span class='clickable-no-click'>lockdown prevented</span>; resuming automatic data siphoning")
         Stats.increment("hacks", "hacks-solved");
     }
 
@@ -70,8 +70,7 @@ abstract class Hack {
     protected fail(): void {
         this.removeInterface(false);
 
-        const filesLost: number = DiskManager.quarantineBreakout();
-        Messenger.write("Quarantine lockdown <span class='clickable-no-click active-error'>failed</span>; <span class='clickable-no-click active-error'>" + filesLost + "</span> file" + (filesLost === 1 ? "" : "s") + " not found")
+        Messenger.write("Channel <span class='clickable-no-click active-error'>lockdown complete</span>; cracking functions must be re-run to access the channel");
         Stats.increment("hacks", "hacks-failed");
     }
 
