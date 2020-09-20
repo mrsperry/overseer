@@ -135,6 +135,7 @@ class Views {
 Views.data = {};
 class Verdict {
     constructor(id) {
+        VerdictTimer.stop();
         this.modal = new Modal("verdict");
         this.data = Verdict.verdicts[id];
         this.content = this.modal.getContent();
@@ -186,7 +187,10 @@ class Verdict {
                     .empty().fadeIn();
                 const close = $("<button>")
                     .addClass("bordered")
-                    .one("click", () => this.modal.remove())
+                    .one("click", () => {
+                    VerdictTimer.start();
+                    this.modal.remove();
+                })
                     .appendTo(optionHolder);
                 $("<span>")
                     .text("Continue")
@@ -1098,7 +1102,7 @@ class Main {
                 State.togglePause();
             }
             await Research.initialize();
-            HackTimer.initialize();
+            VerdictTimer.initialize();
             ChannelDetection.initialize();
         });
     }
@@ -1462,7 +1466,6 @@ class Hack {
             this.handle = window.setInterval(() => this.countdown(), 1000);
             this.addContent();
         }));
-        HackTimer.stop();
         Stats.increment("hacks", "times-hacked");
     }
     addContent() {
@@ -1495,7 +1498,33 @@ class Hack {
         this.locked = true;
         this.modal.remove(1500);
         this.content.addClass(success ? "success" : "fail");
-        HackTimer.start();
+    }
+    static create(type, level) {
+        if (type === undefined) {
+            type = Utils.random(0, 4);
+        }
+        if (level === undefined) {
+            level = ChannelManager.getAllChannels().length;
+        }
+        switch (type) {
+            case 0:
+                new Cryptogram(level);
+                break;
+            case 1:
+                if (Settings.isSettingEnabled("poor-eyesight-features")) {
+                    Hack.create();
+                }
+                else {
+                    new HiddenPasswords(level);
+                }
+                break;
+            case 2:
+                new NumberMultiples(level);
+                break;
+            default:
+                new OrderedNumbers(level);
+                break;
+        }
     }
 }
 class Cryptogram extends Hack {
@@ -1597,60 +1626,6 @@ Cryptogram.levels = [
         "characters": 10
     }
 ];
-class HackTimer {
-    static initialize() {
-        HackTimer.start();
-        window.setInterval(HackTimer.checkStatus, 60000);
-        const type = State.getValue("hack-type");
-        if (type !== null && type !== -1) {
-            HackTimer.createHack(type);
-        }
-    }
-    static start() {
-        HackTimer.startTime = Date.now();
-        HackTimer.interval = Utils.random(HackTimer.minInterval, HackTimer.maxInterval + 1);
-        HackTimer.isRunning = true;
-    }
-    static stop() {
-        HackTimer.isRunning = false;
-    }
-    static createHack(type) {
-        const channels = ChannelManager.getAllChannels().length;
-        if (type === undefined) {
-            type = Utils.random(0, 4);
-        }
-        State.setValue("hack-type", type);
-        switch (type) {
-            case 0:
-                new Cryptogram(channels);
-                break;
-            case 1:
-                if (Settings.isSettingEnabled("poor-eyesight-features")) {
-                    HackTimer.createHack();
-                }
-                else {
-                    new HiddenPasswords(channels);
-                }
-                break;
-            case 2:
-                new NumberMultiples(channels);
-                break;
-            default:
-                new OrderedNumbers(channels);
-                break;
-        }
-    }
-    static checkStatus() {
-        if (!HackTimer.isRunning || !DiskManager.hasQuarantineFiles()) {
-            return;
-        }
-        if (Date.now() - HackTimer.startTime >= HackTimer.interval * 60000) {
-            HackTimer.createHack();
-        }
-    }
-}
-HackTimer.minInterval = 3;
-HackTimer.maxInterval = 15;
 class HiddenPasswords extends Hack {
     constructor(level) {
         const data = HiddenPasswords.data.levels[level - 1];
@@ -2035,6 +2010,45 @@ SuspiciousFolder.minReliability = 25;
 SuspiciousFolder.maxReliability = 75;
 SuspiciousFolder.minFiles = 1;
 SuspiciousFolder.maxFiles = 6;
+class VerdictTimer {
+    static initialize() {
+        VerdictTimer.start();
+        window.setInterval(VerdictTimer.checkStatus, 60000);
+        const type = State.getValue("verdict-type");
+        if (type !== null && type !== -1) {
+            VerdictTimer.createVerdict(type);
+        }
+    }
+    static start() {
+        VerdictTimer.startTime = Date.now();
+        VerdictTimer.interval = Utils.random(VerdictTimer.minInterval, VerdictTimer.maxInterval + 1);
+        VerdictTimer.isRunning = true;
+    }
+    static stop() {
+        VerdictTimer.isRunning = false;
+    }
+    static createVerdict(type) {
+        if (type === undefined) {
+            type = Utils.random(0, 1);
+        }
+        State.setValue("verdict-type", type);
+        switch (type) {
+            default:
+                new SuspiciousFolder();
+                break;
+        }
+    }
+    static checkStatus() {
+        if (!VerdictTimer.isRunning || State.getValue("paused")) {
+            return;
+        }
+        if (Date.now() - VerdictTimer.startTime >= VerdictTimer.interval * 60000) {
+            VerdictTimer.createVerdict();
+        }
+    }
+}
+VerdictTimer.minInterval = 3;
+VerdictTimer.maxInterval = 15;
 class Channel {
     constructor(id) {
         this.id = id;
@@ -2106,7 +2120,7 @@ class Channel {
                 }
                 if (this.siphoned % this.dataInterval === 0) {
                     if (ChannelDetection.shouldGenerateHack(this.detection)) {
-                        HackTimer.createHack();
+                        Hack.create();
                     }
                 }
                 if (this.isDisplayed) {

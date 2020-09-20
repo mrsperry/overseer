@@ -128,7 +128,7 @@ class Channel implements ISerializable {
                     if (this.siphoned % this.dataInterval === 0) {
                         // Try to generate a hack
                         if (ChannelDetection.shouldGenerateHack(this.detection)) {
-                            HackTimer.createHack();
+                            Hack.create();
                         }
                     }
 

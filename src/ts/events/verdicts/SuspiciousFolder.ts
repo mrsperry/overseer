@@ -13,7 +13,7 @@ class SuspiciousFolder extends Verdict {
     /**
      * Creates a new SuspiciousFolder verdict
      */
-    private constructor() {
+    public constructor() {
         super("suspicious-folder");
     }
 

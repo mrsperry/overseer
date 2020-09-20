@@ -29,7 +29,6 @@ abstract class Hack {
             this.addContent();
         }));
 
-        HackTimer.stop();
         Stats.increment("hacks", "times-hacked");
     }
 
@@ -91,8 +90,42 @@ abstract class Hack {
 
         // Color the border of the hack depending on the success state
         this.content.addClass(success ? "success" : "fail");
+    }
 
-        // Restart the hack timer
-        HackTimer.start();
+    /**
+     * Creates a new hack
+     * @param type The type of hack, otherwise random
+     * @param level The level of the hack, otherwise equal to the number of network channels
+     */
+    public static create(type?: number, level?: number): void {
+        // Get a random hack type
+        if (type === undefined) {
+            type = Utils.random(0, 4);
+        }
+
+        // Get the hack level
+        if (level === undefined) {
+            level = ChannelManager.getAllChannels().length;
+        }
+
+        // Create the hack
+        switch (type) {
+            case 0:
+                new Cryptogram(level);
+                break;
+            case 1:
+                if (Settings.isSettingEnabled("poor-eyesight-features")) {
+                    Hack.create();
+                } else {
+                    new HiddenPasswords(level);
+                }
+                break;
+            case 2:
+                new NumberMultiples(level);
+                break;
+            default:
+                new OrderedNumbers(level);
+                break;
+        }
     }
 }

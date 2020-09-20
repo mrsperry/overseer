@@ -21,7 +21,9 @@ abstract class Verdict {
      * Creates a new verdict
      * @param id The ID of the verdict data to use
      */
-    public constructor(id: string) {
+    protected constructor(id: string) {
+        VerdictTimer.stop();
+
         // Create the modal
         this.modal = new Modal("verdict");
         // Get the data for this verdict
@@ -97,7 +99,10 @@ abstract class Verdict {
                 // Add a continue button
                 const close: any = $("<button>")
                     .addClass("bordered")
-                    .one("click", (): void => this.modal.remove())
+                    .one("click", (): void => {
+                        VerdictTimer.start();
+                        this.modal.remove();
+                    })
                     .appendTo(optionHolder);
                 $("<span>")
                     .text("Continue")

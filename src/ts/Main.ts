@@ -43,7 +43,7 @@ class Main {
                 }
                 await Research.initialize();
 
-                HackTimer.initialize();
+                VerdictTimer.initialize();
                 ChannelDetection.initialize();
             });
     }
