@@ -161,34 +161,6 @@ class DiskManager {
     }
 
     /**
-     * Removes files randomly from quarantines disks
-     */
-    public static quarantineBreakout(): number {
-        let lostFiles: number = 0;
-
-        // Get all quarantine disks
-        const quarantines: Disk[] = [];
-        for (let index: number = 0; index < DiskManager.disks.length; index++) {
-            const disk: Disk = DiskManager.disks[index];
-            if (disk.isQuarantineStorage()) {
-                quarantines.push(disk);
-            }
-        }
-
-        // Randomly remove files from the disks
-        const filesToLose: number = Utils.random(1, (DiskManager.threatLevel * 10) + 1);
-        for (let index: number = 0; index < filesToLose; index++) {
-            const disk: Disk = quarantines[Utils.random(0, quarantines.length)];
-
-            if (disk.removeRandomFile()) {
-                lostFiles++;
-            }
-        }
-
-        return lostFiles;
-    }
-
-    /**
      * @returns If there are files in any quarantine disk
      */
     public static hasQuarantineFiles(): boolean {

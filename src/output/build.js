@@ -723,24 +723,6 @@ class DiskManager {
             disk.setSize(DiskManager.diskSize);
         }
     }
-    static quarantineBreakout() {
-        let lostFiles = 0;
-        const quarantines = [];
-        for (let index = 0; index < DiskManager.disks.length; index++) {
-            const disk = DiskManager.disks[index];
-            if (disk.isQuarantineStorage()) {
-                quarantines.push(disk);
-            }
-        }
-        const filesToLose = Utils.random(1, (DiskManager.threatLevel * 10) + 1);
-        for (let index = 0; index < filesToLose; index++) {
-            const disk = quarantines[Utils.random(0, quarantines.length)];
-            if (disk.removeRandomFile()) {
-                lostFiles++;
-            }
-        }
-        return lostFiles;
-    }
     static hasQuarantineFiles() {
         for (const disk of DiskManager.disks) {
             if (disk.isQuarantineStorage()) {
