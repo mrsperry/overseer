@@ -40,7 +40,10 @@ class Research {
      * @param amount The amount of reliability to add
      * @param count If this amount should be used in stats
      */
-    public static addReliability(amount: number, count: boolean = true): void {
+    public static addReliability(amount: number | string, count: boolean = true): void {
+        // Guarantee the input amount is a number
+        amount = Number.parseFloat(amount.toString());
+
         Research.reliability += amount;
 
         $("#research").children(".reliability")

@@ -929,6 +929,7 @@ class Research {
         State.setValue("research.reliability", Research.reliability);
     }
     static addReliability(amount, count = true) {
+        amount = Number.parseFloat(amount.toString());
         Research.reliability += amount;
         $("#research").children(".reliability")
             .text("Reliability: " + Research.reliability.toFixed(2));
