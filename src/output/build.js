@@ -831,7 +831,8 @@ class Settings {
     static setColorVariable(name, value) {
         $("body").get(0).style.setProperty("--" + name, value);
         if (name === "clickable-text") {
-            $("#main-menu-image").css("filter", "hue-rotate(" + (Utils.hexToHue(value) - Settings.originalHue) + "deg)");
+            $("#main-menu-image").css("filter", "hue-rotate(" + (Utils.hexToHue(value) - Settings.originalHue) + "deg) " +
+                "drop-shadow(0rem 0rem 0.5rem rgba(0, 0, 0, 0.5))");
             try {
                 DataCore.resetData(ChannelManager.getDisplayedChannel().getProgress());
             }

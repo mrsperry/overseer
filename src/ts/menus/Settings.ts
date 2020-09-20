@@ -131,7 +131,8 @@ class Settings {
 
         if (name === "clickable-text") {
             // Change the hue of the main menu image if its displayed
-            $("#main-menu-image").css("filter", "hue-rotate(" + (Utils.hexToHue(value) - Settings.originalHue) + "deg)");
+            $("#main-menu-image").css("filter", "hue-rotate(" + (Utils.hexToHue(value) - Settings.originalHue) + "deg) " +
+                                                "drop-shadow(0rem 0rem 0.5rem rgba(0, 0, 0, 0.5))");
         
             // Try to change the data core color
             // This will error if the color is changed in the main menu

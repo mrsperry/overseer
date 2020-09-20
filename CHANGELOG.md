@@ -25,6 +25,7 @@ Dates are formatted as year-month-day.
     - Other options will make you lose reliability or other resources
     - And of course a few options will do absolutely nothing
 - Added a system for general progression prompts (story updates to make understanding new mechanics easier)
+- Added a drop shadow filter to the main menu image
 
 ### Changes
 - Core power now matches the maximum number of core speed upgrades you have
