@@ -24,6 +24,8 @@ Dates are formatted as year-month-day.
     - Some options may give reliability or free files to scan/purge
     - Other options will make you lose reliability or other resources
     - And of course a few options will do absolutely nothing
+- Added new hack types
+    - **HexMatcher**: Match the same hex value on the left and right side of the board to create a connection between the two
 - Added a system for general progression prompts (story updates to make understanding new mechanics easier)
 - Added a drop shadow filter to the main menu image
 

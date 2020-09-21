@@ -1505,7 +1505,7 @@ class Hack {
     }
     static create(type, level) {
         if (type === undefined) {
-            type = Utils.random(0, 4);
+            type = Utils.random(0, 5);
         }
         if (level === undefined) {
             level = ChannelManager.getAllChannels().length;
@@ -1515,6 +1515,9 @@ class Hack {
                 new Cryptogram(level);
                 break;
             case 1:
+                new HexMatcher(level);
+                break;
+            case 2:
                 if (Settings.isSettingEnabled("poor-eyesight-features")) {
                     Hack.create();
                 }
@@ -1522,7 +1525,7 @@ class Hack {
                     new HiddenPasswords(level);
                 }
                 break;
-            case 2:
+            case 3:
                 new NumberMultiples(level);
                 break;
             default:
@@ -1628,6 +1631,169 @@ Cryptogram.levels = [
     {
         "time": 35,
         "characters": 10
+    }
+];
+class HexMatcher extends Hack {
+    constructor(level) {
+        const data = HexMatcher.levels[level - 1];
+        super(data.time);
+        this.hexLength = data["hex-length"];
+        this.numberOfMatches = data["number-of-matches"];
+        this.currentMatches = 0;
+        this.selected = null;
+        this.canvasHandler = -1;
+        this.connections = [];
+    }
+    addContent() {
+        super.addContent();
+        $("<h1>")
+            .text("Matching pattern sequence discovered!")
+            .appendTo(this.content);
+        const parent = $("<div>")
+            .addClass("hex-matcher")
+            .appendTo(this.content);
+        const matches = [];
+        for (let index = 0; index < this.numberOfMatches; index++) {
+            let hex;
+            do {
+                hex = "0x";
+                for (let index = 0; index < this.hexLength; index++) {
+                    hex += HexMatcher.hexCharacters[Utils.random(0, HexMatcher.hexCharacters.length)];
+                }
+            } while (matches.includes(hex));
+            matches.push(hex);
+        }
+        const keyList = $("<ul>")
+            .appendTo(parent);
+        this.canvas = $("<canvas>")
+            .attr("width", HexMatcher.canvasWidth)
+            .appendTo(parent);
+        const valueList = $("<ul>")
+            .addClass("value-list")
+            .appendTo(parent);
+        const keys = Utils.shuffle(matches);
+        const values = Utils.shuffle(matches);
+        for (let index = 0; index < matches.length; index++) {
+            const key = $("<li>")
+                .addClass("clickable")
+                .text(keys[index])
+                .on("click", () => this.selectKey(key))
+                .appendTo(keyList);
+            const value = $("<li>")
+                .text(values[index])
+                .on("click", () => this.selectValue(value))
+                .appendTo(valueList);
+        }
+        this.canvasHandler = window.setInterval(() => this.updateCanvas(), 1);
+    }
+    selectKey(element) {
+        if (super.locked) {
+            return;
+        }
+        if (this.selected !== null) {
+            this.selected.removeClass("active selected");
+        }
+        if (this.selected === element) {
+            this.selected = null;
+            this.highlightValues(false);
+        }
+        else {
+            this.selected = element;
+            element.addClass("active selected");
+            this.highlightValues(true);
+        }
+    }
+    selectValue(element) {
+        if (super.locked) {
+            return;
+        }
+        if (this.selected !== null) {
+            element.removeClass("clickable selection")
+                .addClass("clickable-no-click active")
+                .off("click");
+            if (this.selected.text() === element.text()) {
+                this.selected.removeClass("clickable selected")
+                    .addClass("clickable-no-click active")
+                    .off("click");
+                element.addClass("active");
+                this.createConnection(this.selected, element);
+                if (++this.currentMatches === this.numberOfMatches) {
+                    super.success();
+                }
+            }
+            else {
+                element.addClass("active-error");
+                this.fail();
+            }
+            this.selected = null;
+            this.highlightValues(false);
+        }
+    }
+    highlightValues(enabled) {
+        for (const value of $(".value-list").children()) {
+            if (!$(value).hasClass("active")) {
+                if (enabled) {
+                    $(value).addClass("selection");
+                }
+                else {
+                    $(value).removeClass("selection");
+                }
+            }
+        }
+    }
+    createConnection(parent, element) {
+        const offsetX = this.canvas.offset().left;
+        const offsetY = this.canvas.offset().top;
+        const parentOffsetY = parent.height() / 2;
+        const parentY = parent.offset().top - offsetY + parentOffsetY;
+        const elementOffsetY = element.height() / 2;
+        const elementX = element.offset().left - offsetX;
+        const elementY = element.offset().top - offsetY + elementOffsetY;
+        this.connections.push({
+            "opacity": 0,
+            "startY": parentY,
+            "endX": elementX,
+            "endY": elementY
+        });
+    }
+    updateCanvas() {
+        this.canvas.attr("height", this.content.children(".hex-matcher").height());
+        const context = this.canvas[0].getContext("2d");
+        context.lineWidth = HexMatcher.connectionWidth;
+        for (const connection of this.connections) {
+            if (connection.opacity < 255 - 16) {
+                connection.opacity += 1;
+            }
+            context.strokeStyle = $("body").css("--clickable-text-hover") + (16 + connection.opacity).toString(16);
+            context.beginPath();
+            context.moveTo(0, connection.startY);
+            context.lineTo(connection.endX, connection.endY);
+            context.stroke();
+        }
+    }
+    fail() {
+        super.fail();
+        window.clearInterval(this.canvasHandler);
+    }
+}
+HexMatcher.hexCharacters = "abcdef0123456789";
+HexMatcher.canvasWidth = 180;
+HexMatcher.connectionWidth = 1.5;
+HexMatcher.levels = [
+    {
+        "time": 25,
+        "hex-length": 5,
+        "number-of-matches": 5
+    },
+    {
+        "time": 30,
+        "hex-length": 6,
+        "number-of-matches": 7
+    },
+    {
+        "time": 35,
+        "hex-length": 7,
+        "number-of-matches": 10
     }
 ];
 class HiddenPasswords extends Hack {

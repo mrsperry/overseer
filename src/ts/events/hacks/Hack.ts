@@ -100,7 +100,7 @@ abstract class Hack {
     public static create(type?: number, level?: number): void {
         // Get a random hack type
         if (type === undefined) {
-            type = Utils.random(0, 4);
+            type = Utils.random(0, 5);
         }
 
         // Get the hack level
@@ -114,13 +114,16 @@ abstract class Hack {
                 new Cryptogram(level);
                 break;
             case 1:
+                new HexMatcher(level);
+                break;
+            case 2:
                 if (Settings.isSettingEnabled("poor-eyesight-features")) {
                     Hack.create();
                 } else {
                     new HiddenPasswords(level);
                 }
                 break;
-            case 2:
+            case 3:
                 new NumberMultiples(level);
                 break;
             default:

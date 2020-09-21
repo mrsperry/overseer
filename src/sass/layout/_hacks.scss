@@ -93,4 +93,64 @@
             }
         }
     }
+
+    .hex-matcher {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+
+        ul {
+            &:first-child {
+                padding: 0rem 0.1rem 0rem 1rem;
+            }
+
+            &:last-child {
+                padding: 0rem 1rem 0rem 0.1rem;
+            }
+
+            li {
+                position: relative;
+                overflow: visible;
+                transition: color 250ms ease-in-out;
+
+                &:before {
+                    content: ">";
+                    position: absolute;
+                    color: variables.$main-text;
+                    background-image: none;
+                    transition: opacity 250ms ease-in-out;
+                    opacity: 0;
+                    width: auto;
+                    height: auto;
+                    left: -1rem;
+                    bottom: auto;
+                }
+
+                &.selected, &.selection {
+                    cursor: pointer;
+                }
+
+                &.selected:before {
+                    opacity: 1;
+                }
+
+                &.selection {
+                    cursor: pointer;
+                    color: var(--clickable-text);
+
+                    &:hover, &:active {
+                        color: var(--clickable-text-hover);
+                    }
+                }
+
+                + li {
+                    margin-top: 1.5rem;
+                }
+            }
+        }
+
+        .connectors {
+            flex-grow: 1;
+        }
+    }
 }
