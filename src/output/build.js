@@ -1966,9 +1966,9 @@ class SuspiciousFolder extends Verdict {
         const success = Utils.random();
         $.when(super.resolve(option, success)).done(() => {
             let amount = Utils.random(SuspiciousFolder.minReliability, SuspiciousFolder.maxReliability) / 100;
+            const amountString = amount.toString();
             if (!success) {
                 amount *= -1;
-                amount = amount.toString().substring(1, amount.length);
             }
             const reliability = $("<p>")
                 .addClass("centered")
@@ -1976,7 +1976,7 @@ class SuspiciousFolder extends Verdict {
                 .appendTo(this.content.children(".paragraph-holder"));
             $("<span>")
                 .addClass("clickable-no-click " + (success ? "" : "active-error"))
-                .text(amount)
+                .text(amountString)
                 .appendTo(reliability);
             Research.addReliability(amount);
         });

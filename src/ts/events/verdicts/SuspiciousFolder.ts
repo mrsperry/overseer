@@ -38,12 +38,11 @@ class SuspiciousFolder extends Verdict {
         // Wait for the verdict to resolve
         $.when(super.resolve(option, success)).done((): void => {
             // Get a random amount of reliability
-            let amount: any = Utils.random(SuspiciousFolder.minReliability, SuspiciousFolder.maxReliability) / 100;
+            let amount: number = Utils.random(SuspiciousFolder.minReliability, SuspiciousFolder.maxReliability) / 100;
+            const amountString: string = amount.toString();
             // Invert the sign of the reliability
             if (!success) {
                 amount *= -1;
-                // Remove the minus (-) from the front of the number
-                amount = amount.toString().substring(1, amount.length);
             }
 
             // Add the reliability gained/lost text
@@ -53,7 +52,7 @@ class SuspiciousFolder extends Verdict {
                 .appendTo(this.content.children(".paragraph-holder"));
             $("<span>")
                 .addClass("clickable-no-click " + (success ? "" : "active-error"))
-                .text(amount)
+                .text(amountString)
                 .appendTo(reliability);
 
             Research.addReliability(amount);
