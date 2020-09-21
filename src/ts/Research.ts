@@ -45,6 +45,9 @@ class Research {
         amount = Number.parseFloat(amount.toString());
 
         Research.reliability += amount;
+        
+        // Make sure reliability never goes below zero
+        Research.reliability = Math.max(Research.reliability, 0);
 
         $("#research").children(".reliability")
             .text("Reliability: " + Research.reliability.toFixed(2));

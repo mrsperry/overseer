@@ -933,6 +933,7 @@ class Research {
     static addReliability(amount, count = true) {
         amount = Number.parseFloat(amount.toString());
         Research.reliability += amount;
+        Research.reliability = Math.max(Research.reliability, 0);
         $("#research").children(".reliability")
             .text("Reliability: " + Research.reliability.toFixed(2));
         Research.displayResearch();
