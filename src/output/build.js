@@ -1108,6 +1108,7 @@ class Main {
             await Research.initialize();
             VerdictTimer.initialize();
             ChannelDetection.initialize();
+            Progression.trigger("start");
         });
     }
 }

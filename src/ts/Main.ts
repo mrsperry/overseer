@@ -45,6 +45,8 @@ class Main {
 
                 VerdictTimer.initialize();
                 ChannelDetection.initialize();
+
+                Progression.trigger("start");
             });
     }
 }
