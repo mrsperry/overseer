@@ -97,6 +97,22 @@ class Utils {
     }
 
     /**
+     * Creates a random hexadecimal string
+     * @param length The length of the hex string (not including the "0x" prefix)
+     * @returns The random hexadecimal string
+     */
+    public static getHexString(length: number): string {
+        const chars: string = "abcdef0123456789";
+
+        let result: string = "0x";
+        for (let index: number = 0; index < length; index++) {
+            result += chars[Utils.random(0, chars.length)];
+        }
+
+        return result;
+    }
+
+    /**
      * Capitalizes the first letter of a string
      * @param item The string to capitalize
      */

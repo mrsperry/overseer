@@ -602,6 +602,14 @@ class Utils {
         }
         return result;
     }
+    static getHexString(length) {
+        const chars = "abcdef0123456789";
+        let result = "0x";
+        for (let index = 0; index < length; index++) {
+            result += chars[Utils.random(0, chars.length)];
+        }
+        return result;
+    }
     static capitalize(item) {
         return item.charAt(0).toUpperCase() + item.substring(1, item.length);
     }
@@ -1657,10 +1665,7 @@ class HexMatcher extends Hack {
         for (let index = 0; index < this.numberOfMatches; index++) {
             let hex;
             do {
-                hex = "0x";
-                for (let index = 0; index < this.hexLength; index++) {
-                    hex += HexMatcher.hexCharacters[Utils.random(0, HexMatcher.hexCharacters.length)];
-                }
+                hex = Utils.getHexString(this.hexLength);
             } while (matches.includes(hex));
             matches.push(hex);
         }
@@ -1777,7 +1782,6 @@ class HexMatcher extends Hack {
         window.clearInterval(this.canvasHandler);
     }
 }
-HexMatcher.hexCharacters = "abcdef0123456789";
 HexMatcher.canvasWidth = 180;
 HexMatcher.connectionWidth = 1.5;
 HexMatcher.levels = [

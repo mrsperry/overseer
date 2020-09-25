@@ -1,6 +1,4 @@
 class HexMatcher extends Hack {
-    /** All characters used in hex codes */
-    private static hexCharacters: string = "abcdef0123456789";
     /** The width of the canvas */
     private static canvasWidth: number = 180;
     /** The line width of all connections */
@@ -78,11 +76,7 @@ class HexMatcher extends Hack {
         for (let index: number = 0; index < this.numberOfMatches; index++) {
             let hex: string;
             do {
-                // Prefix each code
-                hex = "0x";
-                for (let index: number = 0; index < this.hexLength; index++) {
-                    hex += HexMatcher.hexCharacters[Utils.random(0, HexMatcher.hexCharacters.length)];
-                }
+                hex = Utils.getHexString(this.hexLength);
             // Make sure hex codes are not the same
             } while (matches.includes(hex));
             matches.push(hex);
