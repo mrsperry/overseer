@@ -98,13 +98,14 @@ class Utils {
 
     /**
      * Creates a random hexadecimal string
-     * @param length The length of the hex string (not including the "0x" prefix)
+     * @param length The length of the hex string
+     * @param prefix If the string should eb prefixed with "0x"
      * @returns The random hexadecimal string
      */
-    public static getHexString(length: number): string {
+    public static getHexString(length: number, prefix: boolean = true): string {
         const chars: string = "abcdef0123456789";
 
-        let result: string = "0x";
+        let result: string = prefix ? "0x" : "";
         for (let index: number = 0; index < length; index++) {
             result += chars[Utils.random(0, chars.length)];
         }

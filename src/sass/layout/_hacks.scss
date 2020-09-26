@@ -173,4 +173,18 @@
             }
         }
     }
+
+    .data-corruption {
+        display: flex;
+
+        ul {
+            + ul {
+                margin-left: 3rem;
+            }
+
+            li + li {
+                margin-top: 0.5rem;
+            }
+        }
+    }
 }

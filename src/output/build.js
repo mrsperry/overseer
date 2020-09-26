@@ -602,9 +602,9 @@ class Utils {
         }
         return result;
     }
-    static getHexString(length) {
+    static getHexString(length, prefix = true) {
         const chars = "abcdef0123456789";
-        let result = "0x";
+        let result = prefix ? "0x" : "";
         for (let index = 0; index < length; index++) {
             result += chars[Utils.random(0, chars.length)];
         }
@@ -1514,7 +1514,7 @@ class Hack {
     }
     static create(type, level) {
         if (type === undefined) {
-            type = Utils.random(0, 6);
+            type = Utils.random(0, 7);
         }
         if (level === undefined) {
             level = ChannelManager.getAllChannels().length;
@@ -1524,9 +1524,12 @@ class Hack {
                 new Cryptogram(level);
                 break;
             case 1:
-                new HexMatcher(level);
+                new DataCorruption(level);
                 break;
             case 2:
+                new HexMatcher(level);
+                break;
+            case 3:
                 if (Settings.isSettingEnabled("poor-eyesight-features")) {
                     Hack.create();
                 }
@@ -1534,10 +1537,10 @@ class Hack {
                     new HiddenPasswords(level);
                 }
                 break;
-            case 3:
+            case 4:
                 new LogMismatch(level);
                 break;
-            case 4:
+            case 5:
                 new NumberMultiples(level);
                 break;
             default:
@@ -1643,6 +1646,107 @@ Cryptogram.levels = [
     {
         "time": 35,
         "characters": 10
+    }
+];
+class DataCorruption extends Hack {
+    constructor(level) {
+        const data = DataCorruption.levels[level - 1];
+        super(data.time);
+        this.characters = data.characters;
+        this.corruptedString = Utils.getHexString(this.characters, false);
+        this.numberOfCorruptions = data["number-of-corruptions"];
+        this.corruptionsFound = 0;
+        this.itemsPerRow = data["items-per-row"];
+        this.corruptedRows = [];
+    }
+    addContent() {
+        super.addContent();
+        const header = $("<h1>")
+            .text("Data corruption detected: ")
+            .appendTo(this.content);
+        $("<span>")
+            .addClass("clickable-no-click")
+            .text("\"" + this.corruptedString + "\"")
+            .appendTo(header);
+        const parent = $("<section>")
+            .addClass("data-corruption")
+            .appendTo(this.content);
+        const rows = [];
+        for (let lists = 0; lists < DataCorruption.numberOfLists; lists++) {
+            const list = $("<ul>")
+                .appendTo(parent);
+            for (let index = 0; index < this.itemsPerRow; index++) {
+                let hex;
+                do {
+                    hex = Utils.getHexString(DataCorruption.hexLength);
+                } while (hex.includes(this.corruptedString));
+                const item = $("<li>")
+                    .addClass("clickable")
+                    .text(hex)
+                    .one("click", () => this.checkCorruption(item))
+                    .appendTo(list);
+                rows.push(item);
+            }
+        }
+        for (let index = 0; index < this.numberOfCorruptions; index++) {
+            let row;
+            do {
+                row = $(rows[Utils.random(0, rows.length)]);
+            } while (row.hasClass("corrupted"));
+            const hex = row.text();
+            const replacementIndex = Utils.random(2, hex.length - this.characters);
+            row.addClass("corrupted")
+                .text(hex.substring(0, replacementIndex) + this.corruptedString + hex.substring(replacementIndex + this.characters, hex.length));
+            this.corruptedRows.push(row);
+        }
+    }
+    checkCorruption(element) {
+        if (super.locked) {
+            return;
+        }
+        if (!element.text().includes(this.corruptedString)) {
+            this.fail();
+            element.removeClass("clickable")
+                .addClass("clickable-no-click active-error");
+            return;
+        }
+        element.addClass("active");
+        if (++this.corruptionsFound === this.numberOfCorruptions) {
+            super.success();
+            Stats.increment("hacks", "data-corruptions-solved");
+        }
+    }
+    fail() {
+        super.fail();
+        for (const row of this.corruptedRows) {
+            if (!row.hasClass("active")) {
+                row.removeClass("clickable")
+                    .addClass("clickable-no-click active-error");
+            }
+        }
+        Stats.increment("hacks", "data-corruptions-failed");
+    }
+}
+DataCorruption.numberOfLists = 3;
+DataCorruption.hexLength = 8;
+DataCorruption.levels = [
+    {
+        "time": 30,
+        "characters": 4,
+        "number-of-corruptions": 5,
+        "items-per-row": 5
+    },
+    {
+        "time": 40,
+        "characters": 3,
+        "number-of-corruptions": 8,
+        "items-per-row": 7
+    },
+    {
+        "time": 50,
+        "characters": 2,
+        "number-of-corruptions": 12,
+        "items-per-row": 10
     }
 ];
 class HexMatcher extends Hack {

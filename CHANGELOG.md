@@ -27,6 +27,7 @@ Dates are formatted as year-month-day.
 - Added new hack types
     - **HexMatcher**: Match the same hex value on the left and right side of the board to create a connection between the two
     - **LogMismatch**: Compare hexadecimal values and find which pairs do not match
+    - **DataCorruption**: Find which hexadecimal numbers contain a corrupted sequence
 - Added a system for general progression prompts (story updates to make understanding new mechanics easier)
 - Added a drop shadow filter to the main menu image
 - Added links to [the wiki](https://github.com/mrsperry/overseer/wiki) on the main menu and in-game footer

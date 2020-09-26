@@ -31,6 +31,8 @@
         "cryptograms-solved": 0,
         "cryptograms-failed": 0,
         "log-mismatches-solved": 0,
-        "log-mismatches-failed": 0
+        "log-mismatches-failed": 0,
+        "data-corruptions-solved": 0,
+        "data-corruptions-failed": 0
     }
 }
