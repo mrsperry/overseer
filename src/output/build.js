@@ -1925,6 +1925,106 @@ HiddenPasswords.data = {
         "system"
     ]
 };
+class LogMismatch extends Hack {
+    constructor(level) {
+        const data = LogMismatch.levels[level - 1];
+        super(data.time);
+        this.rowsPerList = data["rows-per-list"];
+        this.mismatches = data.mismatches;
+        this.mismatchRows = [];
+        this.mismatchesFound = 0;
+    }
+    addContent() {
+        super.addContent();
+        const header = $("<h1>")
+            .text("Log mismatches remaining: ")
+            .appendTo(this.content);
+        const mismatches = $("<span>")
+            .addClass("clickable-no-click")
+            .text(this.mismatches)
+            .appendTo(header);
+        const parent = $("<section>")
+            .addClass("log-mismatch")
+            .appendTo(this.content);
+        const rows = [];
+        for (let lists = 0; lists < 2; lists++) {
+            const list = $("<ul>")
+                .appendTo(parent);
+            for (let index = 0; index < this.rowsPerList; index++) {
+                const item = $("<li>")
+                    .appendTo(list);
+                const hex = Utils.getHexString(LogMismatch.hexLength);
+                $("<span>")
+                    .text(hex + " - ")
+                    .appendTo(item);
+                const value = $("<span>")
+                    .addClass("clickable match")
+                    .text(hex)
+                    .one("click", () => {
+                    if (this.locked) {
+                        return;
+                    }
+                    if (this.markMismatch(index + (this.rowsPerList * lists))) {
+                        value.addClass("active");
+                    }
+                    else {
+                        value.addClass("active-error");
+                    }
+                    mismatches.text(this.mismatches - this.mismatchesFound);
+                })
+                    .appendTo(item);
+                rows.push(value);
+            }
+        }
+        const takenRows = [];
+        for (let index = 0; index < this.mismatches; index++) {
+            let row;
+            do {
+                row = Utils.random(0, rows.length);
+            } while (takenRows.includes(row));
+            takenRows.push(row);
+            const item = $(rows[row]);
+            const hex = item.text();
+            const replacementIndex = Utils.random(2, hex.length);
+            let replacement;
+            do {
+                replacement = Utils.getHexString(1)[2];
+            } while (replacement === hex[replacementIndex]);
+            item.text(hex.substring(0, replacementIndex) + replacement + hex.substring(replacementIndex + 1, hex.length));
+            this.mismatchRows.push(row);
+        }
+    }
+    markMismatch(row) {
+        if (!this.mismatchRows.includes(row)) {
+            super.fail();
+            Stats.increment("hacks", "log-mismatches-failed");
+            return false;
+        }
+        if (++this.mismatchesFound === this.mismatches) {
+            super.success();
+            Stats.increment("hacks", "log-mismatches-solved");
+        }
+        return true;
+    }
+}
+LogMismatch.hexLength = 7;
+LogMismatch.levels = [
+    {
+        "time": 35,
+        "rows-per-list": 5,
+        "mismatches": 3
+    },
+    {
+        "time": 50,
+        "rows-per-list": 6,
+        "mismatches": 5
+    },
+    {
+        "time": 65,
+        "rows-per-list": 7,
+        "mismatches": 8
+    }
+];
 class NumberMultiples extends Hack {
     constructor(level) {
         const data = NumberMultiples.levels[level - 1];

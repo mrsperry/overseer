@@ -153,4 +153,24 @@
             flex-grow: 1;
         }
     }
+
+    .log-mismatch {
+        display: flex;
+
+        ul {
+            + ul {
+                margin-left: 3rem;
+            }
+
+            li {
+                + li {
+                    margin-top: 1rem;
+                }
+
+                span.clickable:before {
+                    display: none;
+                }
+            }
+        }
+    }
 }

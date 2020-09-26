@@ -29,6 +29,8 @@
         "number-multiples-solved": 0,
         "number-multiples-failed": 0,
         "cryptograms-solved": 0,
-        "cryptograms-failed": 0
+        "cryptograms-failed": 0,
+        "log-mismatches-solved": 0,
+        "log-mismatches-failed": 0
     }
 }
