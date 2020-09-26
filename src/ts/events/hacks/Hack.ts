@@ -100,7 +100,7 @@ abstract class Hack {
     public static create(type?: number, level?: number): void {
         // Get a random hack type
         if (type === undefined) {
-            type = Utils.random(0, 5);
+            type = Utils.random(0, 6);
         }
 
         // Get the hack level
@@ -124,6 +124,9 @@ abstract class Hack {
                 }
                 break;
             case 3:
+                new LogMismatch(level);
+                break;
+            case 4:
                 new NumberMultiples(level);
                 break;
             default:
