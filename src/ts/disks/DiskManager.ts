@@ -18,6 +18,10 @@ class DiskManager {
      * Initializes disk names and displays
      */
     public static async initialize(): Promise<any> {
+        if (Progression.hasTriggered("start")) {
+            $("#disks").fadeIn().css("display", "grid");
+        }
+
         // Get the disk name data
         const diskNameData: any = await $.getJSON("src/data/disk-names.json");
         DiskManager.fileExtensions = diskNameData.extensions;
@@ -179,7 +183,12 @@ class DiskManager {
      */
     public static addThreatLevel(): void {
         if (DiskManager.threatLevel === 1) {
-            Progression.trigger("channel-unlock");
+            Progression.trigger("channel-unlock", (): void => {
+                $("#channels").show();
+                $("#data-core")
+                    .fadeIn()
+                    .css("display", "flex");
+            });
         }
 
         DiskManager.threatLevel++;

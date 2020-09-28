@@ -8,6 +8,10 @@ class Messenger {
      * Retrieves messages from the current state and writes them
      */
     public static initialize(): void {
+        if (Progression.hasTriggered("start")) {
+            $("#messages").fadeIn();
+        }
+
         for (const message of State.getValue("messages.history") || []) {
             for (let index: number = 0; index < message.amount; index++) {
                 Messenger.write(message.message);

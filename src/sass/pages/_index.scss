@@ -36,6 +36,10 @@ body {
         column-gap: 2rem;
         row-gap: 2rem;
 
+        #messages, #cores, #disks, #research, #channels, #data-core {
+            display: none;
+        }
+
         #messages {
             grid-column: 1;
             grid-row: 1 / 4;

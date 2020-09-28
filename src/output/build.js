@@ -69,6 +69,9 @@ class State {
 State.playing = false;
 class Messenger {
     static initialize() {
+        if (Progression.hasTriggered("start")) {
+            $("#messages").fadeIn();
+        }
         for (const message of State.getValue("messages.history") || []) {
             for (let index = 0; index < message.amount; index++) {
                 Messenger.write(message.message);
@@ -496,6 +499,9 @@ class Core {
 Core.fileSearchCost = 20;
 class CoreManager {
     static initialize() {
+        if (Progression.hasTriggered("start")) {
+            $("#cores").fadeIn().css("display", "flex");
+        }
         CoreManager.maxCoreUpgrades = State.getValue("cores.max-core-upgrades") || 0;
         CoreManager.coreList = [];
         for (const core of State.getValue("cores.list") || []) {
@@ -659,6 +665,9 @@ class Utils {
 }
 class DiskManager {
     static async initialize() {
+        if (Progression.hasTriggered("start")) {
+            $("#disks").fadeIn().css("display", "grid");
+        }
         const diskNameData = await $.getJSON("src/data/disk-names.json");
         DiskManager.fileExtensions = diskNameData.extensions;
         DiskManager.diskNames = State.getValue("disks.disk-names") || [];
@@ -751,7 +760,12 @@ class DiskManager {
     }
     static addThreatLevel() {
         if (DiskManager.threatLevel === 1) {
-            Progression.trigger("channel-unlock");
+            Progression.trigger("channel-unlock", () => {
+                $("#channels").show();
+                $("#data-core")
+                    .fadeIn()
+                    .css("display", "flex");
+            });
         }
         DiskManager.threatLevel++;
         Research.incrementExponent(DiskManager.threatLevel);
@@ -933,6 +947,9 @@ class Stats {
 }
 class Research {
     static async initialize() {
+        if (Progression.hasTriggered("start")) {
+            Research.displayResearchSection();
+        }
         Research.data = await $.getJSON("src/data/research.json");
         Research.purchased = State.getValue("research.purchased") || [];
         Research.addReliability(State.getValue("research.reliability") || 0, false);
@@ -943,6 +960,9 @@ class Research {
     }
     static addReliability(amount, count = true) {
         amount = Number.parseFloat(amount.toString());
+        if (amount > 0) {
+            Research.displayResearchSection();
+        }
         Research.reliability += amount;
         Research.reliability = Math.max(Research.reliability, 0);
         $("#research").children(".reliability")
@@ -1081,6 +1101,9 @@ class Research {
         Research.costExponent += 0.09 * amount;
         Research.baseDisplay += 0.1;
     }
+    static displayResearchSection() {
+        $("#research").fadeIn().css("display", "flex");
+    }
 }
 Research.maxDisplayed = 5;
 Research.displayDelay = 50;
@@ -1120,7 +1143,16 @@ class Main {
             await Research.initialize();
             VerdictTimer.initialize();
             ChannelDetection.initialize();
-            Progression.trigger("start");
+            Progression.trigger("start", () => {
+                $("#messages")
+                    .fadeIn();
+                $("#cores")
+                    .fadeIn()
+                    .css("display", "flex");
+                $("#disks")
+                    .fadeIn()
+                    .css("display", "grid");
+            });
         });
     }
 }
@@ -1475,7 +1507,7 @@ class Modal {
     }
 }
 class Progression {
-    static trigger(id) {
+    static trigger(id, callback = null) {
         if (State.getValue("progression." + id)) {
             return;
         }
@@ -1483,12 +1515,20 @@ class Progression {
         const content = modal.getContent().html(Views.get("progression/" + id));
         const button = $("<button>")
             .addClass("bordered")
-            .one("click", () => modal.remove())
+            .one("click", () => {
+            modal.remove();
+            if (callback !== null) {
+                callback();
+            }
+        })
             .appendTo(content);
         $("<span>")
             .text("Continue")
             .appendTo(button);
         State.setValue("progression." + id, true);
+    }
+    static hasTriggered(id) {
+        return State.getValue("progression." + id);
     }
 }
 class Hack {
@@ -2643,6 +2683,9 @@ ChannelDetection.minDecreaseChance = 5;
 ChannelDetection.maxDecreaseChance = 12;
 class ChannelManager {
     static initialize() {
+        if (Progression.hasTriggered("channel-unlock")) {
+            $("#channels").fadeIn();
+        }
         ChannelManager.channels = [];
         for (const channel of State.getValue("channels") || []) {
             Channel.deserialize(channel);
@@ -2683,6 +2726,9 @@ class ChannelManager {
 }
 class DataCore {
     static initialize() {
+        if (Progression.hasTriggered("channel-unlock")) {
+            $("#data-core").fadeIn().css("display", "flex");
+        }
         const canvas = $("<canvas>")
             .attr("width", DataCore.canvasSize)
             .attr("height", DataCore.canvasSize)

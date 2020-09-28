@@ -10,6 +10,10 @@ class CoreManager {
      * Retrieves the core states
      */
     public static initialize(): void {
+        if (Progression.hasTriggered("start")) {
+            $("#cores").fadeIn().css("display", "flex");
+        }
+
         // Set the maximum number of core upgrades
         CoreManager.maxCoreUpgrades = State.getValue("cores.max-core-upgrades") || 0;
 

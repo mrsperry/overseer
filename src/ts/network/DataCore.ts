@@ -23,6 +23,10 @@ class DataCore {
      * Creates the data core canvas element
      */
     public static initialize(): void {
+        if (Progression.hasTriggered("channel-unlock")) {
+            $("#data-core").fadeIn().css("display", "flex");
+        }
+
         // Create the display canvas
         const canvas: any = $("<canvas>")
             .attr("width", DataCore.canvasSize)

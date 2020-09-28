@@ -8,6 +8,10 @@ class ChannelManager {
      * Loads channels from the state
      */
     public static initialize(): void {
+        if (Progression.hasTriggered("channel-unlock")) {
+            $("#channels").fadeIn();
+        }
+
         ChannelManager.channels = [];
 
         // Deserialize any saved channels

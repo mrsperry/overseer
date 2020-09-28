@@ -21,6 +21,10 @@ class Research {
      * Sets the initial reliability rating and marks research options as purchased
      */
     public static async initialize(): Promise<any> {
+        if (Progression.hasTriggered("start")) {
+            Research.displayResearchSection();
+        }
+
         Research.data = await $.getJSON("src/data/research.json");
         Research.purchased = State.getValue("research.purchased") || [];
 
@@ -43,6 +47,10 @@ class Research {
     public static addReliability(amount: number | string, count: boolean = true): void {
         // Guarantee the input amount is a number
         amount = Number.parseFloat(amount.toString());
+
+        if (amount > 0) {
+            Research.displayResearchSection();
+        }
 
         Research.reliability += amount;
         
@@ -236,5 +244,9 @@ class Research {
     public static incrementExponent(amount: number): void {
         Research.costExponent += 0.09 * amount;
         Research.baseDisplay += 0.1;
+    }
+
+    private static displayResearchSection(): void {
+        $("#research").fadeIn().css("display", "flex");
     }
 }

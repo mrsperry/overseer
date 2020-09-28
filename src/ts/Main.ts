@@ -47,7 +47,16 @@ class Main {
                 VerdictTimer.initialize();
                 ChannelDetection.initialize();
 
-                Progression.trigger("start");
+                Progression.trigger("start", (): void => {
+                    $("#messages")
+                        .fadeIn();
+                    $("#cores")
+                        .fadeIn()
+                        .css("display", "flex");
+                    $("#disks")
+                        .fadeIn()
+                        .css("display", "grid");
+                });
             });
     }
 }
