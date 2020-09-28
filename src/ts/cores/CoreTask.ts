@@ -70,12 +70,15 @@ class CoreTask implements ISerializable {
      * Updates the task's progress on its current task
      */
     public updateCore(): void {
+        // Get the cost increment
+        const increment: number = this.core.getPower() / (this.getCost() * 2);
+
         // Check if the task should pause
         if (State.getValue("paused")) {
             this.isPaused = true;
 
             // Get the progress of the core when it was paused
-            const progress: number = (this.core.getPower() / (this.getCost() * 2)) * (State.getValue("pause-time") - this.startTime);
+            const progress: number = increment * (State.getValue("pause-time") - this.startTime);
             // Draw the progress
             this.core.getCanvas().drawCore(this.isInfinite ? 100 : progress);
             return;
@@ -87,7 +90,7 @@ class CoreTask implements ISerializable {
         }
 
         // Update the progress of the core
-        const progress: number = (this.core.getPower() / (this.getCost() * 2)) * (Date.now() - this.startTime);
+        const progress: number = increment * (Date.now() - this.startTime);
         // Draw the progress
         this.core.getCanvas().drawCore(this.isInfinite ? 100 : progress);
 

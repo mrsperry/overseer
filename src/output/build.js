@@ -273,9 +273,10 @@ class CoreTask {
         task.startTime = Date.now() - (state.saveTime - state.startTime);
     }
     updateCore() {
+        const increment = this.core.getPower() / (this.getCost() * 2);
         if (State.getValue("paused")) {
             this.isPaused = true;
-            const progress = (this.core.getPower() / (this.getCost() * 2)) * (State.getValue("pause-time") - this.startTime);
+            const progress = increment * (State.getValue("pause-time") - this.startTime);
             this.core.getCanvas().drawCore(this.isInfinite ? 100 : progress);
             return;
         }
@@ -283,7 +284,7 @@ class CoreTask {
             this.isPaused = false;
             this.startTime -= State.getValue("pause-time") - State.getValue("unpause-time");
         }
-        const progress = (this.core.getPower() / (this.getCost() * 2)) * (Date.now() - this.startTime);
+        const progress = increment * (Date.now() - this.startTime);
         this.core.getCanvas().drawCore(this.isInfinite ? 100 : progress);
         if (progress >= 100) {
             if (this.complete !== null) {
@@ -414,6 +415,7 @@ class Core {
         for (let index = 0; index < this.upgrades; index++) {
             power *= 2;
         }
+        this.power = power;
         this.info.children(".core-power")
             .text(" @ " + power + "Mhz");
     }

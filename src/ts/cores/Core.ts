@@ -71,6 +71,8 @@ class Core implements ISerializable {
             power *= 2;
         }
 
+        this.power = power;
+
         this.info.children(".core-power")
             .text(" @ " + power + "Mhz");
     }
