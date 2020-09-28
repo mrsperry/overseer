@@ -1834,6 +1834,7 @@ class HexMatcher extends Hack {
                 this.createConnection(this.selected, element);
                 if (++this.currentMatches === this.numberOfMatches) {
                     super.success();
+                    Stats.increment("hacks", "hex-matchers-solved");
                 }
             }
             else {
@@ -1888,6 +1889,7 @@ class HexMatcher extends Hack {
     }
     fail() {
         super.fail();
+        Stats.increment("hacks", "hex-matchers-failed");
         window.clearInterval(this.canvasHandler);
     }
 }

@@ -169,6 +169,8 @@ class HexMatcher extends Hack {
                 // Check if the hack has been completed
                 if (++this.currentMatches === this.numberOfMatches) {
                     super.success();
+
+                    Stats.increment("hacks", "hex-matchers-solved");
                 }
             } else {
                 element.addClass("active-error");
@@ -259,6 +261,8 @@ class HexMatcher extends Hack {
      */
     protected fail(): void {
         super.fail();
+
+        Stats.increment("hacks", "hex-matchers-failed");
 
         // Clean up the canvas update handler
         window.clearInterval(this.canvasHandler);
