@@ -6,6 +6,7 @@ class State {
     static save() {
         Settings.save();
         Stats.save();
+        Version.save();
         if (State.playing) {
             Messenger.save();
             Research.save();
@@ -1094,6 +1095,7 @@ class Main {
         await Stats.initialize();
         await Views.initialize();
         await Verdict.initialize();
+        Version.check();
         $(window).on("beforeunload", () => State.save());
     }
     static startGame() {
@@ -1123,6 +1125,27 @@ class Main {
     }
 }
 (() => Main.initialize())();
+class Version {
+    static check() {
+        if (State.getValue("progression.start")) {
+            const previous = State.getValue("version");
+            if (previous !== null && previous !== Version.current) {
+                Version.promptRestart();
+            }
+        }
+    }
+    static promptRestart() {
+        const modal = new Modal();
+        const content = modal.getContent();
+        content.html(Views.get("prompt-restart"));
+        content.children(".restart").one("click", () => State.reset());
+        content.children(".close").one("click", () => modal.remove());
+    }
+    static save() {
+        State.setValue("version", Version.current);
+    }
+}
+Version.current = "v1.0.0";
 var CoreTaskType;
 (function (CoreTaskType) {
     CoreTaskType[CoreTaskType["Overclock"] = 0] = "Overclock";

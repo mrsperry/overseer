@@ -17,6 +17,7 @@ class State {
     public static save(): void {
         Settings.save();
         Stats.save();
+        Version.save();
 
         // Check if the game is currently being played
         if (State.playing) {

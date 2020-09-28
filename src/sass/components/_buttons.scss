@@ -8,6 +8,10 @@ button {
     &:hover, &:active {
         :first-child {
             color: var(--clickable-text-hover);
+
+            &.warning {
+                color: variables.$clickable-text-error-hover;
+            }
         }
     }
 
@@ -30,6 +34,10 @@ button {
     :first-child {
         color: var(--clickable-text);
         transition: color 250ms ease-in-out;
+
+        &.warning {
+            color: variables.$clickable-text-error;
+        }
     }
 
     > * {

@@ -15,6 +15,7 @@ class Main {
         await Stats.initialize();
         await Views.initialize();
         await Verdict.initialize();
+        Version.check();
 
         $(window).on("beforeunload", (): void => State.save());
     }
