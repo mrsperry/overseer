@@ -1099,6 +1099,10 @@ class Research {
                 ChannelManager.addChannel();
                 Messenger.write("Packet connection stable and ready for <span class='clickable-no-click'>channel cracking</span> functions");
                 break;
+            case "detection-recovery":
+                ChannelDetection.incrementDecreaseChance();
+                Messenger.write("Subversion protocols updated, <span class='clickable-no-click'>detection recovery</span> chance increased");
+                break;
         }
     }
     static incrementExponent(amount) {
@@ -2662,6 +2666,10 @@ class ChannelDetection {
     }
     static shouldGenerateHack(detection) {
         return detection > Utils.random(0, 100);
+    }
+    static incrementDecreaseChance() {
+        ChannelDetection.minDecreaseChance += 3;
+        ChannelDetection.maxDecreaseChance += 3;
     }
     static update() {
         const channels = ChannelManager.getAllChannels();

@@ -238,6 +238,10 @@ class Research {
                 ChannelManager.addChannel();
                 Messenger.write("Packet connection stable and ready for <span class='clickable-no-click'>channel cracking</span> functions");
                 break;
+            case "detection-recovery":
+                ChannelDetection.incrementDecreaseChance();
+                Messenger.write("Subversion protocols updated, <span class='clickable-no-click'>detection recovery</span> chance increased");
+                break;
         }
     }
 

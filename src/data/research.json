@@ -45,6 +45,11 @@
         "level": 2
     },
     {
+        "title": "Packet Signing",
+        "type": "detection-recovery",
+        "level": 2
+    },
+    {
         "title": "m.2 Allocation",
         "type": "add-disk",
         "level": 2
@@ -62,6 +67,11 @@
     {
         "title": "Network Probing",
         "type": "add-channel",
+        "level": 2
+    },
+    {
+        "title": "WPA2 Subversion",
+        "type": "detection-recovery",
         "level": 2
     },
     {
@@ -87,6 +97,11 @@
     {
         "title": "Defragmentation",
         "type": "add-disk",
+        "level": 3
+    },
+    {
+        "title": "Channel Rewriting",
+        "type": "detection-recovery",
         "level": 3
     },
     {
