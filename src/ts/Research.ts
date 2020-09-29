@@ -234,6 +234,10 @@ class Research {
                 DiskManager.addDisk(true);
                 Messenger.write("Disk fabrication and <span class='clickable-no-click'>quarantine zone</span> conversion complete");
                 break;
+            case "add-channel":
+                ChannelManager.addChannel();
+                Messenger.write("Packet connection stable and ready for <span class='clickable-no-click'>channel cracking</span> functions");
+                break;
         }
     }
 

@@ -60,6 +60,11 @@
         "level": 2
     },
     {
+        "title": "Network Probing",
+        "type": "add-channel",
+        "level": 2
+    },
+    {
         "title": "Open Source Databases",
         "type": "threat-level",
         "level": 2
@@ -72,6 +77,11 @@
     {
         "title": "GPU Threading",
         "type": "core-speeds",
+        "level": 3
+    },
+    {
+        "title": "Protocol Acclimation",
+        "type": "add-channel",
         "level": 3
     },
     {
