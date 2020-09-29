@@ -32,6 +32,14 @@ class ChannelDetection {
     }
 
     /**
+     * Decreases the detection increase chances by 1%
+     */
+    public static decrementIncreaseChance(): void {
+        ChannelDetection.minIncreaseChance--;
+        ChannelDetection.maxIncreaseChance--;
+    }
+
+    /**
      * Increases the detection decrease chances by 3%
      */
     public static incrementDecreaseChance(): void {

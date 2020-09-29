@@ -1101,7 +1101,11 @@ class Research {
                 break;
             case "detection-recovery":
                 ChannelDetection.incrementDecreaseChance();
-                Messenger.write("Subversion protocols updated, <span class='clickable-no-click'>detection recovery</span> chance increased");
+                Messenger.write("Rewriting functions nominal, <span class='clickable-no-click'>detection recovery</span> chance increased");
+                break;
+            case "network-obfuscation":
+                ChannelDetection.decrementIncreaseChance();
+                Messenger.write("Subversion protocols updated, <span class='clickable-no-click'>detection increase</span> chance reduced");
                 break;
         }
     }
@@ -2666,6 +2670,10 @@ class ChannelDetection {
     }
     static shouldGenerateHack(detection) {
         return detection > Utils.random(0, 100);
+    }
+    static decrementIncreaseChance() {
+        ChannelDetection.minIncreaseChance--;
+        ChannelDetection.maxIncreaseChance--;
     }
     static incrementDecreaseChance() {
         ChannelDetection.minDecreaseChance += 3;

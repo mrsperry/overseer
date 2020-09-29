@@ -50,6 +50,11 @@
         "level": 2
     },
     {
+        "title": "VPN Layer",
+        "type": "network-obfuscation",
+        "level": 2
+    },
+    {
         "title": "m.2 Allocation",
         "type": "add-disk",
         "level": 2
@@ -70,8 +75,13 @@
         "level": 2
     },
     {
-        "title": "WPA2 Subversion",
+        "title": "History Modifications",
         "type": "detection-recovery",
+        "level": 2
+    },
+    {
+        "title": "Address Spoofing",
+        "type": "network-obfuscation",
         "level": 2
     },
     {
@@ -102,6 +112,11 @@
     {
         "title": "Channel Rewriting",
         "type": "detection-recovery",
+        "level": 3
+    },
+    {
+        "title": "WPA2 Subversion",
+        "type": "network-obfuscation",
         "level": 3
     },
     {
