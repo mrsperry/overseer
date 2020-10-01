@@ -34,6 +34,7 @@ class DataCore {
             .appendTo("#data-core");
         
         DataCore.context = canvas[0].getContext("2d");
+        DataCore.handler = -1;
         DataCore.cubes = [];
     }
 
@@ -64,6 +65,8 @@ class DataCore {
     public static resetData(progress: number): void {
         // Clear the canvas and cube list
         DataCore.context.clearRect(0, 0, DataCore.canvasSize, DataCore.canvasSize);
+        window.clearInterval(DataCore.handler);
+        DataCore.handler = -1;
         DataCore.cubes = [];
 
         // Set the new progress amount
@@ -80,9 +83,9 @@ class DataCore {
         // Get the context
         const context: any = DataCore.context;
 
-        // Clear any active interval
-        if (DataCore.handler !== undefined) {
-            window.clearInterval(DataCore.handler);
+        // Don't create a new handler if one is already running
+        if (DataCore.handler !== -1) {
+            return;
         }
 
         // Set the fill style
@@ -134,6 +137,7 @@ class DataCore {
             // Check if this handler can be cleared (once all cubes are 100% scaled)
             if (cubes[cubes.length - 1] >= 100) {
                 window.clearInterval(DataCore.handler);
+                DataCore.handler = -1;
             }
 
             // Increment the number of frames

@@ -2754,6 +2754,7 @@ class DataCore {
             .attr("height", DataCore.canvasSize)
             .appendTo("#data-core");
         DataCore.context = canvas[0].getContext("2d");
+        DataCore.handler = -1;
         DataCore.cubes = [];
     }
     static setData(progress) {
@@ -2765,13 +2766,15 @@ class DataCore {
     }
     static resetData(progress) {
         DataCore.context.clearRect(0, 0, DataCore.canvasSize, DataCore.canvasSize);
+        window.clearInterval(DataCore.handler);
+        DataCore.handler = -1;
         DataCore.cubes = [];
         DataCore.setData(progress);
     }
     static displayData() {
         const context = DataCore.context;
-        if (DataCore.handler !== undefined) {
-            window.clearInterval(DataCore.handler);
+        if (DataCore.handler !== -1) {
+            return;
         }
         context.fillStyle = $("body").css("--clickable-text");
         let frameCount = 0;
@@ -2800,6 +2803,7 @@ class DataCore {
             }
             if (cubes[cubes.length - 1] >= 100) {
                 window.clearInterval(DataCore.handler);
+                DataCore.handler = -1;
             }
             frameCount++;
         }, 1);
