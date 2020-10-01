@@ -12,7 +12,7 @@ Dates are formatted as year-month-day.
     - When detected, a hack minigame will need to be completed
         - If you win then data siphoning continues
         - If you lose the channel will lock and you will need to re-crack it
-    - Channel siphoning progress is displayed in a box labelled "Memory core defragmentation"
+    - Channel siphoning progress is displayed in a box labelled "Memory core decryption"
         - Every 1% of data you siphon from a channel will add a cube to the display to easily track your progress
 - Added an event system called 'Verdicts'
     - Each verdict presents a scenario with multiple option on how to proceed

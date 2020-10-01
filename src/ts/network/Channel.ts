@@ -141,7 +141,7 @@ class Channel implements ISerializable {
                     if (this.remaining === 0) {
                         task.onCancel();
 
-                        Messenger.write("Targeted data decryption and <span class='clickable-no-click'>memory core defragmentation</span> complete")
+                        Messenger.write("Targeted data decryption and <span class='clickable-no-click'>memory core decryption</span> complete")
                     }
                 } else {
                     this.isCracked = true;
@@ -199,7 +199,7 @@ class Channel implements ISerializable {
         if (this.isDisplayed) {
             DataCore.resetData(0);
         }
-        
+
         CoreManager.cancelTask(this);
     }
 
