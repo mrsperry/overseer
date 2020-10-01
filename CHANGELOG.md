@@ -5,11 +5,6 @@ Dates are formatted as year-month-day.
 
 ## Upcoming changes
 ### Additions
-- Added scan/purge buttons next to disk usage percentages
-- Added a message to the `OrderedNumbers` hack to differentiate it from `NumberMultiples`
-- Added new settings to the settings menu
-    - **Stop searching automatically**: Stops core searches automatically when your disks are full
-    - **Poor eyesight features**: For now this setting removes the `HiddenPasswords` hack
 - Added a network channel system
     - Crack channels to access the memory core inside of them
     - Once a channel has been cracked you may siphon data from it
@@ -28,9 +23,18 @@ Dates are formatted as year-month-day.
     - **HexMatcher**: Match the same hex value on the left and right side of the board to create a connection between the two
     - **LogMismatch**: Compare hexadecimal values and find which pairs do not match
     - **DataCorruption**: Find which hexadecimal numbers contain a corrupted sequence
+- Added new types of research
+    - **Detection Recovery**: Increases the rate at which your channel detection level reduces
+    - **Network Obfuscation**: Decreases the rate at which your channel detection level rises
+- Added new settings to the settings menu
+    - **Stop searching automatically**: Stops core searches automatically when your disks are full
+    - **Poor eyesight features**: For now this setting removes the `HiddenPasswords` hack
+- Added a version manager that will prompt the user to restart their game if the versions are not matched
+- Added scan/purge buttons next to disk usage percentages
 - Added a system for general progression prompts (story updates to make understanding new mechanics easier)
-- Added a drop shadow filter to the main menu image
 - Added links to [the wiki](https://github.com/mrsperry/overseer/wiki) on the main menu and in-game footer
+- Added a message to the `OrderedNumbers` hack to differentiate it from `NumberMultiples`
+- Added a drop shadow filter to the main menu image
 
 ### Changes
 - Core power now matches the maximum number of core speed upgrades you have
@@ -50,6 +54,7 @@ Dates are formatted as year-month-day.
 - Fixed core upgrade buttons wrongly enabling after reload
 - Fixed quarantine zones not updating their usage percentage if their files were not displayed
 - Fixed artificial inflation of the number of times hacked
+- Fixed outbound links not have `noopener`
 
 ## v1.0.0 - 2020-09-08
 ### Initial public release
