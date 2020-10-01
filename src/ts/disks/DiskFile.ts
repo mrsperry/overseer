@@ -67,6 +67,13 @@ class DiskFile implements ISerializable {
     }
 
     /**
+     * @param isThreat If this file is a threat
+     */
+    public setIsThreat(isThreat: boolean): void {
+        this.isThreat = isThreat;
+    }
+
+    /**
      * @returns The threat level of this file
      */
     public getThreatLevel(): number {

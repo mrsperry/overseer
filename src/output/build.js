@@ -728,7 +728,15 @@ class DiskManager {
             if (disk.isQuarantineStorage() || disk.isBusy()) {
                 continue;
             }
-            if (disk.addFile(Utils.random(1, this.threatLevel + 1))) {
+            const file = new DiskFile(Utils.random(1, this.threatLevel + 1));
+            if (file.getIsThreat()) {
+                DiskManager.fileCount = 0;
+            }
+            if (++DiskManager.fileCount === DiskManager.protectionCount) {
+                DiskManager.fileCount = 0;
+                file.setIsThreat(true);
+            }
+            if (disk.addFile(file)) {
                 Stats.increment("disks", "files-discovered");
                 return true;
             }
@@ -819,6 +827,8 @@ class DiskManager {
         return "/quarantine/zone-" + DiskManager.threatLevel;
     }
 }
+DiskManager.fileCount = 0;
+DiskManager.protectionCount = 10;
 class Settings {
     static initialize() {
         Settings.mainColor = State.getValue("settings.main-color") || Settings.reset.mainColor;
@@ -1496,6 +1506,9 @@ class DiskFile {
     }
     getIsThreat() {
         return this.isThreat;
+    }
+    setIsThreat(isThreat) {
+        this.isThreat = isThreat;
     }
     getThreatLevel() {
         return this.threatLevel;

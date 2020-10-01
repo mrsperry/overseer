@@ -29,6 +29,7 @@ Dates are formatted as year-month-day.
 - Added new settings to the settings menu
     - **Stop searching automatically**: Stops core searches automatically when your disks are full
     - **Poor eyesight features**: For now this setting removes the `HiddenPasswords` hack
+- Added bad luck protection when searching for files
 - Added a version manager that will prompt the user to restart their game if the versions are not matched
 - Added scan/purge buttons next to disk usage percentages
 - Added a system for general progression prompts (story updates to make understanding new mechanics easier)

@@ -14,6 +14,11 @@ class DiskManager {
     /** Current level of threat used for quarantine disks */
     private static threatLevel: number;
 
+    /** The number of files added to disks since the last guaranteed threat */
+    private static fileCount: number = 0;
+    /** The number at which a file is guaranteed to be a threat */
+    private static protectionCount: number = 10;
+
     /**
      * Initializes disk names and displays
      */
@@ -105,7 +110,22 @@ class DiskManager {
                 continue;
             }
 
-            if (disk.addFile(Utils.random(1, this.threatLevel + 1))) {
+            // Create a random file
+            const file: DiskFile = new DiskFile(Utils.random(1, this.threatLevel + 1));
+            
+            // Reset the counter if the file was a threat
+            if (file.getIsThreat()) {
+                DiskManager.fileCount = 0;
+            }
+
+            // Check if there have been enough non-threats to guarantee a threat
+            if (++DiskManager.fileCount === DiskManager.protectionCount) {
+                DiskManager.fileCount = 0;
+                file.setIsThreat(true);
+            }
+
+            // Try to add the file
+            if (disk.addFile(file)) {
                 Stats.increment("disks", "files-discovered");
                 return true;
             }
