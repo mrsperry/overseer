@@ -42,8 +42,6 @@ abstract class Hack {
 
             this.addContent();
         }));
-
-        Stats.increment("hacks", "times-hacked");
     }
 
     protected addContent(): void {
@@ -108,6 +106,8 @@ abstract class Hack {
         this.content.addClass(success ? "success" : "fail");
 
         Hack.state.isComplete = true;
+        
+        Stats.increment("hacks", "times-hacked");
     }
 
     /**

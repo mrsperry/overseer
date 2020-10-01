@@ -1573,7 +1573,6 @@ class Hack {
             this.handle = window.setInterval(() => this.countdown(), 1000);
             this.addContent();
         }));
-        Stats.increment("hacks", "times-hacked");
     }
     static initialize() {
         const data = State.getValue("hack");
@@ -1613,6 +1612,7 @@ class Hack {
         this.modal.remove(1500);
         this.content.addClass(success ? "success" : "fail");
         Hack.state.isComplete = true;
+        Stats.increment("hacks", "times-hacked");
     }
     static create(channel, type, level) {
         if (type === undefined) {
