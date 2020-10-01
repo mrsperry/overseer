@@ -31,11 +31,12 @@ class LogMismatch extends Hack {
 
     /**
      * Creates a new LocMismatch hack
+     * @param channel The channel this hack affects
      * @param level The level of this hack
      */
-    public constructor(level: number) {
+    public constructor(channel: number, level: number) {
         const data: any = LogMismatch.levels[level - 1];
-        super(data.time);
+        super(channel, data.time);
 
         this.rowsPerList = data["rows-per-list"];
         this.mismatches = data.mismatches;

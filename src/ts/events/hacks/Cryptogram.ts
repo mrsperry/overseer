@@ -26,11 +26,12 @@ class Cryptogram extends Hack {
 
     /**
      * Creates a new Cryptogram hack
+     * @param channel The channel this hack affects
      * @param level The level of this hack
      */
-    public constructor(level: number) {
+    public constructor(channel: number, level: number) {
         const data: any = Cryptogram.levels[level - 1];
-        super(data.time);
+        super(channel, data.time);
 
         // Get a random unique alphanumeric password
         this.password = Utils.createUniqueList(Cryptogram.letters.split(""), data.characters).join("");

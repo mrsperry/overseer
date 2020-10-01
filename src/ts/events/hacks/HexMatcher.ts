@@ -40,12 +40,12 @@ class HexMatcher extends Hack {
 
     /**
      * Creates a new HexMatcher hack
+     * @param channel The channel this hack affects
      * @param level The level of this hack
      */
-    public constructor(level: number) {
-        // Get the data for this level of hack
+    public constructor(channel: number, level: number) {
         const data: any = HexMatcher.levels[level - 1];
-        super(data.time);
+        super(channel, data.time);
 
         this.hexLength = data["hex-length"];
         this.numberOfMatches = data["number-of-matches"];

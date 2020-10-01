@@ -72,6 +72,14 @@ class ChannelManager {
     }
 
     /**
+     * Prevents access to a channel
+     * @param channel The channel to lock
+     */
+    public static lockChannel(channel: number): void {
+        ChannelManager.getChannel(channel).lock();
+    }
+
+    /**
      * Saves all channels to the state
      */
     public static save(): void {

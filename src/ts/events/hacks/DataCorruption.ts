@@ -40,11 +40,12 @@ class DataCorruption extends Hack {
 
     /**
      * Creates a new DataCorruption hack
+     * @param channel The channel this hack affects
      * @param level The level of this hack
      */
-    public constructor(level: number) {
+    public constructor(channel: number, level: number) {
         const data: any = DataCorruption.levels[level - 1];
-        super(data.time);
+        super(channel, data.time);
 
         this.characters = data.characters;
         // Get a random hex string without a prefix

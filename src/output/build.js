@@ -360,6 +360,9 @@ class CoreTask {
         this.disk = disk;
         return this;
     }
+    getChannel() {
+        return this.channel;
+    }
     setChannel(channel) {
         this.channel = channel;
         return this;
@@ -484,6 +487,9 @@ class Core {
     isBusy() {
         return this.task?.isBusy() || false;
     }
+    getTask() {
+        return this.task;
+    }
     setTask(task) {
         this.task = task;
     }
@@ -546,6 +552,14 @@ class CoreManager {
             }
         }
         return false;
+    }
+    static cancelTask(channel) {
+        for (const core of CoreManager.coreList) {
+            const task = core.getTask();
+            if (task?.getChannel()?.getID() === channel.getID()) {
+                task.onCancel();
+            }
+        }
     }
     static upgradeCoreSpeeds() {
         CoreManager.maxCoreUpgrades++;
@@ -1544,7 +1558,8 @@ class Progression {
     }
 }
 class Hack {
-    constructor(time) {
+    constructor(channel, time) {
+        this.channel = channel;
         this.time = time;
         this.handle = 0;
         this.locked = false;
@@ -1579,6 +1594,7 @@ class Hack {
     }
     fail() {
         this.removeInterface(false);
+        ChannelManager.lockChannel(this.channel);
         Messenger.write("Channel <span class='clickable-no-click active-error'>lockdown complete</span>; cracking functions must be re-run to access the channel");
         Stats.increment("hacks", "hacks-failed");
     }
@@ -1589,7 +1605,7 @@ class Hack {
         this.modal.remove(1500);
         this.content.addClass(success ? "success" : "fail");
     }
-    static create(type, level) {
+    static create(channel, type, level) {
         if (type === undefined) {
             type = Utils.random(0, 7);
         }
@@ -1598,38 +1614,38 @@ class Hack {
         }
         switch (type) {
             case 0:
-                new Cryptogram(level);
+                new Cryptogram(channel, level);
                 break;
             case 1:
-                new DataCorruption(level);
+                new DataCorruption(channel, level);
                 break;
             case 2:
-                new HexMatcher(level);
+                new HexMatcher(channel, level);
                 break;
             case 3:
                 if (Settings.isSettingEnabled("poor-eyesight-features")) {
-                    Hack.create();
+                    Hack.create(channel);
                 }
                 else {
-                    new HiddenPasswords(level);
+                    new HiddenPasswords(channel, level);
                 }
                 break;
             case 4:
-                new LogMismatch(level);
+                new LogMismatch(channel, level);
                 break;
             case 5:
-                new NumberMultiples(level);
+                new NumberMultiples(channel, level);
                 break;
             default:
-                new OrderedNumbers(level);
+                new OrderedNumbers(channel, level);
                 break;
         }
     }
 }
 class Cryptogram extends Hack {
-    constructor(level) {
+    constructor(channel, level) {
         const data = Cryptogram.levels[level - 1];
-        super(data.time);
+        super(channel, data.time);
         this.password = Utils.createUniqueList(Cryptogram.letters.split(""), data.characters).join("");
         this.progress = "";
     }
@@ -1726,9 +1742,9 @@ Cryptogram.levels = [
     }
 ];
 class DataCorruption extends Hack {
-    constructor(level) {
+    constructor(channel, level) {
         const data = DataCorruption.levels[level - 1];
-        super(data.time);
+        super(channel, data.time);
         this.characters = data.characters;
         this.corruptedString = Utils.getHexString(this.characters, false);
         this.numberOfCorruptions = data["number-of-corruptions"];
@@ -1827,9 +1843,9 @@ DataCorruption.levels = [
     }
 ];
 class HexMatcher extends Hack {
-    constructor(level) {
+    constructor(channel, level) {
         const data = HexMatcher.levels[level - 1];
-        super(data.time);
+        super(channel, data.time);
         this.hexLength = data["hex-length"];
         this.numberOfMatches = data["number-of-matches"];
         this.currentMatches = 0;
@@ -1988,9 +2004,9 @@ HexMatcher.levels = [
     }
 ];
 class HiddenPasswords extends Hack {
-    constructor(level) {
+    constructor(channel, level) {
         const data = HiddenPasswords.data.levels[level - 1];
-        super(data.time);
+        super(channel, data.time);
         this.passwords = Utils.createUniqueList(HiddenPasswords.data.passwords, data.passwords);
         this.markedPasswords = 0;
         this.lines = data.lines;
@@ -2112,9 +2128,9 @@ HiddenPasswords.data = {
     ]
 };
 class LogMismatch extends Hack {
-    constructor(level) {
+    constructor(channel, level) {
         const data = LogMismatch.levels[level - 1];
-        super(data.time);
+        super(channel, data.time);
         this.rowsPerList = data["rows-per-list"];
         this.mismatches = data.mismatches;
         this.mismatchRows = [];
@@ -2212,9 +2228,9 @@ LogMismatch.levels = [
     }
 ];
 class NumberMultiples extends Hack {
-    constructor(level) {
+    constructor(channel, level) {
         const data = NumberMultiples.levels[level - 1];
-        super(data.time);
+        super(channel, data.time);
         this.highestNumber = data["highest-number"];
         this.gridSize = data["grid-size"];
         this.numberOfMultipliers = data.multipliers;
@@ -2335,9 +2351,9 @@ NumberMultiples.levels = [
     }
 ];
 class OrderedNumbers extends Hack {
-    constructor(level) {
+    constructor(channel, level) {
         const data = OrderedNumbers.levels[level - 1];
-        super(data.time);
+        super(channel, data.time);
         this.maxNumbers = data["max-numbers"];
         this.numberPerRow = data["numbers-per-row"];
         this.order = [];
@@ -2581,7 +2597,7 @@ class Channel {
                 }
                 if (this.siphoned % this.dataInterval === 0) {
                     if (ChannelDetection.shouldGenerateHack(this.detection)) {
-                        Hack.create();
+                        Hack.create(this.id);
                     }
                 }
                 if (this.isDisplayed) {
@@ -2595,6 +2611,9 @@ class Channel {
             else {
                 this.isCracked = true;
                 this.isBusy = false;
+                if (this.isDisplayed) {
+                    DataCore.setData(this.getProgress());
+                }
                 Messenger.write("Network <span class='clickable-no-click'>channel access acquired</span>; memory core data siphoning available");
             }
             this.updateInfo();
@@ -2619,6 +2638,13 @@ class Channel {
         }
         return result.substring(0, result.length - 1);
     }
+    lock() {
+        this.isCracked = false;
+        if (this.isDisplayed) {
+            DataCore.resetData(0);
+        }
+        CoreManager.cancelTask(this);
+    }
     setDisplayed(displayed) {
         this.isDisplayed = displayed;
         const name = this.parent.children(".channel-info")
@@ -2641,7 +2667,7 @@ class Channel {
         this.updateInfo();
     }
     getProgress() {
-        return (this.siphoned / (this.remaining + this.siphoned)) * 100;
+        return this.isCracked ? (this.siphoned / (this.remaining + this.siphoned)) * 100 : 0;
     }
     getIsBusy() {
         return this.isBusy;
@@ -2735,6 +2761,9 @@ class ChannelManager {
         channel.setDisplayed(true);
         ChannelManager.displayed = channel;
         DataCore.resetData(channel.getProgress());
+    }
+    static lockChannel(channel) {
+        ChannelManager.getChannel(channel).lock();
     }
     static save() {
         const channels = [];

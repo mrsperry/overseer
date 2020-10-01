@@ -29,12 +29,12 @@ class OrderedNumbers extends Hack {
 
     /**
      * Creates a new ordered numbers hack
+     * @param channel The channel this hack affects
      * @param level The level of this hack
      */
-    public constructor(level: number) {
-        // Get the data pertaining to the level of this hack
+    public constructor(channel: number, level: number) {
         const data: any = OrderedNumbers.levels[level - 1];
-        super(data.time);
+        super(channel, data.time);
 
         this.maxNumbers = data["max-numbers"];
         this.numberPerRow = data["numbers-per-row"];

@@ -88,6 +88,19 @@ class CoreManager {
     }
 
     /**
+     * Cancels a running channel task
+     * @param channel The channel task to find
+     */
+    public static cancelTask(channel: Channel): void {
+        for (const core of CoreManager.coreList) {
+            const task: CoreTask | null = core.getTask();
+            if (task?.getChannel()?.getID() === channel.getID()) {
+                task.onCancel();
+            }
+        }
+    }
+
+    /**
      * Increments the maximum number of core upgrades for each core
      */
     public static upgradeCoreSpeeds(): void {

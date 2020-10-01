@@ -41,11 +41,12 @@ class NumberMultiples extends Hack {
 
     /**
      * Creates a new NumberMultiples hack
+     * @param channel The channel this hack affects
      * @param level The level of this hack
      */
-    public constructor(level: number) {
+    public constructor(channel: number, level: number) {
         const data: any = NumberMultiples.levels[level - 1];
-        super(data.time);
+        super(channel, data.time);
 
         this.highestNumber = data["highest-number"];
         this.gridSize = data["grid-size"];

@@ -11,9 +11,10 @@ abstract class Hack {
 
     /**
      * Starts the hack countdown timer
+     * @param channel The channel this hack affects
      * @param time The number of seconds to complete the hack before the player fails
      */
-    protected constructor(private time: number) {
+    protected constructor(private channel: number, private time: number) {
         this.locked = false;
 
         // Create the hack modal
@@ -69,6 +70,8 @@ abstract class Hack {
     protected fail(): void {
         this.removeInterface(false);
 
+        ChannelManager.lockChannel(this.channel);
+
         Messenger.write("Channel <span class='clickable-no-click active-error'>lockdown complete</span>; cracking functions must be re-run to access the channel");
         Stats.increment("hacks", "hacks-failed");
     }
@@ -94,10 +97,11 @@ abstract class Hack {
 
     /**
      * Creates a new hack
+     * @param channel The channel this hack affects
      * @param type The type of hack, otherwise random
      * @param level The level of the hack, otherwise equal to the number of network channels
      */
-    public static create(type?: number, level?: number): void {
+    public static create(channel: number, type?: number, level?: number): void {
         // Get a random hack type
         if (type === undefined) {
             type = Utils.random(0, 7);
@@ -111,29 +115,29 @@ abstract class Hack {
         // Create the hack
         switch (type) {
             case 0:
-                new Cryptogram(level);
+                new Cryptogram(channel, level);
                 break;
             case 1:
-                new DataCorruption(level);
+                new DataCorruption(channel, level);
                 break;
             case 2:
-                new HexMatcher(level);
+                new HexMatcher(channel, level);
                 break;
             case 3:
                 if (Settings.isSettingEnabled("poor-eyesight-features")) {
-                    Hack.create();
+                    Hack.create(channel);
                 } else {
-                    new HiddenPasswords(level);
+                    new HiddenPasswords(channel, level);
                 }
                 break;
             case 4:
-                new LogMismatch(level);
+                new LogMismatch(channel, level);
                 break;
             case 5:
-                new NumberMultiples(level);
+                new NumberMultiples(channel, level);
                 break;
             default:
-                new OrderedNumbers(level);
+                new OrderedNumbers(channel, level);
                 break;
         }
     }

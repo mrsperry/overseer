@@ -57,12 +57,12 @@ class HiddenPasswords extends Hack {
 
     /**
      * Creates a new HiddenPasswords hack
+     * @param channel The channel this hack affects
      * @param level The level of this hack
      */
-    public constructor(level: number) {
-        // Get the data for this level of hack
+    public constructor(channel: number, level: number) {
         const data: any = HiddenPasswords.data.levels[level - 1];
-        super(data.time);
+        super(channel, data.time);
 
         // Get a unique list of passwords to hide
         this.passwords = Utils.createUniqueList(HiddenPasswords.data.passwords, data.passwords);

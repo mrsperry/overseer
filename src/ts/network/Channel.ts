@@ -52,7 +52,7 @@ class Channel implements ISerializable {
         info.children(".channel-name")
             .on("click", (): void => {
                 if (!this.isDisplayed) {
-                    ChannelManager.displayChannel(this)
+                    ChannelManager.displayChannel(this);
                 }
             });
         info.children("button")
@@ -128,7 +128,7 @@ class Channel implements ISerializable {
                     if (this.siphoned % this.dataInterval === 0) {
                         // Try to generate a hack
                         if (ChannelDetection.shouldGenerateHack(this.detection)) {
-                            Hack.create();
+                            Hack.create(this.id);
                         }
                     }
 
@@ -146,6 +146,10 @@ class Channel implements ISerializable {
                 } else {
                     this.isCracked = true;
                     this.isBusy = false;
+
+                    if (this.isDisplayed) {
+                        DataCore.setData(this.getProgress());
+                    }
 
                     Messenger.write("Network <span class='clickable-no-click'>channel access acquired</span>; memory core data siphoning available")
                 }
@@ -183,6 +187,17 @@ class Channel implements ISerializable {
 
         // Remove the trailing colon
         return result.substring(0, result.length - 1);
+    }
+
+    /**
+     * Locks the channel
+     */
+    public lock(): void {
+        this.isCracked = false;
+        if (this.isDisplayed) {
+            DataCore.resetData(0);
+        }
+        CoreManager.cancelTask(this);
     }
 
     /**
@@ -230,7 +245,7 @@ class Channel implements ISerializable {
      * @returns The current percentage of data siphoned
      */
     public getProgress(): number {
-        return (this.siphoned / (this.remaining + this.siphoned)) * 100;
+        return this.isCracked ? (this.siphoned / (this.remaining + this.siphoned)) * 100 : 0;
     }
 
     /**

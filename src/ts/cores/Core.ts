@@ -192,6 +192,13 @@ class Core implements ISerializable {
     }
 
     /**
+     * @returns The current core task or null
+     */
+    public getTask(): CoreTask | null {
+        return this.task;
+    }
+
+    /**
      * @param task The task this core will run
      */
     public setTask(task: CoreTask): void {

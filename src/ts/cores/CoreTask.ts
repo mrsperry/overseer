@@ -223,6 +223,13 @@ class CoreTask implements ISerializable {
     }
 
     /**
+     * @returns The channel this task modifies or null
+     */
+    public getChannel(): Channel | null {
+        return this.channel;
+    }
+
+    /**
      * @param channel The channel this task modifies
      */
     public setChannel(channel: Channel): CoreTask {
