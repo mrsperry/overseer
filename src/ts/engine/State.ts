@@ -26,6 +26,7 @@ class State {
             CoreManager.save();
             DiskManager.save();
             ChannelManager.save();
+            Hack.save();
         }
 
         localStorage.setItem("save", JSON.stringify(State.data, null, 4));

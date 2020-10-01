@@ -57,6 +57,8 @@ class Main {
                         .fadeIn()
                         .css("display", "grid");
                 });
+
+                Hack.initialize();
             });
     }
 }

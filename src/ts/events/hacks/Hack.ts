@@ -1,4 +1,7 @@
 abstract class Hack {
+    /** The state of the last created hack */
+    private static state: any;
+
     /** Window interval handler for the countdown */
     private handle: number = 0;
     /** The parent modal of the hack */
@@ -8,6 +11,16 @@ abstract class Hack {
     protected content: any;
     /** If the hack will process mouse events */
     protected locked: boolean;
+
+    /**
+     * Loads a previous hack from the state
+     */
+    public static initialize(): void {
+        const data: any = State.getValue("hack");
+        if (data?.isComplete === false) {
+            Hack.create(data.channel, data.type, data.level);
+        }
+    }
 
     /**
      * Starts the hack countdown timer
@@ -93,6 +106,8 @@ abstract class Hack {
 
         // Color the border of the hack depending on the success state
         this.content.addClass(success ? "success" : "fail");
+
+        Hack.state.isComplete = true;
     }
 
     /**
@@ -140,5 +155,19 @@ abstract class Hack {
                 new OrderedNumbers(channel, level);
                 break;
         }
+
+        Hack.state = {
+            "channel": channel,
+            "type": type,
+            "level": level,
+            "isComplete": false
+        };
+    }
+
+    /**
+     * Saves the most recent hack data to state
+     */
+    public static save(): void {
+        State.setValue("hack", Hack.state);
     }
 }

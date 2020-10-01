@@ -13,6 +13,7 @@ class State {
             CoreManager.save();
             DiskManager.save();
             ChannelManager.save();
+            Hack.save();
         }
         localStorage.setItem("save", JSON.stringify(State.data, null, 4));
     }
@@ -1179,6 +1180,7 @@ class Main {
                     .fadeIn()
                     .css("display", "grid");
             });
+            Hack.initialize();
         });
     }
 }
@@ -1573,6 +1575,12 @@ class Hack {
         }));
         Stats.increment("hacks", "times-hacked");
     }
+    static initialize() {
+        const data = State.getValue("hack");
+        if (data?.isComplete === false) {
+            Hack.create(data.channel, data.type, data.level);
+        }
+    }
     addContent() {
         this.content.html(Views.get("hacks/base"));
         this.content.children("h1")
@@ -1604,6 +1612,7 @@ class Hack {
         this.locked = true;
         this.modal.remove(1500);
         this.content.addClass(success ? "success" : "fail");
+        Hack.state.isComplete = true;
     }
     static create(channel, type, level) {
         if (type === undefined) {
@@ -1640,6 +1649,15 @@ class Hack {
                 new OrderedNumbers(channel, level);
                 break;
         }
+        Hack.state = {
+            "channel": channel,
+            "type": type,
+            "level": level,
+            "isComplete": false
+        };
+    }
+    static save() {
+        State.setValue("hack", Hack.state);
     }
 }
 class Cryptogram extends Hack {
@@ -2640,6 +2658,7 @@ class Channel {
     }
     lock() {
         this.isCracked = false;
+        this.updateInfo();
         if (this.isDisplayed) {
             DataCore.resetData(0);
         }

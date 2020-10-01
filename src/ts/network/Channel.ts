@@ -194,9 +194,12 @@ class Channel implements ISerializable {
      */
     public lock(): void {
         this.isCracked = false;
+        this.updateInfo();
+
         if (this.isDisplayed) {
             DataCore.resetData(0);
         }
+        
         CoreManager.cancelTask(this);
     }
 
