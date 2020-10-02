@@ -36,6 +36,7 @@ Dates are formatted as year-month-day.
 - Added links to [the wiki](https://github.com/mrsperry/overseer/wiki) on the main menu and in-game footer
 - Added a message to the `OrderedNumbers` hack to differentiate it from `NumberMultiples`
 - Added a drop shadow filter to the main menu image
+- Added a fancy loading animation to the main menu
 
 ### Changes
 - Core power now matches the maximum number of core speed upgrades you have

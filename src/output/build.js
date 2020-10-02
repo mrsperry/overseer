@@ -1156,6 +1156,18 @@ class Main {
         await Views.initialize();
         await Verdict.initialize();
         Version.check();
+        const menu = $("#main-menu").css("display", "flex");
+        const children = menu.children();
+        for (let index = 0; index < children.length; index++) {
+            const child = $(children[index]);
+            if (child.is("img")) {
+                child.addClass("loading-anim");
+                continue;
+            }
+            child.hide()
+                .delay(3000 + ((index - 1) * 125))
+                .fadeIn();
+        }
         $(window).on("beforeunload", () => State.save());
     }
     static startGame() {

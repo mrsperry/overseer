@@ -17,6 +17,25 @@ class Main {
         await Verdict.initialize();
         Version.check();
 
+        // Start the main menu animation
+        const menu: any = $("#main-menu").css("display", "flex");
+        const children: any = menu.children();
+
+        for (let index: number = 0; index < children.length; index++) {
+            const child: any = $(children[index]);
+
+            // Start the main menu image animation
+            if (child.is("img")) {
+                child.addClass("loading-anim");
+                continue;
+            }
+
+            // Have each child wait for the image animation to complete then fade in
+            child.hide()
+                .delay(3000 + ((index - 1) * 125))
+                .fadeIn();
+        }
+
         $(window).on("beforeunload", (): void => State.save());
     }
 

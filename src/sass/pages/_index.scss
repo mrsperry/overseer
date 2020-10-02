@@ -10,9 +10,28 @@ body {
     padding: 1rem;
 
     #main-menu {
-        display: flex;
+        display: none;
         flex-direction: column;
         align-items: center;
+
+        img.loading-anim {
+            animation: start-anim 3000ms ease-in-out;
+        }
+
+        @keyframes start-anim {
+            0% {
+                transform: translateY(100%) scale(0);
+            }
+            33% {
+                transform: translateY(100%) scale(1);
+            }
+            50% {
+                transform: translateY(100%);
+            }
+            100% {
+                transform: translateY(0%);
+            }
+        }
 
         h1 {
             font-size: 2rem;
