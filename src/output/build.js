@@ -1176,7 +1176,7 @@ class Main {
             menu.remove();
             $("#main-content")
                 .fadeIn()
-                .css("display", "grid");
+                .css("display", "flex");
             $("footer")
                 .fadeIn()
                 .css("display", "flex");
