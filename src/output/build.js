@@ -1191,7 +1191,10 @@ class Main {
             await Research.initialize();
             VerdictTimer.initialize();
             ChannelDetection.initialize();
-            Progression.trigger("start", () => Utils.showElements(".messages", ".cores", ".disks", ".messages-tab", ".cores-disks-tab"));
+            Progression.trigger("start", () => {
+                Utils.showElements(".messages", ".cores", ".disks", ".messages-tab", ".cores-disks-tab");
+                Messenger.write("Output log initialized and ready for system debug messages");
+            });
             Hack.initialize();
         });
     }
@@ -1755,9 +1758,9 @@ class Cryptogram extends Hack {
             this.success();
             Stats.increment("hacks", "cryptograms-solved");
         }
-        $(".cipher-" + (this.progress.length - 1))
+        $("#cipher-" + (this.progress.length - 1))
             .addClass("clickable-no-click");
-        $(".password")
+        $("#password")
             .text(this.progress);
         return true;
     }
@@ -2103,7 +2106,7 @@ class HiddenPasswords extends Hack {
         element.addClass("clickable-no-click")
             .off("click");
         const index = Number.parseInt(element.attr("password-index"));
-        $(".hidden-password-" + index).addClass("clickable-no-click");
+        $("#hidden-password-" + index).addClass("clickable-no-click");
         if (++this.markedPasswords === this.passwords.length) {
             this.success();
             Stats.increment("hacks", "hidden-passwords-solved");
@@ -2115,7 +2118,7 @@ class HiddenPasswords extends Hack {
             if (!password.hasClass("clickable-no-click")) {
                 password.addClass("clickable-no-click active-error");
                 const index = Number.parseInt(password.attr("password-index"));
-                $(".hidden-password-" + index).addClass("clickable-no-click active-error");
+                $("#hidden-password-" + index).addClass("clickable-no-click active-error");
             }
         }
         Stats.increment("hacks", "hidden-passwords-failed");

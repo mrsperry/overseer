@@ -62,10 +62,11 @@ class Main {
                 VerdictTimer.initialize();
                 ChannelDetection.initialize();
 
-                Progression.trigger("start", (): void => Utils.showElements(
-                    ".messages", ".cores", ".disks",
-                    ".messages-tab", ".cores-disks-tab"
-                ));
+                Progression.trigger("start", (): void => {
+                    Utils.showElements(".messages", ".cores", ".disks", ".messages-tab", ".cores-disks-tab");
+
+                    Messenger.write("Output log initialized and ready for system debug messages");
+                });
 
                 Hack.initialize();
             });
