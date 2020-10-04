@@ -9,8 +9,8 @@ body {
     min-height: 100vh;
     padding: 1rem;
 
-    #main-menu {
-        display: none;
+    .main-menu {
+        display: flex;
         flex-direction: column;
         align-items: center;
 
@@ -48,19 +48,29 @@ body {
         }
     }
 
-    #main-content {
-        display: none;
+    .main-content {
+        display: flex;
 
-        #messages, #cores, #disks, #research, #channels, #data-core {
-            display: none;
+        nav {
+            justify-content: space-between;
+            margin-bottom: 2rem;
+
+            button {
+                width: 22.5%;
+                margin-top: 0rem;
+            }
         }
 
-        #messages, #channels, #data-core {
-            max-width: 350px;
+        .messages, .channels, .data-core {
+            width: 350px;
         }
 
-        #cores, #disks, #research {
-            max-width: 750px;
+        .cores, .disks, .research {
+            width: 750px;
+        }
+        
+        .cores, .channels {
+            height: 140px;
         }
 
         .vertical-container {
@@ -71,8 +81,8 @@ body {
                 margin-top: 2rem;
             }
         }
-        
-        > * + * {
+
+        > *:not(.hidden) + * {
             margin-left: 2rem;
         }
     }

@@ -1,0 +1,89 @@
+@media screen and (max-width: 1600px) {
+    body .main-content {
+        .vertical-container + .vertical-container {
+            margin-left: 1rem;
+        }
+
+        .messages, .channels, .data-core {
+            width: 300px;
+        }
+    }
+}
+
+@media screen and (max-width: 1425px) {
+    :root {
+        font-size: 14px;
+    }
+
+    body .main-content {
+        .messages {
+            width: 250px;
+        }
+
+        .cores, .disks, .research {
+            width: 700px;
+        }
+    }
+}
+
+@media screen and (max-width: 1300px) {
+    :root {
+        font-size: 16px;
+    }
+    
+    body .main-content {
+        width: 750px;
+        flex-direction: column;
+
+        .vertical-container > * {
+            display: none;
+        }
+
+        nav {
+            display: flex;
+        }
+
+        .vertical-container {
+            display: flex;
+            align-items: center;
+            margin-left: 0rem;
+        }
+
+        &[type="messages"] .vertical-container .messages {
+            display: block;
+            visibility: visible;
+            width: 100%;
+        }
+
+        &[type="cores-disks"] .vertical-container {
+            .cores {
+                display: flex;
+            }
+
+            .disks {
+                display: grid;
+            }
+        }
+
+        &[type="research"] .vertical-container .research {
+            display: flex;
+            margin-top: 0rem;
+        }
+
+        &[type="network"] .vertical-container {
+            .channels {
+                display: block;
+            }
+            
+            .data-core {
+                display: flex;
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 800px) {
+    :root {
+        font-size: 10px;
+    }
+}

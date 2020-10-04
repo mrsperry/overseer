@@ -24,7 +24,7 @@ class DiskManager {
      */
     public static async initialize(): Promise<any> {
         if (Progression.hasTriggered("start")) {
-            $("#disks").fadeIn().css("display", "grid");
+            Utils.showElements(".disks", ".cores-disks-tab");
         }
 
         // Get the disk name data
@@ -168,7 +168,7 @@ class DiskManager {
         }
 
         // Remove previous display
-        $("#disk-view").children(".file").remove();
+        $(".disk-view").children(".file").remove();
         // Display the files
         disk.displayFiles();
     }
@@ -203,12 +203,7 @@ class DiskManager {
      */
     public static addThreatLevel(): void {
         if (DiskManager.threatLevel === 1) {
-            Progression.trigger("channel-unlock", (): void => {
-                $("#channels").show();
-                $("#data-core")
-                    .fadeIn()
-                    .css("display", "flex");
-            });
+            Progression.trigger("channel-unlock", (): void => Utils.showElements(".channels", ".data-core", ".network-tab"));
         }
 
         DiskManager.threatLevel++;

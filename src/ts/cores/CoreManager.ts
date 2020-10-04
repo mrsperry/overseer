@@ -11,7 +11,7 @@ class CoreManager {
      */
     public static initialize(): void {
         if (Progression.hasTriggered("start")) {
-            $("#cores").fadeIn().css("display", "flex");
+            Utils.showElements(".cores", ".cores-disks-tab");
         }
 
         // Set the maximum number of core upgrades

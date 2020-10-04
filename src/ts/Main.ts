@@ -18,7 +18,7 @@ class Main {
         Version.check();
 
         // Start the main menu animation
-        const menu: any = $("#main-menu").css("display", "flex");
+        const menu: any = $(".main-menu");
         const children: any = menu.children();
 
         for (let index: number = 0; index < children.length; index++) {
@@ -40,15 +40,11 @@ class Main {
     }
 
     public static startGame(): void {
-        const menu: any = $("#main-menu")
+        const menu: any = $(".main-menu")
             .fadeOut(400, async (): Promise<any> => {
                 menu.remove();
-                $("#main-content")
-                    .fadeIn()
-                    .css("display", "flex");
-                $("footer")
-                    .fadeIn()
-                    .css("display", "flex");
+
+                Utils.showElements(".main-content", "footer");
 
                 State.gameStarted();
 
@@ -66,19 +62,17 @@ class Main {
                 VerdictTimer.initialize();
                 ChannelDetection.initialize();
 
-                Progression.trigger("start", (): void => {
-                    $("#messages")
-                        .fadeIn();
-                    $("#cores")
-                        .fadeIn()
-                        .css("display", "flex");
-                    $("#disks")
-                        .fadeIn()
-                        .css("display", "grid");
-                });
+                Progression.trigger("start", (): void => Utils.showElements(
+                    ".messages", ".cores", ".disks",
+                    ".messages-tab", ".cores-disks-tab"
+                ));
 
                 Hack.initialize();
             });
+    }
+
+    public static switchFocus(type: string): void {
+        $(".main-content").attr("type", type);
     }
 }
 

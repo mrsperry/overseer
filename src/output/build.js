@@ -71,7 +71,7 @@ State.playing = false;
 class Messenger {
     static initialize() {
         if (Progression.hasTriggered("start")) {
-            $("#messages").fadeIn();
+            Utils.showElements(".messages", ".messages-tab");
         }
         for (const message of State.getValue("messages.history") || []) {
             for (let index = 0; index < message.amount; index++) {
@@ -82,7 +82,7 @@ class Messenger {
     static write(text) {
         const previousMessage = Messenger.messages[Messenger.messages.length - 1];
         if (previousMessage !== undefined && text === previousMessage.message) {
-            const previousElement = $("#messages").children("p")[0];
+            const previousElement = $(".messages").children("p")[0];
             if ($(previousElement).children(".amount").length === 0) {
                 $("<span>")
                     .addClass("amount")
@@ -101,10 +101,10 @@ class Messenger {
             .html(text)
             .hide()
             .fadeIn()
-            .prependTo("#messages");
+            .prependTo(".messages");
         if (Messenger.messages.length > Messenger.maxMessages) {
             Messenger.messages.shift();
-            $("#messages")
+            $(".messages")
                 .children("p:last-child")
                 .remove();
         }
@@ -114,7 +114,7 @@ class Messenger {
         State.setValue("messages.history", Messenger.messages);
     }
     static applyOpacity() {
-        const children = $("#messages").children();
+        const children = $(".messages").children();
         for (let index = 0; index < children.length; index++) {
             const child = $(children[index]);
             if (index !== 0) {
@@ -399,7 +399,7 @@ class Core {
             .html(Views.get("core"))
             .hide()
             .fadeIn()
-            .appendTo("#cores");
+            .appendTo(".cores");
         this.canvas = new CoreCanvas(parent);
         this.canvas.drawCore(0);
         this.info = parent.children(".core-info");
@@ -507,7 +507,7 @@ Core.fileSearchCost = 20;
 class CoreManager {
     static initialize() {
         if (Progression.hasTriggered("start")) {
-            $("#cores").fadeIn().css("display", "flex");
+            Utils.showElements(".cores", ".cores-disks-tab");
         }
         CoreManager.maxCoreUpgrades = State.getValue("cores.max-core-upgrades") || 0;
         CoreManager.coreList = [];
@@ -653,6 +653,15 @@ class Utils {
             return +(number / 1000).toFixed(1) + "mb";
         }
     }
+    static showElements(...selectors) {
+        for (const selector of selectors) {
+            $(selector).removeClass("hidden invisible")
+                .css("opacity", 0)
+                .animate({
+                "opacity": 1
+            });
+        }
+    }
     static hexToHue(hex) {
         let red = "0x" + hex[1] + hex[2];
         let green = "0x" + hex[3] + hex[4];
@@ -681,7 +690,7 @@ class Utils {
 class DiskManager {
     static async initialize() {
         if (Progression.hasTriggered("start")) {
-            $("#disks").fadeIn().css("display", "grid");
+            Utils.showElements(".disks", ".cores-disks-tab");
         }
         const diskNameData = await $.getJSON("src/data/disk-names.json");
         DiskManager.fileExtensions = diskNameData.extensions;
@@ -762,7 +771,7 @@ class DiskManager {
         for (const disk of DiskManager.disks) {
             disk.setDisplayed(false);
         }
-        $("#disk-view").children(".file").remove();
+        $(".disk-view").children(".file").remove();
         disk.displayFiles();
     }
     static upgradeDiskStorage() {
@@ -783,12 +792,7 @@ class DiskManager {
     }
     static addThreatLevel() {
         if (DiskManager.threatLevel === 1) {
-            Progression.trigger("channel-unlock", () => {
-                $("#channels").show();
-                $("#data-core")
-                    .fadeIn()
-                    .css("display", "flex");
-            });
+            Progression.trigger("channel-unlock", () => Utils.showElements(".channels", ".data-core", ".network-tab"));
         }
         DiskManager.threatLevel++;
         Research.incrementExponent(DiskManager.threatLevel);
@@ -841,22 +845,22 @@ class Settings {
         Settings.modal = new Modal("settings");
         const content = Settings.modal.getContent()
             .html(Views.get("menus/settings"));
-        Settings.mainPicker = $("#main-color")
+        Settings.mainPicker = $(".main-color")
             .attr("value", Settings.mainColor)
             .on("input change", (event) => Settings.updateColor(event.target.value, false));
-        Settings.accentPicker = $("#accent-color")
+        Settings.accentPicker = $(".accent-color")
             .attr("value", Settings.accentColor)
             .on("input change", (event) => Settings.updateColor(event.target.value, true));
         for (const id in Settings.toggles) {
-            const element = $("#" + id);
+            const element = $("." + id);
             const enable = $(element).children("button:first-child");
             enable.on("click", () => Settings.toggleSetting(id, true));
             const disable = $(element).children("button:last-child");
             disable.on("click", () => Settings.toggleSetting(id, false));
             Settings.toggleSetting(id, Settings.toggles[id] || false);
         }
-        $("#reset-settings").on("click", () => Settings.resetValues());
-        $("#restart-game").on("click", () => State.reset());
+        $(".reset-settings").on("click", () => Settings.resetValues());
+        $(".restart-game").on("click", () => State.reset());
         content.children("button")
             .one("click", () => Settings.modal.remove());
     }
@@ -882,7 +886,7 @@ class Settings {
     static setColorVariable(name, value) {
         $("body").get(0).style.setProperty("--" + name, value);
         if (name === "clickable-text") {
-            $("#main-menu-image").css("filter", "hue-rotate(" + (Utils.hexToHue(value) - Settings.originalHue) + "deg) " +
+            $(".main-menu-image").css("filter", "hue-rotate(" + (Utils.hexToHue(value) - Settings.originalHue) + "deg) " +
                 "drop-shadow(0rem 0rem 0.5rem rgba(0, 0, 0, 0.5))");
             try {
                 DataCore.resetData(ChannelManager.getDisplayedChannel().getProgress());
@@ -891,7 +895,7 @@ class Settings {
         }
     }
     static toggleSetting(id, enabled) {
-        const parent = $("#" + id);
+        const parent = $("." + id);
         const enable = parent.children("button:first-child");
         const disable = parent.children("button:last-child");
         if (enabled) {
@@ -990,7 +994,7 @@ class Research {
         }
         Research.reliability += amount;
         Research.reliability = Math.max(Research.reliability, 0);
-        $("#research").children(".reliability")
+        $(".research").children(".reliability")
             .text("Reliability: " + Research.reliability.toFixed(2));
         Research.displayResearch();
         Stats.useHighest("research", "highest-reliability", this.reliability);
@@ -1036,7 +1040,7 @@ class Research {
             else if (threatLevel < option.level) {
                 continue;
             }
-            if ($("#research").children().length === Research.maxDisplayed + 1) {
+            if ($(".research").children().length === Research.maxDisplayed + 1) {
                 return;
             }
             const createButton = (data, showCost) => {
@@ -1092,7 +1096,7 @@ class Research {
                 .attr("id", "research-" + index)
                 .delay(Research.displayDelay * (index + 1))
                 .fadeIn()
-                .appendTo("#research");
+                .appendTo(".research");
         }
     }
     static purchaseResearch(index, type) {
@@ -1139,7 +1143,7 @@ class Research {
         Research.baseDisplay += 0.1;
     }
     static displayResearchSection() {
-        $("#research").fadeIn().css("display", "flex");
+        Utils.showElements(".research", ".research-tab");
     }
 }
 Research.maxDisplayed = 5;
@@ -1156,7 +1160,7 @@ class Main {
         await Views.initialize();
         await Verdict.initialize();
         Version.check();
-        const menu = $("#main-menu").css("display", "flex");
+        const menu = $(".main-menu");
         const children = menu.children();
         for (let index = 0; index < children.length; index++) {
             const child = $(children[index]);
@@ -1171,15 +1175,10 @@ class Main {
         $(window).on("beforeunload", () => State.save());
     }
     static startGame() {
-        const menu = $("#main-menu")
+        const menu = $(".main-menu")
             .fadeOut(400, async () => {
             menu.remove();
-            $("#main-content")
-                .fadeIn()
-                .css("display", "flex");
-            $("footer")
-                .fadeIn()
-                .css("display", "flex");
+            Utils.showElements(".main-content", "footer");
             State.gameStarted();
             Messenger.initialize();
             await DiskManager.initialize();
@@ -1192,18 +1191,12 @@ class Main {
             await Research.initialize();
             VerdictTimer.initialize();
             ChannelDetection.initialize();
-            Progression.trigger("start", () => {
-                $("#messages")
-                    .fadeIn();
-                $("#cores")
-                    .fadeIn()
-                    .css("display", "flex");
-                $("#disks")
-                    .fadeIn()
-                    .css("display", "grid");
-            });
+            Progression.trigger("start", () => Utils.showElements(".messages", ".cores", ".disks", ".messages-tab", ".cores-disks-tab"));
             Hack.initialize();
         });
+    }
+    static switchFocus(type) {
+        $(".main-content").attr("type", type);
     }
 }
 (() => Main.initialize())();
@@ -1253,7 +1246,7 @@ class Disk {
             .html(Views.get("disk"))
             .hide()
             .fadeIn()
-            .appendTo(isQuarantine ? "#quarantines" : "#drives");
+            .appendTo(isQuarantine ? ".quarantines" : ".drives");
         this.parent.children(".disk-name")
             .text(name)
             .on("click", () => DiskManager.displayFiles(this));
@@ -1289,7 +1282,7 @@ class Disk {
             .hide()
             .delay(delay)
             .fadeIn()
-            .appendTo($("#disk-view"));
+            .appendTo($(".disk-view"));
         $("<span>")
             .text(file.getName())
             .appendTo(parent);
@@ -1330,7 +1323,7 @@ class Disk {
             .text(Math.floor((this.getUsage() / this.maxStorage) * 100) + "%");
     }
     updateFileDisplay(delay = 0) {
-        const parent = $("#disk-view");
+        const parent = $(".disk-view");
         const header = parent.children(".header")
             .removeClass("disabled clickable")
             .off("click");
@@ -1384,7 +1377,7 @@ class Disk {
             this.files = [];
             this.displayedFiles = 0;
             if (this.displayed) {
-                for (const child of $("#disk-view").children(".file")) {
+                for (const child of $(".disk-view").children(".file")) {
                     $(child).fadeOut(400, () => {
                         $(child).remove();
                     });
@@ -1762,9 +1755,9 @@ class Cryptogram extends Hack {
             this.success();
             Stats.increment("hacks", "cryptograms-solved");
         }
-        $("#cipher-" + (this.progress.length - 1))
+        $(".cipher-" + (this.progress.length - 1))
             .addClass("clickable-no-click");
-        $("#password")
+        $(".password")
             .text(this.progress);
         return true;
     }
@@ -2110,7 +2103,7 @@ class HiddenPasswords extends Hack {
         element.addClass("clickable-no-click")
             .off("click");
         const index = Number.parseInt(element.attr("password-index"));
-        $("#hidden-password-" + index).addClass("clickable-no-click");
+        $(".hidden-password-" + index).addClass("clickable-no-click");
         if (++this.markedPasswords === this.passwords.length) {
             this.success();
             Stats.increment("hacks", "hidden-passwords-solved");
@@ -2122,7 +2115,7 @@ class HiddenPasswords extends Hack {
             if (!password.hasClass("clickable-no-click")) {
                 password.addClass("clickable-no-click active-error");
                 const index = Number.parseInt(password.attr("password-index"));
-                $("#hidden-password-" + index).addClass("clickable-no-click active-error");
+                $(".hidden-password-" + index).addClass("clickable-no-click active-error");
             }
         }
         Stats.increment("hacks", "hidden-passwords-failed");
@@ -2577,7 +2570,7 @@ class Channel {
             .html(Views.get("channel"))
             .hide()
             .fadeIn()
-            .appendTo("#channels");
+            .appendTo(".channels");
         this.name = this.generateChannelName();
         this.detection = 0;
         this.siphoned = 0;
@@ -2774,7 +2767,7 @@ ChannelDetection.maxDecreaseChance = 12;
 class ChannelManager {
     static initialize() {
         if (Progression.hasTriggered("channel-unlock")) {
-            $("#channels").fadeIn();
+            Utils.showElements(".channels", ".network-tab");
         }
         ChannelManager.channels = [];
         for (const channel of State.getValue("channels") || []) {
@@ -2820,12 +2813,12 @@ class ChannelManager {
 class DataCore {
     static initialize() {
         if (Progression.hasTriggered("channel-unlock")) {
-            $("#data-core").fadeIn().css("display", "flex");
+            Utils.showElements(".data-core", ".network-tab");
         }
         const canvas = $("<canvas>")
             .attr("width", DataCore.canvasSize)
             .attr("height", DataCore.canvasSize)
-            .appendTo("#data-core");
+            .appendTo(".data-core");
         DataCore.context = canvas[0].getContext("2d");
         DataCore.handler = -1;
         DataCore.cubes = [];
@@ -2882,9 +2875,9 @@ class DataCore {
         }, 1);
     }
 }
-DataCore.canvasSize = 300;
-DataCore.cubeSize = 29;
-DataCore.realCubeSize = 30;
+DataCore.canvasSize = 280;
+DataCore.cubeSize = 27;
+DataCore.realCubeSize = 28;
 DataCore.cubeRadius = DataCore.cubeSize / 2;
 DataCore.cubesPerRow = 10;
 DataCore.cubeFadeSpeed = 3;

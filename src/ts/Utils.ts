@@ -158,7 +158,21 @@ class Utils {
     }
 
     /**
-     * Converts a hex value (#ABC123) to a hue (0-360)
+     * Remove classes that would hide an element then fade in using opacity
+     * @param selectors The selectors to fade in
+     */
+    public static showElements(...selectors: string[]): void {
+        for (const selector of selectors) {
+            $(selector).removeClass("hidden invisible")
+                .css("opacity", 0)
+                .animate({
+                    "opacity": 1
+                });
+        }
+    }
+
+    /**
+     * Converts a hex value (.ABC123) to a hue (0-360)
      * 
      * Hex to RGB code from: https://css-tricks.com/converting-color-spaces-in-javascript/
      * RGB to HSL code from: https://stackoverflow.com/questions/2353211/hsl-to-rgb-color-conversion

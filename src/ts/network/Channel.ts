@@ -34,7 +34,7 @@ class Channel implements ISerializable {
             .html(Views.get("channel"))
             .hide()
             .fadeIn()
-            .appendTo("#channels");
+            .appendTo(".channels");
 
         // Set channel defaults
         this.name = this.generateChannelName();

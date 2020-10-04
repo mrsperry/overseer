@@ -9,7 +9,7 @@ class ChannelManager {
      */
     public static initialize(): void {
         if (Progression.hasTriggered("channel-unlock")) {
-            $("#channels").fadeIn();
+            Utils.showElements(".channels", ".network-tab");
         }
 
         ChannelManager.channels = [];

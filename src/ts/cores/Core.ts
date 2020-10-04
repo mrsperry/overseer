@@ -28,7 +28,7 @@ class Core implements ISerializable {
             .html(Views.get("core"))
             .hide()
             .fadeIn()
-            .appendTo("#cores");
+            .appendTo(".cores");
 
         // Draw an idle core
         this.canvas = new CoreCanvas(parent);

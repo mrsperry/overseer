@@ -1,10 +1,10 @@
 class DataCore {
     /** The width and height of the canvas display */
-    private static canvasSize: number = 300;
+    private static canvasSize: number = 280;
     /** The size of individual cubes */
-    private static cubeSize: number = 29;
+    private static cubeSize: number = 27;
     /** The actual size of individual cubes including any padding */
-    private static realCubeSize: number = 30;
+    private static realCubeSize: number = 28;
     /** Half of the cube size */
     private static cubeRadius: number = DataCore.cubeSize / 2;
     /** The number of cubes per row */
@@ -24,14 +24,14 @@ class DataCore {
      */
     public static initialize(): void {
         if (Progression.hasTriggered("channel-unlock")) {
-            $("#data-core").fadeIn().css("display", "flex");
+            Utils.showElements(".data-core", ".network-tab");
         }
 
         // Create the display canvas
         const canvas: any = $("<canvas>")
             .attr("width", DataCore.canvasSize)
             .attr("height", DataCore.canvasSize)
-            .appendTo("#data-core");
+            .appendTo(".data-core");
         
         DataCore.context = canvas[0].getContext("2d");
         DataCore.handler = -1;

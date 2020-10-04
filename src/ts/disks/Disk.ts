@@ -31,7 +31,7 @@ class Disk implements ISerializable {
             .html(Views.get("disk"))
             .hide()
             .fadeIn()
-            .appendTo(isQuarantine ? "#quarantines" : "#drives");
+            .appendTo(isQuarantine ? ".quarantines" : ".drives");
 
         // Set the name of the disk
         this.parent.children(".disk-name")
@@ -97,7 +97,7 @@ class Disk implements ISerializable {
             .hide()
             .delay(delay)
             .fadeIn()
-            .appendTo($("#disk-view"));
+            .appendTo($(".disk-view"));
         $("<span>")
             .text(file.getName())
             .appendTo(parent);
@@ -176,7 +176,7 @@ class Disk implements ISerializable {
      * @param delay Number of milliseconds to delay before extra files animation plays
      */
     private updateFileDisplay(delay: number = 0): void {
-        const parent: any = $("#disk-view");
+        const parent: any = $(".disk-view");
         const header: any = parent.children(".header")
             .removeClass("disabled clickable")
             .off("click");
@@ -257,7 +257,7 @@ class Disk implements ISerializable {
                 
                 // Remove files from the display
                 if (this.displayed) {
-                    for (const child of $("#disk-view").children(".file")) {
+                    for (const child of $(".disk-view").children(".file")) {
                         $(child).fadeOut(400, (): void => {
                             $(child).remove();
                         });

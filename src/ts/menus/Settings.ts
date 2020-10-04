@@ -53,17 +53,17 @@ class Settings {
             .html(Views.get("menus/settings"));
 
         // Set the color and events for the main picker
-        Settings.mainPicker = $("#main-color")
+        Settings.mainPicker = $(".main-color")
             .attr("value", Settings.mainColor)
             .on("input change", (event: any): void => Settings.updateColor(event.target.value, false));
 
         // Set the color and events for the accent picker
-        Settings.accentPicker = $("#accent-color")
+        Settings.accentPicker = $(".accent-color")
             .attr("value", Settings.accentColor)
             .on("input change", (event: any): void => Settings.updateColor(event.target.value, true));
     
         for (const id in Settings.toggles) {
-            const element: any = $("#" + id);
+            const element: any = $("." + id);
 
             // Set the enable and disable click events
             const enable: any = $(element).children("button:first-child");
@@ -77,8 +77,8 @@ class Settings {
         }
 
         // Set the reset click events
-        $("#reset-settings").on("click", (): void => Settings.resetValues());
-        $("#restart-game").on("click", (): void => State.reset());
+        $(".reset-settings").on("click", (): void => Settings.resetValues());
+        $(".restart-game").on("click", (): void => State.reset());
 
         // Set the close button's click event
         content.children("button")
@@ -131,7 +131,7 @@ class Settings {
 
         if (name === "clickable-text") {
             // Change the hue of the main menu image if its displayed
-            $("#main-menu-image").css("filter", "hue-rotate(" + (Utils.hexToHue(value) - Settings.originalHue) + "deg) " +
+            $(".main-menu-image").css("filter", "hue-rotate(" + (Utils.hexToHue(value) - Settings.originalHue) + "deg) " +
                                                 "drop-shadow(0rem 0rem 0.5rem rgba(0, 0, 0, 0.5))");
         
             // Try to change the data core color
@@ -148,7 +148,7 @@ class Settings {
      * @param enabled If the setting should be turned on or off
      */
     private static toggleSetting(id: string, enabled: boolean): void {
-        const parent: any = $("#" + id);
+        const parent: any = $("." + id);
         const enable: any = parent.children("button:first-child");
         const disable: any = parent.children("button:last-child");
 

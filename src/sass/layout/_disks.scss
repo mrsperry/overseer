@@ -1,23 +1,23 @@
 @use "../utils/variables";
 
-#disks {
+.disks {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     grid-template-rows: 162px 55px;
     column-gap: 1.5rem;
     row-gap: 1.1rem;
 
-    #drives {
+    .drives {
         grid-column: 1;
         grid-row: 1;
     }
 
-    #quarantines {
+    .quarantines {
         grid-column: 1;
         grid-row: 2;
     }
 
-    #disk-view {
+    .disk-view {
         display: flex;
         flex-direction: column;
         grid-column: 2;

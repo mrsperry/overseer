@@ -9,7 +9,7 @@ class Messenger {
      */
     public static initialize(): void {
         if (Progression.hasTriggered("start")) {
-            $("#messages").fadeIn();
+            Utils.showElements(".messages", ".messages-tab");
         }
 
         for (const message of State.getValue("messages.history") || []) {
@@ -27,7 +27,7 @@ class Messenger {
         const previousMessage: any = Messenger.messages[Messenger.messages.length - 1];
         // Check if there is a duplicate message at the front of the queue
         if (previousMessage !== undefined && text === previousMessage.message) {
-            const previousElement: any = $("#messages").children("p")[0];
+            const previousElement: any = $(".messages").children("p")[0];
 
             // Check if there is already a counter
             if ($(previousElement).children(".amount").length === 0) {
@@ -51,13 +51,13 @@ class Messenger {
             .html(text)
             .hide()
             .fadeIn()
-            .prependTo("#messages");
+            .prependTo(".messages");
 
         // Check if a message needs to be removed
         if (Messenger.messages.length > Messenger.maxMessages) {
             Messenger.messages.shift();
 
-            $("#messages")
+            $(".messages")
                 .children("p:last-child")
                 .remove();
         }
@@ -76,7 +76,7 @@ class Messenger {
      * Fades out messages based on their distance from the top of the message list
      */
     private static applyOpacity(): void {
-        const children: any = $("#messages").children();
+        const children: any = $(".messages").children();
 
         for (let index: number = 0; index < children.length; index++) {
             const child: any = $(children[index]);

@@ -57,7 +57,7 @@ class Research {
         // Make sure reliability never goes below zero
         Research.reliability = Math.max(Research.reliability, 0);
 
-        $("#research").children(".reliability")
+        $(".research").children(".reliability")
             .text("Reliability: " + Research.reliability.toFixed(2));
 
         Research.displayResearch();
@@ -122,7 +122,7 @@ class Research {
             }
 
             // Limit the number of displayed options
-            if ($("#research").children().length === Research.maxDisplayed + 1) {
+            if ($(".research").children().length === Research.maxDisplayed + 1) {
                 return;
             }
 
@@ -200,7 +200,7 @@ class Research {
                 .attr("id", "research-" + index)
                 .delay(Research.displayDelay * (index + 1))
                 .fadeIn()
-                .appendTo("#research");
+                .appendTo(".research");
         }
     }
 
@@ -259,6 +259,6 @@ class Research {
     }
 
     private static displayResearchSection(): void {
-        $("#research").fadeIn().css("display", "flex");
+        Utils.showElements(".research", ".research-tab");
     }
 }

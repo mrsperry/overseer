@@ -29,9 +29,9 @@
         </script>
     </head>
     <body>
-        <section id="main-menu">
-            <img id="main-menu-image" alt="A dark gray shield with a green circle in the center" src="src/assets/main-menu.png">
-            <h1 id="title">Overseer</h1>
+        <section class="main-menu">
+            <img class="main-menu-image" alt="A dark gray shield with a green circle in the center" src="src/assets/main-menu.png">
+            <h1 class="title">Overseer</h1>
             <button class="bordered" onclick="Main.startGame();">
                 <span>Start Game</span>
             </button>
@@ -48,14 +48,30 @@
                 <span>Github</span>
             </a>
         </section>
-        <section id="main-content">
-            <div id="messages"></div>
+        <section class="main-content hidden" type="messages">
+            <nav class="hidden">
+                <button class="bordered messages-tab invisible" onclick="Main.switchFocus('messages');">
+                    <span>Messages</span>
+                </button>
+                <button class="bordered cores-disks-tab invisible" onclick="Main.switchFocus('cores-disks');">
+                    <span>Cores & Disks</span>
+                </button>
+                <button class="bordered research-tab invisible" onclick="Main.switchFocus('research');">
+                    <span>Research</span>
+                </button>
+                <button class="bordered network-tab invisible" onclick="Main.switchFocus('network');">
+                    <span>Network</span>
+                </button>
+            </nav>
             <div class="vertical-container">
-                <div id="cores"></div>
-                <div id="disks">
-                    <div id="drives"></div>
-                    <div id="quarantines"></div>
-                    <div id="disk-view">
+                <div class="messages invisible"></div>
+            </div>
+            <div class="vertical-container">
+                <div class="cores invisible"></div>
+                <div class="disks invisible">
+                    <div class="drives"></div>
+                    <div class="quarantines"></div>
+                    <div class="disk-view">
                         <h1 class="header"></h1>
                         <h2 class="subheader">
                             <span>Files:</span>
@@ -63,18 +79,18 @@
                         </h2>
                     </div>
                 </div>
-                <div id="research">
+                <div class="research invisible">
                     <h2 class="reliability"></h2>
                 </div>
             </div>
             <div class="vertical-container">
-                <div id="channels"></div>
-                <div id="data-core">
+                <div class="channels invisible"></div>
+                <div class="data-core invisible">
                     <h1>Memory core decryption</h1>
                 </div>
             </div>
         </section>
-        <footer>
+        <footer class="hidden">
             <a class="clickable" onclick="Settings.show();">Settings</a>
             <a class="clickable" onclick="Stats.generateReport();">Statistics</a>
             <a class="clickable" href="https://github.com/mrsperry/overseer/wiki" target="_blank" rel="noopener">Help & Wiki</a>
