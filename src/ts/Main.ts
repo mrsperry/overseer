@@ -18,7 +18,7 @@ class Main {
         Version.check();
 
         // Start the main menu animation
-        const menu: any = $(".main-menu");
+        const menu: any = $(".main-menu").removeClass("hidden");
         const children: any = menu.children();
 
         for (let index: number = 0; index < children.length; index++) {

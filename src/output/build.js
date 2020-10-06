@@ -1160,7 +1160,7 @@ class Main {
         await Views.initialize();
         await Verdict.initialize();
         Version.check();
-        const menu = $(".main-menu");
+        const menu = $(".main-menu").removeClass("hidden");
         const children = menu.children();
         for (let index = 0; index < children.length; index++) {
             const child = $(children[index]);
