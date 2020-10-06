@@ -1,0 +1,21 @@
+@use "../utils/variables";
+
+noscript {
+    align-self: center;
+    text-align: center;
+    max-width: 30rem;
+
+    h1, p {
+        margin-bottom: 1rem;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+        font-weight: bold;
+        border-bottom: 1px solid variables.$main-border;
+    }
+
+    a:before {
+        display: none;
+    }
+}

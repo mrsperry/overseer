@@ -39,6 +39,7 @@ Dates are formatted as year-month-day.
 - Added support for smaller screen sizes - mobile support may still vary
 - Added a drop shadow filter to the main menu image
 - Added a fancy loading animation to the main menu
+- Added a message that is displayed when Javascript is disabled
 
 ### Changes
 - Core power now matches the maximum number of core speed upgrades you have
