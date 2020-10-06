@@ -35,6 +35,8 @@ Dates are formatted as year-month-day.
 - Added a system for general progression prompts (story updates to make understanding new mechanics easier)
 - Added links to [the wiki](https://github.com/mrsperry/overseer/wiki) on the main menu and in-game footer
 - Added a message to the `OrderedNumbers` hack to differentiate it from `NumberMultiples`
+- Added an initial message to the message log
+- Added support for smaller screen sizes - mobile support may still vary
 - Added a drop shadow filter to the main menu image
 - Added a fancy loading animation to the main menu
 
