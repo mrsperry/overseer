@@ -8,7 +8,7 @@ class Core implements ISerializable {
     /** The core HTML section */
     private info: JQuery<HTMLElement>;
     /** The canvas used by this core */
-    private canvas: CoreCanvas;
+    private canvas: CoreCanvas | null = null;
     /** The current core task */
     private task: CoreTask | null = null;
 
@@ -25,14 +25,13 @@ class Core implements ISerializable {
         const parent: any = $("<div>")
             .attr("id", "core-" + id)
             .addClass("core")
-            .html(Views.get("core"))
+            .html(Views.get("cores/core"))
             .hide()
             .fadeIn()
-            .appendTo(".cores");
+            .appendTo(".core-list");
 
-        // Draw an idle core
-        this.canvas = new CoreCanvas(parent);
-        this.canvas.drawCore(0);
+        // Create the core canvas
+        this.createNewCanvas();
 
         // Append all the information about the core
         this.info = parent.children(".core-info");
@@ -154,6 +153,14 @@ class Core implements ISerializable {
     }
 
     /**
+     * Creates a new core canvas display
+     */
+    public createNewCanvas(): void {
+        this.canvas = new CoreCanvas($("#core-" + this.id), CoreManager.getIsCompact());
+        this.canvas.drawCore(0);
+    }
+
+    /**
      * @returns The ID of this core
      */
     public getID(): number {
@@ -163,7 +170,7 @@ class Core implements ISerializable {
     /**
      * @returns The canvas this core draws to
      */
-    public getCanvas(): CoreCanvas {
+    public getCanvas(): CoreCanvas | null {
         return this.canvas;
     }
 

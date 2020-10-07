@@ -5,6 +5,8 @@ class CoreManager {
     private static coreList: Core[];
     /** The current number of times a core can overclock */
     private static maxCoreUpgrades: number;
+    /** If the cores should be compacted */
+    private static isCompact: boolean;
 
     /**
      * Retrieves the core states
@@ -16,6 +18,8 @@ class CoreManager {
 
         // Set the maximum number of core upgrades
         CoreManager.maxCoreUpgrades = State.getValue("cores.max-core-upgrades") || 0;
+        // Set if cores should be compacted
+        CoreManager.isCompact = State.getValue("cores.is-compact") || false;
 
         CoreManager.coreList = [];
         // Deserialized saved cores
@@ -27,6 +31,11 @@ class CoreManager {
         if (CoreManager.coreList.length === 0) {
             CoreManager.addCore(false);
         }
+
+        // Compact the cores if set
+        if (CoreManager.isCompact) {
+            CoreManager.compactCores();
+        }
     }
 
     /**
@@ -35,7 +44,8 @@ class CoreManager {
     public static save(): void {
         const data: any = {
             "list": [],
-            "max-core-upgrades": CoreManager.maxCoreUpgrades
+            "max-core-upgrades": CoreManager.maxCoreUpgrades,
+            "is-compact": CoreManager.isCompact
         };
 
         for (const core of CoreManager.coreList) {
@@ -117,6 +127,30 @@ class CoreManager {
     public static getMaxCoreUpgrades(): number {
         return CoreManager.maxCoreUpgrades;
     }
+
+    /**
+     * @returns If cores should be compacted
+     */
+    public static getIsCompact(): boolean {
+        return CoreManager.isCompact;
+    }
+
+    /**
+     * Compacts each available core
+     */
+    public static compactCores(): void {
+        CoreManager.isCompact = true;
+        $(".cores").addClass("compact");
+
+        // Update the core canvases to their compact sizes and cancel tasks
+        for (const core of CoreManager.coreList) {
+            core.createNewCanvas();
+            core.cancelTask();
+        }
+
+        // Initialize the assignment section
+        CoreAssignments.initialize();
+    }
     
     /**
      * @param id The ID of the core
@@ -124,5 +158,12 @@ class CoreManager {
      */
     public static getCore(id: number): Core {
         return CoreManager.coreList[id] || CoreManager.coreList[0];
+    }
+
+    /**
+     * @returns The total number of cores available
+     */
+    public static getTotalCores(): number {
+        return CoreManager.coreList.length;
     }
 }

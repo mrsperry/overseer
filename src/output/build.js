@@ -210,19 +210,21 @@ class Verdict {
     }
 }
 class CoreCanvas {
-    constructor(parent) {
-        const canvas = parent.children("canvas")
-            .attr("width", CoreCanvas.canvasSize)
-            .attr("height", CoreCanvas.canvasSize);
-        this.context = canvas[0].getContext("2d");
-        this.context.translate(CoreCanvas.canvasRadius, CoreCanvas.canvasRadius);
+    constructor(parent, isCompact) {
+        this.size = isCompact ? CoreCanvas.compactSize : CoreCanvas.canvasSize;
+        this.radius = this.size / 2;
+        this.canvas = parent.children("canvas")
+            .attr("width", this.size)
+            .attr("height", this.size);
+        this.context = this.canvas[0].getContext("2d");
+        this.context.translate(this.radius, this.radius);
         this.context.rotate((-90 * Math.PI) / 180);
     }
     drawCore(progress) {
-        this.context.clearRect(-CoreCanvas.canvasRadius, -CoreCanvas.canvasRadius, CoreCanvas.canvasSize, CoreCanvas.canvasSize);
+        this.context.clearRect(-this.radius, -this.radius, this.size, this.size);
         const draw = (color, percent) => {
             this.context.beginPath();
-            this.context.arc(0, 0, CoreCanvas.canvasRadius - 1, 0, Math.PI * 2 * percent);
+            this.context.arc(0, 0, this.radius - 1, 0, Math.PI * 2 * percent);
             this.context.strokeStyle = color;
             this.context.lineWidth = 2;
             this.context.stroke();
@@ -232,7 +234,7 @@ class CoreCanvas {
     }
 }
 CoreCanvas.canvasSize = 50;
-CoreCanvas.canvasRadius = CoreCanvas.canvasSize / 2;
+CoreCanvas.compactSize = 16;
 class CoreTask {
     constructor(display, cost, type) {
         this.display = display;
@@ -390,18 +392,18 @@ class CoreTask {
 class Core {
     constructor(id) {
         this.id = id;
+        this.canvas = null;
         this.task = null;
         this.power = 1;
         this.upgrades = 0;
         const parent = $("<div>")
             .attr("id", "core-" + id)
             .addClass("core")
-            .html(Views.get("core"))
+            .html(Views.get("cores/core"))
             .hide()
             .fadeIn()
-            .appendTo(".cores");
-        this.canvas = new CoreCanvas(parent);
-        this.canvas.drawCore(0);
+            .appendTo(".core-list");
+        this.createNewCanvas();
         this.info = parent.children(".core-info");
         this.info.children(".core-name").text("Core #" + (id + 1));
         this.info.children(".overclock-button").on("click", () => this.overclock());
@@ -471,6 +473,10 @@ class Core {
             .run(this);
         return task;
     }
+    createNewCanvas() {
+        this.canvas = new CoreCanvas($("#core-" + this.id), CoreManager.getIsCompact());
+        this.canvas.drawCore(0);
+    }
     getID() {
         return this.id;
     }
@@ -510,6 +516,7 @@ class CoreManager {
             Utils.showElements(".cores", ".cores-disks-tab");
         }
         CoreManager.maxCoreUpgrades = State.getValue("cores.max-core-upgrades") || 0;
+        CoreManager.isCompact = State.getValue("cores.is-compact") || false;
         CoreManager.coreList = [];
         for (const core of State.getValue("cores.list") || []) {
             Core.deserialize(core);
@@ -517,11 +524,15 @@ class CoreManager {
         if (CoreManager.coreList.length === 0) {
             CoreManager.addCore(false);
         }
+        if (CoreManager.isCompact) {
+            CoreManager.compactCores();
+        }
     }
     static save() {
         const data = {
             "list": [],
-            "max-core-upgrades": CoreManager.maxCoreUpgrades
+            "max-core-upgrades": CoreManager.maxCoreUpgrades,
+            "is-compact": CoreManager.isCompact
         };
         for (const core of CoreManager.coreList) {
             data.list.push(core.serialize());
@@ -571,8 +582,23 @@ class CoreManager {
     static getMaxCoreUpgrades() {
         return CoreManager.maxCoreUpgrades;
     }
+    static getIsCompact() {
+        return CoreManager.isCompact;
+    }
+    static compactCores() {
+        CoreManager.isCompact = true;
+        $(".cores").addClass("compact");
+        for (const core of CoreManager.coreList) {
+            core.createNewCanvas();
+            core.cancelTask();
+        }
+        CoreAssignments.initialize();
+    }
     static getCore(id) {
         return CoreManager.coreList[id] || CoreManager.coreList[0];
+    }
+    static getTotalCores() {
+        return CoreManager.coreList.length;
     }
 }
 class Utils {
@@ -1224,6 +1250,53 @@ class Version {
     }
 }
 Version.current = "v1.0.0";
+class CoreAssignments {
+    static initialize() {
+        const parent = $(".core-assignments").html(Views.get("cores/core-assignments"));
+        Utils.showElements(".core-assignments");
+        for (const assignment of parent.children()) {
+            const type = Number.parseInt($(assignment).attr("type") || "1");
+            const counter = $(assignment).children(".assignment-counter");
+            counter.children(".add").on("click", () => CoreAssignments.changeAssignment(type, true));
+            counter.children(".subtract").on("click", () => CoreAssignments.changeAssignment(type, false));
+        }
+        CoreAssignments.unassigned = State.getValue("cores.assignments.unassigned") || CoreManager.getTotalCores();
+        CoreAssignments.searching = State.getValue("cores.assignments.searching") || 0;
+        CoreAssignments.scanning = State.getValue("cores.assignments.scanning") || 0;
+        CoreAssignments.purging = State.getValue("cores.assignments.purging") || 0;
+        CoreAssignments.siphoning = State.getValue("cores.assignments.siphoning") || 0;
+        CoreAssignments.updateAssignments();
+    }
+    static changeAssignment(type, increment) {
+        const amount = increment ? 1 : -1;
+        CoreAssignments.unassigned -= amount;
+        switch (type) {
+            case 0:
+                CoreAssignments.searching += amount;
+                break;
+            case 1:
+                CoreAssignments.scanning += amount;
+                break;
+            case 2:
+                CoreAssignments.purging += amount;
+                break;
+            case 3:
+                CoreAssignments.siphoning += amount;
+                break;
+        }
+        CoreAssignments.updateAssignments();
+    }
+    static updateAssignments() {
+        const parent = $(".core-assignments");
+        const types = [CoreAssignments.searching, CoreAssignments.scanning, CoreAssignments.purging, CoreAssignments.siphoning];
+        for (let index = 0; index < types.length; index++) {
+            const counter = $(parent.children()[index]).children(".assignment-counter");
+            counter.children(".assignment-count").text(types[index]);
+            counter.children(".add").prop("disabled", CoreAssignments.unassigned === 0);
+            counter.children(".subtract").prop("disabled", types[index] === 0);
+        }
+    }
+}
 var CoreTaskType;
 (function (CoreTaskType) {
     CoreTaskType[CoreTaskType["Overclock"] = 0] = "Overclock";
