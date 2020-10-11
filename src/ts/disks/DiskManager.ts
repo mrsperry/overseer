@@ -13,6 +13,8 @@ class DiskManager {
     private static diskSize: number;
     /** Current level of threat used for quarantine disks */
     private static threatLevel: number;
+    /** If disks are currently compacted */
+    private static isCompact: boolean;
 
     /** The number of files added to disks since the last guaranteed threat */
     private static fileCount: number = 0;
@@ -41,6 +43,7 @@ class DiskManager {
         DiskManager.diskSize = State.getValue("disks.disk-size") || 100;
         // Set initial quarantine level
         DiskManager.threatLevel = State.getValue("disks.threat-level") || 1;
+        DiskManager.isCompact = State.getValue("disks.is-compact") || false;
 
         DiskManager.disks = [];
 
@@ -55,6 +58,10 @@ class DiskManager {
             // Add an initial quarantine disk
             DiskManager.addDisk(true, false);
         }
+
+        if (DiskManager.isCompact) {
+            DiskManager.compactDisks();
+        }
     }
 
     /**
@@ -65,7 +72,8 @@ class DiskManager {
             "list": [],
             "disk-names": DiskManager.diskNames,
             "disk-size": DiskManager.diskSize,
-            "threat-level": DiskManager.threatLevel
+            "threat-level": DiskManager.threatLevel,
+            "is-compact": DiskManager.isCompact
         };
 
         for (const disk of DiskManager.disks) {
@@ -182,6 +190,22 @@ class DiskManager {
         for (const disk of DiskManager.disks) {
             disk.setSize(DiskManager.diskSize);
         }
+    }
+
+    /**
+     * Marks each disk as compact
+     */
+    public static compactDisks(): void {
+        DiskManager.isCompact = true;
+        $(".disks").addClass("compact");
+
+        // Hide all disk displays
+        for (const disk of DiskManager.disks) {
+            disk.setDisplayed(false);
+        }
+
+        // Initialize the meter section
+        DiskMeters.initialize();
     }
 
     /**

@@ -15,6 +15,8 @@ class Disk implements ISerializable {
     private displayedFiles: number = 0;
     /** If the disk is currently being wiped */
     private isWiping: boolean = false;
+    /** If the disk display is compacted */
+    private isCompact: boolean = false;
 
     /**
      * Creates a new disk to store files
@@ -28,10 +30,10 @@ class Disk implements ISerializable {
         this.parent = $("<div>")
             .attr("id", "disk-" + id)
             .addClass("disk")
-            .html(Views.get("disk"))
+            .html(Views.get("disks/disk"))
             .hide()
             .fadeIn()
-            .appendTo(isQuarantine ? ".quarantines" : ".drives");
+            .appendTo(isQuarantine ? ".quarantine-list" : ".drive-list");
 
         // Set the name of the disk
         this.parent.children(".disk-name")
@@ -56,6 +58,7 @@ class Disk implements ISerializable {
         const disk: Disk = DiskManager.addDisk(state.isQuarantine, false, state.name);
         disk.files = state.files.map((file: any): DiskFile => DiskFile.deserialize(file));
         disk.isWiping = state.isWiping;
+        disk.isCompact = state.isCompact;
         disk.setDisplayed(state.displayed);
         disk.setSize(state.maxStorage);
 
@@ -245,8 +248,14 @@ class Disk implements ISerializable {
      */
     public wipeDisk(operation: boolean, core?: Core): CoreTask {
         const callback: Function = (): void => operation ? this.purgeFiles() : this.scanFiles();
-        const display: string = (operation ? "Purge" : "Scan") + ": " + this.name;
         const type: CoreTaskType = operation ? CoreTaskType.Purge : CoreTaskType.Scan;
+
+        let display: string;
+        if (this.isCompact) {
+            display = (operation ? "Purging" : "Scanning");
+        } else {
+            display = (operation ? "Purge" : "Scan") + ": " + this.name;
+        }
 
         const task: CoreTask = CoreTask.create(display, this.getUsage(), type)
             .setOnComplete((): void => {
@@ -427,7 +436,8 @@ class Disk implements ISerializable {
             "maxStorage": this.maxStorage,
             "isQuarantine": this.isQuarantine,
             "isDisplayed": this.displayed,
-            "isWiping": this.isWiping
+            "isWiping": this.isWiping,
+            "isCompact": this.isCompact
         };
     }
 }

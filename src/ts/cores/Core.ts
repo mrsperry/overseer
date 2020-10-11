@@ -3,7 +3,7 @@
 
 class Core implements ISerializable {
     /** The cost of searching for a single file */
-    private static fileSearchCost: number = 20;
+    public static fileSearchCost: number = 20;
 
     /** The core HTML section */
     private info: JQuery<HTMLElement>;

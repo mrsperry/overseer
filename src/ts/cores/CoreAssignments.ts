@@ -89,5 +89,29 @@ class CoreAssignments {
             // Check if there are no more cores assigned to this task
             counter.children(".subtract").prop("disabled", types[index] === 0);
         }
+
+        // Update disk meter measurement display
+        DiskMeters.update();
+    }
+
+    /**
+     * @returns The number of cores currently searching
+     */
+    public static getSearching(): number {
+        return CoreAssignments.searching;
+    }
+
+    /**
+     * @returns The number of cores currently scanning
+     */
+    public static getScanning(): number {
+        return CoreAssignments.scanning;
+    }
+
+    /**
+     * @returns The number of cores currently purging
+     */
+    public static getPurging(): number {
+        return CoreAssignments.purging;
     }
 }

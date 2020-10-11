@@ -726,6 +726,7 @@ class DiskManager {
         }
         DiskManager.diskSize = State.getValue("disks.disk-size") || 100;
         DiskManager.threatLevel = State.getValue("disks.threat-level") || 1;
+        DiskManager.isCompact = State.getValue("disks.is-compact") || false;
         DiskManager.disks = [];
         for (const disk of State.getValue("disks.list") || []) {
             Disk.deserialize(disk);
@@ -734,13 +735,17 @@ class DiskManager {
             DiskManager.displayFiles(DiskManager.addDisk(false, false));
             DiskManager.addDisk(true, false);
         }
+        if (DiskManager.isCompact) {
+            DiskManager.compactDisks();
+        }
     }
     static save() {
         const data = {
             "list": [],
             "disk-names": DiskManager.diskNames,
             "disk-size": DiskManager.diskSize,
-            "threat-level": DiskManager.threatLevel
+            "threat-level": DiskManager.threatLevel,
+            "is-compact": DiskManager.isCompact
         };
         for (const disk of DiskManager.disks) {
             data.list.push(disk.serialize());
@@ -805,6 +810,14 @@ class DiskManager {
         for (const disk of DiskManager.disks) {
             disk.setSize(DiskManager.diskSize);
         }
+    }
+    static compactDisks() {
+        DiskManager.isCompact = true;
+        $(".disks").addClass("compact");
+        for (const disk of DiskManager.disks) {
+            disk.setDisplayed(false);
+        }
+        DiskMeters.initialize();
     }
     static hasQuarantineFiles() {
         for (const disk of DiskManager.disks) {
@@ -1295,6 +1308,16 @@ class CoreAssignments {
             counter.children(".add").prop("disabled", CoreAssignments.unassigned === 0);
             counter.children(".subtract").prop("disabled", types[index] === 0);
         }
+        DiskMeters.update();
+    }
+    static getSearching() {
+        return CoreAssignments.searching;
+    }
+    static getScanning() {
+        return CoreAssignments.scanning;
+    }
+    static getPurging() {
+        return CoreAssignments.purging;
     }
 }
 var CoreTaskType;
@@ -1316,13 +1339,14 @@ class Disk {
         this.displayed = false;
         this.displayedFiles = 0;
         this.isWiping = false;
+        this.isCompact = false;
         this.parent = $("<div>")
             .attr("id", "disk-" + id)
             .addClass("disk")
-            .html(Views.get("disk"))
+            .html(Views.get("disks/disk"))
             .hide()
             .fadeIn()
-            .appendTo(isQuarantine ? ".quarantines" : ".drives");
+            .appendTo(isQuarantine ? ".quarantine-list" : ".drive-list");
         this.parent.children(".disk-name")
             .text(name)
             .on("click", () => DiskManager.displayFiles(this));
@@ -1335,6 +1359,7 @@ class Disk {
         const disk = DiskManager.addDisk(state.isQuarantine, false, state.name);
         disk.files = state.files.map((file) => DiskFile.deserialize(file));
         disk.isWiping = state.isWiping;
+        disk.isCompact = state.isCompact;
         disk.setDisplayed(state.displayed);
         disk.setSize(state.maxStorage);
         if (state.isDisplayed) {
@@ -1445,8 +1470,14 @@ class Disk {
     }
     wipeDisk(operation, core) {
         const callback = () => operation ? this.purgeFiles() : this.scanFiles();
-        const display = (operation ? "Purge" : "Scan") + ": " + this.name;
         const type = operation ? CoreTaskType.Purge : CoreTaskType.Scan;
+        let display;
+        if (this.isCompact) {
+            display = (operation ? "Purging" : "Scanning");
+        }
+        else {
+            display = (operation ? "Purge" : "Scan") + ": " + this.name;
+        }
         const task = CoreTask.create(display, this.getUsage(), type)
             .setOnComplete(() => {
             callback();
@@ -1554,7 +1585,8 @@ class Disk {
             "maxStorage": this.maxStorage,
             "isQuarantine": this.isQuarantine,
             "isDisplayed": this.displayed,
-            "isWiping": this.isWiping
+            "isWiping": this.isWiping,
+            "isCompact": this.isCompact
         };
     }
 }
@@ -1604,6 +1636,20 @@ class DiskFile {
 }
 DiskFile.minNameLength = 7;
 DiskFile.maxNameLength = 16;
+class DiskMeters {
+    static initialize() {
+        DiskMeters.parent = $(".disk-meters").html(Views.get("disks/disk-meters"));
+        Utils.showElements(".disk-meters");
+        DiskMeters.update();
+    }
+    static update() {
+        console.log("updating");
+        const meter = DiskMeters.parent.children(".meter");
+        meter.children(".files-added").text(CoreAssignments.getSearching() + "/s");
+        meter.children(".files-scanned").text(CoreAssignments.getScanning() + "/s");
+        meter.children(".files-purged").text(CoreAssignments.getPurging() + "/s");
+    }
+}
 class Modal {
     constructor(className = undefined) {
         State.togglePause();

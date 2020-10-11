@@ -1,11 +1,12 @@
 cores/core
 cores/core-assignments
+disks/disk
+disks/disk-meters
 hacks/base
 hacks/pretext
 menus/settings
 progression/channel-unlock
 progression/start
 channel
-disk
 modal
 prompt-restart

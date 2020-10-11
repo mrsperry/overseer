@@ -7,14 +7,23 @@
     column-gap: 1.5rem;
     row-gap: 1.1rem;
 
-    .drives {
-        grid-column: 1;
-        grid-row: 1;
+    .disk-meters {
+        display: flex;
+        justify-content: space-around;
     }
 
-    .quarantines {
+    .disk-list {
+        display: grid;
+        grid-template-rows: inherit;
+        row-gap: inherit;
         grid-column: 1;
-        grid-row: 2;
+        grid-row: 1 / 3;
+    }
+
+    .drives, .quarantines {
+        > span {
+            display: none;
+        }
     }
 
     .disk-view {
@@ -52,6 +61,66 @@
         span {
             text-align: right;
             width: 2.25rem;
+        }
+    }
+
+    &.compact {
+        display: flex;
+        flex-direction: column;
+
+        .disk-list {
+            display: flex;
+            justify-content: space-between;
+
+            .drives, .quarantines {
+                > span {
+                    display: block;
+                    width: 70%;
+                    margin: 0rem auto 0.5rem;
+                }
+            }
+
+            .drives {
+                width: 75%;
+            }
+
+            .quarantines {
+                width: 20%;
+                margin-left: 5%;
+            }
+
+            .drive-list, .quarantine-list {
+                display: flex;
+                flex-direction: column;
+                flex-wrap: wrap;
+                align-content: flex-start;
+                height: 36px;
+
+                .disk {
+                    align-items: center;
+
+                    + .disk:not(:nth-child(2)) {
+                        margin-left: 2.5rem;
+                    }
+
+                    &::before {
+                        content: "";
+                        background-color: var(--clickable-text);
+                        border-radius: 50%;
+                        width: 0.5rem;
+                        height: 0.5rem;
+                        margin-right: 0.5rem;
+                    }
+
+                    .disk-name, button {
+                        display: none;
+                    }
+                }
+            }
+        }
+
+        .disk-view {
+            display: none;
         }
     }
 }
