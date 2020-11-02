@@ -187,4 +187,39 @@
             }
         }
     }
+
+    .password-cracker {
+        display: flex;
+
+        div, ol {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        ol {
+            align-items: stretch;
+            width: 100%;
+
+            li {
+                text-align: center;
+
+                &.selected {
+                    padding: 0.25rem 0rem;
+                    border-top: 1px solid variables.$main-border;
+                    border-bottom: 1px solid variables.$main-border;
+                    margin: 0.5rem 0rem;
+                }
+            }
+        }
+        
+        button {
+            padding: 0.5rem;
+            margin-top: 0rem;
+
+            &.reversed {
+                transform: rotate(180deg);
+            }
+        }
+    }
 }

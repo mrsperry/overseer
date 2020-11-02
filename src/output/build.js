@@ -1643,7 +1643,6 @@ class DiskMeters {
         DiskMeters.update();
     }
     static update() {
-        console.log("updating");
         const meter = DiskMeters.parent.children(".meter");
         meter.children(".files-added").text(CoreAssignments.getSearching() + "/s");
         meter.children(".files-scanned").text(CoreAssignments.getScanning() + "/s");
@@ -1756,7 +1755,7 @@ class Hack {
     }
     static create(channel, type, level) {
         if (type === undefined) {
-            type = Utils.random(0, 7);
+            type = Utils.random(0, 8);
         }
         if (level === undefined) {
             level = ChannelManager.getAllChannels().length;
@@ -1784,6 +1783,9 @@ class Hack {
                 break;
             case 5:
                 new NumberMultiples(channel, level);
+                break;
+            case 6:
+                new PasswordCracker(channel, level);
                 break;
             default:
                 new OrderedNumbers(channel, level);
@@ -2582,6 +2584,123 @@ OrderedNumbers.levels = [
         "max-numbers": 25,
         "numbers-per-row": 5
     },
+];
+class PasswordCracker extends Hack {
+    constructor(channel, level) {
+        const data = PasswordCracker.levels[level - 1];
+        super(channel, data.time);
+        this.password = Utils.getAlphanumericString(data.characters).toUpperCase();
+        this.indices = [];
+        this.selected = [];
+        for (let index = 0; index < data.characters; index++) {
+            let start;
+            do {
+                start = Utils.random(0, PasswordCracker.characters.length);
+            } while (PasswordCracker.characters[start] === this.password[start]);
+            this.indices.push(start);
+            this.selected.push(null);
+        }
+    }
+    addContent() {
+        super.addContent();
+        const header = $("<div>")
+            .text("Password iteration:")
+            .addClass("header centered")
+            .appendTo(this.content);
+        $("<div>")
+            .text(this.password)
+            .addClass("clickable-no-click")
+            .appendTo(header);
+        const parent = $("<section>")
+            .addClass("password-cracker")
+            .appendTo(this.content);
+        for (let index = 0; index < this.password.length; index++) {
+            const slot = $("<div>")
+                .appendTo(parent);
+            const list = $("<ol>")
+                .appendTo(slot);
+            this.setVisibleCharacters(index, list);
+            $("<button>")
+                .addClass("text-button reversed")
+                .text("[v]")
+                .on("click", () => {
+                if (!this.locked) {
+                    if (--this.indices[index] === -1) {
+                        this.indices[index] = PasswordCracker.characters.length - 1;
+                    }
+                    this.setVisibleCharacters(index, list);
+                }
+            })
+                .prependTo(slot);
+            $("<button>")
+                .addClass("text-button")
+                .text("[v]")
+                .on("click", () => {
+                if (!this.locked) {
+                    if (++this.indices[index] === PasswordCracker.characters.length) {
+                        this.indices[index] = 0;
+                    }
+                    this.setVisibleCharacters(index, list);
+                }
+            })
+                .appendTo(slot);
+        }
+    }
+    setVisibleCharacters(currentIndex, parent) {
+        parent.empty();
+        const characterIndex = this.indices[currentIndex];
+        const length = PasswordCracker.characters.length;
+        for (let index = -PasswordCracker.characterPadding; index <= PasswordCracker.characterPadding; index++) {
+            let actualIndex = characterIndex + index;
+            if (actualIndex < 0) {
+                actualIndex = length - Math.abs(actualIndex);
+            }
+            else if (actualIndex >= length) {
+                actualIndex -= length;
+            }
+            const character = $("<li>")
+                .css("opacity", 1 - (Math.abs(index) / 10))
+                .text(PasswordCracker.characters[actualIndex])
+                .appendTo(parent);
+            if (index == 0) {
+                character.addClass("selected");
+                this.selected[currentIndex] = character;
+            }
+        }
+        this.checkComplete();
+    }
+    checkComplete() {
+        for (let index = 0; index < this.password.length; index++) {
+            if (this.password[index] !== PasswordCracker.characters[this.indices[index]]) {
+                return;
+            }
+        }
+        for (const element of this.selected) {
+            element.addClass("clickable-no-click");
+        }
+        super.success();
+        Stats.increment("hacks", "password-crackers-solved");
+    }
+    fail() {
+        super.fail();
+        Stats.increment("hacks", "password-cracked-failed");
+    }
+}
+PasswordCracker.characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".split("");
+PasswordCracker.characterPadding = 5;
+PasswordCracker.levels = [
+    {
+        "time": 30,
+        "characters": 5
+    },
+    {
+        "time": 45,
+        "characters": 7
+    },
+    {
+        "time": 60,
+        "characters": 10
+    }
 ];
 class SuspiciousFolder extends Verdict {
     constructor() {

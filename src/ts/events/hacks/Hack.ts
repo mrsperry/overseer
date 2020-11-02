@@ -119,7 +119,7 @@ abstract class Hack {
     public static create(channel: number, type?: number, level?: number): void {
         // Get a random hack type
         if (type === undefined) {
-            type = Utils.random(0, 7);
+            type = Utils.random(0, 8);
         }
 
         // Get the hack level
@@ -150,6 +150,9 @@ abstract class Hack {
                 break;
             case 5:
                 new NumberMultiples(channel, level);
+                break;
+            case 6:
+                new PasswordCracker(channel, level);
                 break;
             default:
                 new OrderedNumbers(channel, level);
