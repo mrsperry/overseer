@@ -3,9 +3,9 @@ import { hot } from "react-hot-loader";
 import "./App.scss";
 
 class App extends React.Component {
-    public render(): React.ReactNode {
+    render() {  
         return (
-            <section className="app"></section>
+            <section className="app">hello</section>
         );
     }
 }
