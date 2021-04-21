@@ -1,12 +1,7 @@
 const path = require("path");
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-
-const HTMLWebpackPluginConfig = new HtmlWebpackPlugin({
-    template: __dirname + "/public/index.html",
-    filename: "index.html",
-    inject: "body"
-});
+const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 module.exports = {
     entry: "./src/index.jsx",
@@ -35,7 +30,22 @@ module.exports = {
     output: {
         path: path.resolve(__dirname, "dist/"),
         publicPath: "/",
-        filename: "bundle.js"
+        filename: "bundle.js",
+        clean: true
     },
-    plugins: [new webpack.HotModuleReplacementPlugin(), HTMLWebpackPluginConfig]
+    plugins: [
+        new webpack.HotModuleReplacementPlugin(),
+        new HtmlWebpackPlugin({
+            template: __dirname + "/public/index.html",
+            filename: "index.html",
+            inject: "body"
+        }),
+        new CopyWebpackPlugin({
+            patterns: [
+                { from: __dirname + "/public/assets/", to: "./" },
+                { from: __dirname + "/public/favicon.ico", to: "./" },
+                { from: __dirname + "/public/site.webmanifest", to: "./" }
+            ]
+        })
+    ]
 };
