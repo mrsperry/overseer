@@ -1,0 +1,21 @@
+@import "../../../sass/mixins";
+@import "../../../sass/variables";
+
+.main-menu {
+    @include flex(column, center, center);
+    padding: 0 2rem;
+
+    h1 {
+        font-size: 2rem;
+        text-align: center;
+        align-self: stretch;
+        border-bottom: 1px solid $border;
+        margin: 3rem 0 1.5rem;
+    }
+
+    button, a {
+        box-sizing: border-box;
+        width: 85%;
+        padding: 1rem;
+    }
+}

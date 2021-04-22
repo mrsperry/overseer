@@ -20,7 +20,7 @@ button {
         margin-top: 0.5rem;
     }
 
-    &:hover, &:active, &:focus {
+    &:hover, &:active {
         color: var(--text-hover);
         background-color: $bg-hover;
         border-color: $offset-bg-hover;
@@ -37,7 +37,7 @@ button {
         pointer-events: none;
     }
 
-    &:before, &:after, &:focus, :first-child:before, :first-child:after {
+    &:before, &:after, :first-child:before, :first-child:after {
         @include transition(width, height, border-color);
         content: "";
         position: absolute;
