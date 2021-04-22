@@ -1,0 +1,21 @@
+$text: #CCCCCC;
+$bg: #111111;
+$bg-hover: #1A1A1A;
+$border: #777777;
+$border-hover: #999999;
+
+$offset-bg: #2B2B2B;
+$offset-bg-hover: #333333;
+
+$link: hsl(130, 60%, 60%);
+$link-hover: hsl(130, 60%, 75%);
+$link-error: hsl(0, 60%, 60%);
+$link-error-hover: hsl(0, 60%, 75%);
+
+$transition-timing: 250ms;
+$transition-easing: ease-in-out;
+
+:root {
+    --text: hsl(130, 60%, 60%);
+    --text-hover: hsl(130, 60%, 80%);
+}

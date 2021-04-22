@@ -1,0 +1,22 @@
+@import "variables";
+
+@mixin flex($direction: row, $justify: center, $align: center) {
+    display: flex;
+    flex-direction: $direction;
+    justify-content: $justify;
+    align-items: $align;
+}
+
+@mixin transition($properties...) {
+    /* Add the timing and easing data together */
+    $transition-data: $transition-timing + " " + $transition-easing + ",";
+
+    $transition: "";
+    @each $prop in $properties {
+        /* Concatenate each property into a single string */
+        $transition: str-insert($transition, $prop + " " + $transition-data, str-length($transition) + 1);
+    }
+
+    /* Remove trailing comma and set the property */
+    transition: unquote(str-slice($transition, 1, str-length($transition) - 1));
+}

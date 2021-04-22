@@ -1,0 +1,15 @@
+@import "../sass/mixins";
+@import "../sass/variables";
+
+:root, button {
+    font-family: "Courier New", monospace;
+    font-size: 16px;
+}
+
+body {
+    @include flex(column);
+    color: $text;
+    background-color: $bg;
+    padding: 1rem;
+    margin: 0;
+}
