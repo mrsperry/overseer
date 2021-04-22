@@ -42,7 +42,7 @@ module.exports = {
         }),
         new CopyWebpackPlugin({
             patterns: [
-                { from: __dirname + "/public/assets/", to: "./" },
+                { from: __dirname + "/public/assets/images", to: "./assets/images" },
                 { from: __dirname + "/public/favicon.ico", to: "./" },
                 { from: __dirname + "/public/site.webmanifest", to: "./" }
             ]
