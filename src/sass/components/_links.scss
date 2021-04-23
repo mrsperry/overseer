@@ -1,3 +1,7 @@
-a {
+@import "../mixins";
+@import "../variables";
+
+a, a:visited {
+    color: var(--text);
     text-decoration: none;
 }

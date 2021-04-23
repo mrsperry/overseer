@@ -3,16 +3,21 @@
 
 button {
     cursor: pointer;
+    color: var(--text);
+    background-color: $bg;
+    outline: none;
+    border: none;
+
+    &:hover, &:active {
+        color: var(--text-hover);
+    }
 }
 
 .bordered-button {
     @include flex(column);
     @include transition(background-color, border-color);
     position: relative;
-    color: var(--text);
-    background-color: $bg;
     text-align: center;
-    outline: none;
     padding: 0.5rem 0rem;
     border: 1px solid $offset-bg;
 
@@ -21,7 +26,6 @@ button {
     }
 
     &:hover, &:active {
-        color: var(--text-hover);
         background-color: $bg-hover;
         border-color: $offset-bg-hover;
 
@@ -72,5 +76,65 @@ button {
             right: -1px;
             border-width: 0px 1px 1px 0px;
         }
+    }
+}
+
+.text-button {
+    @include transition(color);
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+    padding: 0;
+
+    &:before {
+        content: "";
+        position: absolute;
+        transition: left 400ms ease-in-out;
+        background-image: linear-gradient(90deg, var(--text-hover) 50%, var(--text));
+        bottom: 0rem;
+        left: -200%;
+        width: 200%;
+        height: 1px;
+    }
+
+    &.active, &.active-error, &:hover, &:active {
+        color: var(--text-hover);
+
+        &:before {
+            left: 0%;
+        }
+    }
+
+    &.active-error {
+        color: $link-error;
+
+        &:before {
+            background-image: linear-gradient(90deg, $link-error, $link-error);
+        }
+    }
+
+    &.active, &.active-error {
+        cursor: auto;
+    }
+
+    &.warning {
+        color: $link-error;
+
+        &:hover, &:active {
+            color: $link-error-hover;
+        }
+
+        &:before {
+            background-image: linear-gradient(90deg, $link-error-hover 50%, $link-error);
+        }
+    }
+}
+
+.toggle-button {
+    @include transition(color, font-weight);
+
+    &.active {
+        color: var(--text-hover);
+        font-weight: bold;
     }
 }
