@@ -1,7 +1,6 @@
 {
-    "parser": "babel-eslint",
-    "plugins": ["react", "react-hooks"],
-    "extends": ["plugin:react/recommended"],
+    "parser":  "@typescript-eslint/parser",
+    "plugins": ["@typescript-eslint", "react", "react-hooks"],
     "rules": {
         "react-hooks/rules-of-hooks": "warn",
         "react-hooks/exhaustive-deps": "warn",

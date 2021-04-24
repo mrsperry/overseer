@@ -4,13 +4,13 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 module.exports = {
-    entry: "./src/index.jsx",
+    entry: "./src/index.tsx",
     module: {
         rules: [
             {
-                test: /\.(jsx|js)$/,
+                test: /\.(tsx|ts)$/,
                 exclude: /node_modules/,
-                use: ["babel-loader", "eslint-loader"]
+                use: ["babel-loader", "eslint-loader", "ts-loader"]
             },
             {
                 test: /\.scss$/,
@@ -25,7 +25,7 @@ module.exports = {
         ]
     },
     resolve: {
-        extensions: [".jsx", ".js"]
+        extensions: [".tsx", ".ts", ".js"]
     },
     output: {
         path: path.resolve(__dirname, "dist/"),

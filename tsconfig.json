@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+        "strict": true,
+        "allowUnreachableCode": false,
+        "noImplicitAny": true,
+        "noImplicitThis": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noImplicitReturns": true,
+        "forceConsistentCasingInFileNames": true,
+        "strictNullChecks": true,
+        "moduleResolution": "node",
+        "module": "es6",
+        "target": "es5",
+        "jsx": "react",
+        "outDir": "./dist/",
+        "sourceMap": true,
+        "allowSyntheticDefaultImports": false
+    }
+}
