@@ -1,0 +1,45 @@
+@import "../../../sass/mixins";
+
+.settings-menu {
+    .color-picker {
+        @include flex(row, flex-start);
+
+        label {
+            @include flex();
+        }
+
+        input {
+            cursor: pointer;
+            appearance: none;
+            outline: none;
+            border: none;
+            background-color: #00000000;
+            margin: 0rem 0.5rem;
+        }
+
+        .main-text {
+            color: var(--text);
+        }
+
+        .accent-text {
+            color: var(--text-hover);
+        }
+    }
+
+    .stop-searching-automatically {
+        margin-top: 1rem;
+
+        .toggle-button {
+            padding: 0 0.5rem;
+
+            + .toggle-button {
+                border-left: 1px solid $border;
+            }
+        }
+    }
+
+    .resets {
+        @include flex(row, space-around);
+        margin-top: 2rem;
+    }
+}
